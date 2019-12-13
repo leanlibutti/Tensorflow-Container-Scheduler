@@ -215,6 +215,21 @@ class ThreadPool {
   // pointer points to, and should not attempt to delete.
   Eigen::ThreadPoolInterface* AsEigenThreadPool() const;
 
+  //Return whether thread is active in Underlying ThreadPool.
+  bool IsActiveThread(int thread_id);
+
+  int NumActivesThreads();
+
+  int MaxActivesThreads();
+
+  void ChangeMaxActivesThreads(int max_actives);
+
+  bool CancelValue();
+
+  void SetLogging(bool value);
+
+  bool CheckSleep();
+
  private:
   // Divides the work represented by the range [0, total) into k shards.
   // Calls fn(i*block_size, (i+1)*block_size) from the ith shard (0 <= i < k).

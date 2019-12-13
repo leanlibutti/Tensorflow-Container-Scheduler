@@ -267,5 +267,34 @@ Eigen::ThreadPoolInterface* ThreadPool::AsEigenThreadPool() const {
   DCHECK(underlying_threadpool_ != nullptr);
   return underlying_threadpool_;
 }
+
+bool ThreadPool::IsActiveThread(int thread_id) {
+  return underlying_threadpool_->IsActiveThread(thread_id);
+}
+
+int ThreadPool::NumActivesThreads(){
+  return underlying_threadpool_->NumActivesThreads();
+}
+
+void ThreadPool::ChangeMaxActivesThreads(int max_actives){
+  underlying_threadpool_->ChangeMaxActivesThreads(max_actives);
+}
+
+bool ThreadPool::CancelValue(){
+  return underlying_threadpool_->CancelValue();
+}
+
+void ThreadPool::SetLogging(bool value){
+  underlying_threadpool_->SetActivateLogging(value);
+}
+
+int ThreadPool::MaxActivesThreads(){
+  return underlying_threadpool_->MaxActivesThreads();
+}
+
+bool ThreadPool::CheckSleep(){
+    return underlying_threadpool_->CheckSleep();
+}
+
 }  // namespace thread
 }  // namespace tensorflow

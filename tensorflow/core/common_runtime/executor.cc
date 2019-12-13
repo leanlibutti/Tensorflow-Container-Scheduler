@@ -69,6 +69,12 @@ limitations under the License.
 #include "tensorflow/core/profiler/lib/traceme.h"
 #include "tensorflow/core/util/tensor_slice_reader_cache.h"
 
+#include "tensorflow/core/framework/device_base.h"
+#include <iostream>
+#include <sstream>
+#include <thread>
+#include "tensorflow/core/distributed_runtime/rpc/grpc_schedule_client_impl.h"
+
 namespace tensorflow {
 namespace {
 
@@ -1269,6 +1275,7 @@ class ExecutorState {
         front_index_ = 0;
       }
     }
+    int size() const { return ready_.size(); }
     bool empty() const { return ready_.empty(); }
     const TaggedNode* begin() const { return ready_.begin() + front_index_; }
     const TaggedNode* end() const { return ready_.end(); }
@@ -1279,6 +1286,8 @@ class ExecutorState {
   };
 
   struct AsyncState;
+
+  typedef tensorflow::grpc::AsyncScheduleClientImpl ScheduleClient;
 
   const bool vlog_;  // true if VLOG_IS_ON(1). Used to check vlog cheaply.
 
@@ -1339,6 +1348,12 @@ class ExecutorState {
   // number at which the parent frame is creating the new frame, and the
   // name of the new frame from nodedef.
   gtl::FlatMap<string, FrameState*> outstanding_frames_ GUARDED_BY(mu_);
+
+  thread::ThreadPool* inter_threadpool;
+  int max_active_threads_value_;
+  mutex iterations_schedule_mu_;
+  int iterations_schedule_count GUARDED_BY(iterations_schedule_mu_);
+  ScheduleClient* schedule_client_;
 
   // The unique name of a frame.
   inline string MakeFrameName(FrameState* frame, int64 iter_id,
@@ -1442,7 +1457,10 @@ ExecutorState::ExecutorState(const Executor::Args& args, ExecutorImpl* impl)
       cancellation_manager_(args.cancellation_manager),
       runner_(args.runner),
       sync_on_finish_(args.sync_on_finish),
-      num_outstanding_ops_(0) {
+      num_outstanding_ops_(0),
+      inter_threadpool(args.inter_threadpool),
+      max_active_threads_value_(1),
+      iterations_schedule_count(0) {
   if (args.user_intra_op_threadpool != nullptr) {
     Device* device = impl_->params_.device;
     user_device_ = RenamedDevice::NewRenamedDevice(
@@ -1462,6 +1480,9 @@ ExecutorState::ExecutorState(const Executor::Args& args, ExecutorImpl* impl)
                             root_frame_->total_input_tensors));
 
   outstanding_frames_.insert({root_frame_->frame_name, root_frame_});
+
+  std::shared_ptr<::grpc::Channel> channel = ::grpc::CreateChannel("localhost:50051", ::grpc::InsecureChannelCredentials());
+  schedule_client_= new ScheduleClient(channel);
 }
 
 ExecutorState::~ExecutorState() {
@@ -2130,6 +2151,9 @@ void ExecutorState::PropagateOutputs(const TaggedNode& tagged_node,
       },
       profiler::GetTFTraceMeLevel(/*is_expensive=*/false));
 
+  int thread_id=-2;
+  if(inter_threadpool!=nullptr) thread_id= inter_threadpool->CurrentThreadId();
+
   FrameState* input_frame = tagged_node.input_frame;
   const int64 input_iter = tagged_node.input_iter;
   const bool is_dead = tagged_node.is_dead;
@@ -2295,6 +2319,29 @@ bool ExecutorState::NodeDone(const Status& s, const TaggedNodeSeq& ready,
 
 void ExecutorState::ScheduleReady(const TaggedNodeSeq& ready,
                                   TaggedNodeReadyQueue* inline_ready) {
+  bool not_sleep_thread= true;
+  int actives_threads= 0;
+  int thread_id= -2;
+  if(inter_threadpool!= nullptr){
+    //actives_threads= inter_threadpool->NumActivesThreads();
+    thread_id= inter_threadpool->CurrentThreadId();
+    //not_sleep_thread= inter_threadpool->IsActiveThread(thread_id);
+    not_sleep_thread= inter_threadpool->CheckSleep();
+
+    mutex_lock l(iterations_schedule_mu_);
+    {
+      iterations_schedule_count++;
+      if(iterations_schedule_count==300){
+        VLOG(0) << "Change Max Actives Threads (Decrement)";
+        inter_threadpool->ChangeMaxActivesThreads(2);
+      }
+      if(iterations_schedule_count==2000){
+        VLOG(0) << "Change Max Actives Threads (Increment)";
+        inter_threadpool->ChangeMaxActivesThreads(12);
+      }
+    }
+  }
+
   if (ready.empty()) return;
 
   int64 scheduled_nsec = 0;
@@ -2312,21 +2359,29 @@ void ExecutorState::ScheduleReady(const TaggedNodeSeq& ready,
 
   const TaggedNode* curr_expensive_node = nullptr;
   for (auto& tagged_node : ready) {
+
     const NodeItem& item = *tagged_node.node_item;
-    if (tagged_node.is_dead || !item.kernel->IsExpensive()) {
+    if ((tagged_node.is_dead || !item.kernel->IsExpensive())&&(not_sleep_thread)) { //line modified
       // Inline this inexpensive node.
       inline_ready->push_back(tagged_node);
-    } else {
-      if (curr_expensive_node) {
+    } 
+    else{
+      if(not_sleep_thread){
+        if (curr_expensive_node) {
         // Dispatch to another thread since there is plenty of work to
         // do for this thread.
         runner_(std::bind(&ExecutorState::Process, this, *curr_expensive_node,
                           scheduled_nsec));
+        } 
+        curr_expensive_node = &tagged_node;
       }
-      curr_expensive_node = &tagged_node;
+      else{
+        runner_(std::bind(&ExecutorState::Process, this, tagged_node,
+                  scheduled_nsec));     
+      }
     }
   }
-  if (curr_expensive_node) {
+  if ((curr_expensive_node)&&(not_sleep_thread)) {
     if (inline_ready->empty()) {
       inline_ready->push_back(*curr_expensive_node);
     } else {
@@ -2334,6 +2389,12 @@ void ExecutorState::ScheduleReady(const TaggedNodeSeq& ready,
       // node to other thread.
       runner_(std::bind(&ExecutorState::Process, this, *curr_expensive_node,
                         scheduled_nsec));
+    }
+  }
+  else{
+    if(curr_expensive_node){
+      runner_(std::bind(&ExecutorState::Process, this, *curr_expensive_node,
+                  scheduled_nsec)); 
     }
   }
 }
