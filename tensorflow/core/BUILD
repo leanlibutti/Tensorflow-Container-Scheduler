@@ -2013,6 +2013,19 @@ tf_proto_library_cc(
     ],
 )
 
+tf_proto_library_cc(
+    name = "schedule_service_proto",
+    srcs = ["protobuf/schedule_service.proto"],
+    has_services = 1,
+    cc_api_version = 2,
+    cc_grpc_version = 1,
+    cc_stubby_versions = ["2"],
+    protodeps = tf_additional_all_protos(),
+    visibility = [
+        "//tensorflow:internal",
+    ],
+)
+
 LIB_INTERNAL_PRIVATE_HEADERS = [
     "//tensorflow/core/framework:resource_handle.h",
     "//tensorflow/core/platform:legacy_lib_internal_headers",
@@ -2954,6 +2967,7 @@ tf_cuda_library(
         "//tensorflow/core/grappler/utils:functions",
         "//tensorflow/core/profiler/lib:scoped_annotation",
         "//tensorflow/core/profiler/lib:traceme",
+        "//tensorflow/core/distributed_runtime/rpc:grpc_schedule_client_impl",
     ] + mkl_deps(),
     alwayslink = 1,
 )
