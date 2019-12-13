@@ -253,6 +253,25 @@ cc_library(
 )
 
 cc_library(
+    name = "grpc_schedule_client_impl",
+    srcs = ["grpc_schedule_client_impl.cc"],
+    hdrs = ["grpc_schedule_client_impl.h"],
+    deps = [
+        ":grpc_util",
+        ":grpc_channel",
+        ":grpc_client_cq_tag",
+        ":grpc_state",
+        "//tensorflow:grpc",
+        "//tensorflow:grpc++",
+        "//tensorflow/core:lib",
+        "//tensorflow/core:lib_internal",
+        "//tensorflow/core:schedule_service_proto_cc",
+        "//tensorflow/core/profiler/lib:traceme",
+    ],
+    alwayslink = 1,
+)
+
+cc_library(
     name = "grpc_master_service_impl",
     srcs = ["grpc_master_service_impl.cc"],
     hdrs = ["grpc_master_service_impl.h"],

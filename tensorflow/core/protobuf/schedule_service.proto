@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package tensorflow.grpc;
+
+message ClientRequest{
+	//Indicates if the client starts or end the execution graph
+	int32 state=1;
+	string type_device=2;
+	int32 num_type_device=3;
+}
+
+message ServerReply{
+	int32 client_id=1;
+	int32 num_threads=2;
+}
+
+service ScheduleService{
+	
+	rpc RequestSchedule(stream ClientRequest) returns (stream ServerReply);
+
+}
