@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html><head><title>How to compile TensorFlow 1.12 on Ubuntu 16.04 using Docker – Medium</title><meta name="description" content="You can't perform that action at this time. You signed in with another tab or window. You signed out in another tab or window. Reload to refresh your session. Reload to refresh your session."><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="twitter:widgets:csp" content="on"><meta name="robots" content="noindex"><!-- base href="https://towardsdatascience.com/media/a2378647d067d1bd6cb9de33257891de" --><style>body {text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: "ff-tisa-web-pro", Georgia, Cambria, "Times New Roman", Times, serif; font-weight: 400; color: #333332; font-size: 18px; line-height: 1.4; margin: 0; background-color: white; overflow: hidden;}iframe {max-width: 100%;}</style><script>(function(){var a=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(){this.requestMethod=arguments[0],a.apply(this,arguments)};var h=XMLHttpRequest.prototype.send;XMLHttpRequest.prototype.send=function(){var i=this.onreadystatechange;return this.onreadystatechange=function(){if(4===this.readyState){var j='detector',k={posdMessageId:'PANELOS_MESSAGE',type:'VIDEO_XHR_CANDIDATE',from:j,to:j.substring(0,j.length-2),content:{requestMethod:this.requestMethod,url:this.responseURL,type:this.getResponseHeader('content-type'),content:this.response}};window.postMessage(k,'*')}return i?i.apply(this,arguments):void 0},h.apply(this,arguments)}})();</script></head><body bis_status="ok"><style>.gist .gist-file { margin-bottom: 0 !important; }.gist { text-rendering: auto; }</style><script src="a2378647d067d1bd6cb9de33257891de_data/3898e1405bb3a024acfb9bb9eef132c3.js" charset="utf-8"></script><link rel="stylesheet" href="a2378647d067d1bd6cb9de33257891de_data/gist-embed-123720f37c57ce9a8f29de081c38ed61.css"><div id="gist95473784" class="gist">
+    <div class="gist-file">
+      <div class="gist-data">
+        <div class="js-gist-file-update-container js-task-list-container file-box">
+  <div id="file-dockerfile" class="file">
+    
+
+  <div itemprop="text" class="Box-body p-0 blob-wrapper data type-dockerfile ">
+      
+<table class="highlight tab-size js-file-line-container" data-tab-size="8">
+      <tbody><tr>
+        <td id="file-dockerfile-L1" class="blob-num js-line-number" data-line-number="1"></td>
+        <td id="file-dockerfile-LC1" class="blob-code blob-code-inner js-file-line"><span class="pl-k">FROM</span> nvidia/cuda:9.0-base-ubuntu16.04</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L2" class="blob-num js-line-number" data-line-number="2"></td>
+        <td id="file-dockerfile-LC2" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L3" class="blob-num js-line-number" data-line-number="3"></td>
+        <td id="file-dockerfile-LC3" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> apt-get update &amp;&amp; apt-get install -y --no-install-recommends \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L4" class="blob-num js-line-number" data-line-number="4"></td>
+        <td id="file-dockerfile-LC4" class="blob-code blob-code-inner js-file-line">        build-essential \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L5" class="blob-num js-line-number" data-line-number="5"></td>
+        <td id="file-dockerfile-LC5" class="blob-code blob-code-inner js-file-line">        cuda-command-line-tools-9-0 \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L6" class="blob-num js-line-number" data-line-number="6"></td>
+        <td id="file-dockerfile-LC6" class="blob-code blob-code-inner js-file-line">        cuda-cublas-dev-9-0 \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L7" class="blob-num js-line-number" data-line-number="7"></td>
+        <td id="file-dockerfile-LC7" class="blob-code blob-code-inner js-file-line">        cuda-cudart-dev-9-0 \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L8" class="blob-num js-line-number" data-line-number="8"></td>
+        <td id="file-dockerfile-LC8" class="blob-code blob-code-inner js-file-line">        cuda-cufft-dev-9-0 \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L9" class="blob-num js-line-number" data-line-number="9"></td>
+        <td id="file-dockerfile-LC9" class="blob-code blob-code-inner js-file-line">        cuda-curand-dev-9-0 \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L10" class="blob-num js-line-number" data-line-number="10"></td>
+        <td id="file-dockerfile-LC10" class="blob-code blob-code-inner js-file-line">        cuda-cusolver-dev-9-0 \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L11" class="blob-num js-line-number" data-line-number="11"></td>
+        <td id="file-dockerfile-LC11" class="blob-code blob-code-inner js-file-line">        cuda-cusparse-dev-9-0 \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L12" class="blob-num js-line-number" data-line-number="12"></td>
+        <td id="file-dockerfile-LC12" class="blob-code blob-code-inner js-file-line">        curl \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L13" class="blob-num js-line-number" data-line-number="13"></td>
+        <td id="file-dockerfile-LC13" class="blob-code blob-code-inner js-file-line">        git \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L14" class="blob-num js-line-number" data-line-number="14"></td>
+        <td id="file-dockerfile-LC14" class="blob-code blob-code-inner js-file-line">        libcudnn7=7.2.1.38-1+cuda9.0 \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L15" class="blob-num js-line-number" data-line-number="15"></td>
+        <td id="file-dockerfile-LC15" class="blob-code blob-code-inner js-file-line">        libcudnn7-dev=7.2.1.38-1+cuda9.0 \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L16" class="blob-num js-line-number" data-line-number="16"></td>
+        <td id="file-dockerfile-LC16" class="blob-code blob-code-inner js-file-line">	libnccl2=2.4.2-1+cuda9.0 \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L17" class="blob-num js-line-number" data-line-number="17"></td>
+        <td id="file-dockerfile-LC17" class="blob-code blob-code-inner js-file-line">	libnccl-dev=2.4.2-1+cuda9.0 \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L18" class="blob-num js-line-number" data-line-number="18"></td>
+        <td id="file-dockerfile-LC18" class="blob-code blob-code-inner js-file-line">        libcurl3-dev \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L19" class="blob-num js-line-number" data-line-number="19"></td>
+        <td id="file-dockerfile-LC19" class="blob-code blob-code-inner js-file-line">        libfreetype6-dev \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L20" class="blob-num js-line-number" data-line-number="20"></td>
+        <td id="file-dockerfile-LC20" class="blob-code blob-code-inner js-file-line">        libhdf5-serial-dev \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L21" class="blob-num js-line-number" data-line-number="21"></td>
+        <td id="file-dockerfile-LC21" class="blob-code blob-code-inner js-file-line">        libpng12-dev \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L22" class="blob-num js-line-number" data-line-number="22"></td>
+        <td id="file-dockerfile-LC22" class="blob-code blob-code-inner js-file-line">        libzmq3-dev \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L23" class="blob-num js-line-number" data-line-number="23"></td>
+        <td id="file-dockerfile-LC23" class="blob-code blob-code-inner js-file-line">        pkg-config \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L24" class="blob-num js-line-number" data-line-number="24"></td>
+        <td id="file-dockerfile-LC24" class="blob-code blob-code-inner js-file-line">        rsync \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L25" class="blob-num js-line-number" data-line-number="25"></td>
+        <td id="file-dockerfile-LC25" class="blob-code blob-code-inner js-file-line">        software-properties-common \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L26" class="blob-num js-line-number" data-line-number="26"></td>
+        <td id="file-dockerfile-LC26" class="blob-code blob-code-inner js-file-line">        unzip \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L27" class="blob-num js-line-number" data-line-number="27"></td>
+        <td id="file-dockerfile-LC27" class="blob-code blob-code-inner js-file-line">        zip \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L28" class="blob-num js-line-number" data-line-number="28"></td>
+        <td id="file-dockerfile-LC28" class="blob-code blob-code-inner js-file-line">        zlib1g-dev \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L29" class="blob-num js-line-number" data-line-number="29"></td>
+        <td id="file-dockerfile-LC29" class="blob-code blob-code-inner js-file-line">        wget \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L30" class="blob-num js-line-number" data-line-number="30"></td>
+        <td id="file-dockerfile-LC30" class="blob-code blob-code-inner js-file-line">        &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L31" class="blob-num js-line-number" data-line-number="31"></td>
+        <td id="file-dockerfile-LC31" class="blob-code blob-code-inner js-file-line">    rm -rf /var/lib/apt/lists/* &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L32" class="blob-num js-line-number" data-line-number="32"></td>
+        <td id="file-dockerfile-LC32" class="blob-code blob-code-inner js-file-line">    find /usr/local/cuda-9.0/lib64/ -type f -name <span class="pl-s">'lib*_static.a'</span> -not -name <span class="pl-s">'libcudart_static.a'</span> -delete &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L33" class="blob-num js-line-number" data-line-number="33"></td>
+        <td id="file-dockerfile-LC33" class="blob-code blob-code-inner js-file-line">    rm /usr/lib/x86_64-linux-gnu/libcudnn_static_v7.a</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L34" class="blob-num js-line-number" data-line-number="34"></td>
+        <td id="file-dockerfile-LC34" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L35" class="blob-num js-line-number" data-line-number="35"></td>
+        <td id="file-dockerfile-LC35" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">#</span> install python 3.6 and pip</span></td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L36" class="blob-num js-line-number" data-line-number="36"></td>
+        <td id="file-dockerfile-LC36" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L37" class="blob-num js-line-number" data-line-number="37"></td>
+        <td id="file-dockerfile-LC37" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> apt-get update</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L38" class="blob-num js-line-number" data-line-number="38"></td>
+        <td id="file-dockerfile-LC38" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> apt-get install -y software-properties-common vim</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L39" class="blob-num js-line-number" data-line-number="39"></td>
+        <td id="file-dockerfile-LC39" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> add-apt-repository ppa:jonathonf/python-3.6</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L40" class="blob-num js-line-number" data-line-number="40"></td>
+        <td id="file-dockerfile-LC40" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> apt-get update</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L41" class="blob-num js-line-number" data-line-number="41"></td>
+        <td id="file-dockerfile-LC41" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L42" class="blob-num js-line-number" data-line-number="42"></td>
+        <td id="file-dockerfile-LC42" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> apt-get install -y build-essential python3.6 python3.6-dev python3-pip python3.6-venv</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L43" class="blob-num js-line-number" data-line-number="43"></td>
+        <td id="file-dockerfile-LC43" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> apt-get install -y git</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L44" class="blob-num js-line-number" data-line-number="44"></td>
+        <td id="file-dockerfile-LC44" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L45" class="blob-num js-line-number" data-line-number="45"></td>
+        <td id="file-dockerfile-LC45" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> apt-get update &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L46" class="blob-num js-line-number" data-line-number="46"></td>
+        <td id="file-dockerfile-LC46" class="blob-code blob-code-inner js-file-line">        apt-get install nvinfer-runtime-trt-repo-ubuntu1604-4.0.1-ga-cuda9.0 &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L47" class="blob-num js-line-number" data-line-number="47"></td>
+        <td id="file-dockerfile-LC47" class="blob-code blob-code-inner js-file-line">        apt-get update &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L48" class="blob-num js-line-number" data-line-number="48"></td>
+        <td id="file-dockerfile-LC48" class="blob-code blob-code-inner js-file-line">        apt-get install libnvinfer4=4.1.2-1+cuda9.0 &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L49" class="blob-num js-line-number" data-line-number="49"></td>
+        <td id="file-dockerfile-LC49" class="blob-code blob-code-inner js-file-line">        apt-get install libnvinfer-dev=4.1.2-1+cuda9.0</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L50" class="blob-num js-line-number" data-line-number="50"></td>
+        <td id="file-dockerfile-LC50" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L51" class="blob-num js-line-number" data-line-number="51"></td>
+        <td id="file-dockerfile-LC51" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> python3.6 -m pip install pip --upgrade</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L52" class="blob-num js-line-number" data-line-number="52"></td>
+        <td id="file-dockerfile-LC52" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> python3.6 -m pip install wheel </td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L53" class="blob-num js-line-number" data-line-number="53"></td>
+        <td id="file-dockerfile-LC53" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> python3.6 -m pip install six numpy wheel mock</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L54" class="blob-num js-line-number" data-line-number="54"></td>
+        <td id="file-dockerfile-LC54" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> python3.6 -m pip install keras_applications</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L55" class="blob-num js-line-number" data-line-number="55"></td>
+        <td id="file-dockerfile-LC55" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> python3.6 -m pip install keras_preprocessing</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L56" class="blob-num js-line-number" data-line-number="56"></td>
+        <td id="file-dockerfile-LC56" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L57" class="blob-num js-line-number" data-line-number="57"></td>
+        <td id="file-dockerfile-LC57" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> ln -s /usr/bin/python3.6 /usr/bin/python</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L58" class="blob-num js-line-number" data-line-number="58"></td>
+        <td id="file-dockerfile-LC58" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L59" class="blob-num js-line-number" data-line-number="59"></td>
+        <td id="file-dockerfile-LC59" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L60" class="blob-num js-line-number" data-line-number="60"></td>
+        <td id="file-dockerfile-LC60" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">#</span> Set up Bazel.</span></td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L61" class="blob-num js-line-number" data-line-number="61"></td>
+        <td id="file-dockerfile-LC61" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L62" class="blob-num js-line-number" data-line-number="62"></td>
+        <td id="file-dockerfile-LC62" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">#</span> Running bazel inside a `docker build` command causes trouble, cf:</span></td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L63" class="blob-num js-line-number" data-line-number="63"></td>
+        <td id="file-dockerfile-LC63" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">#</span>   https://github.com/bazelbuild/bazel/issues/134</span></td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L64" class="blob-num js-line-number" data-line-number="64"></td>
+        <td id="file-dockerfile-LC64" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">#</span> The easiest solution is to set up a bazelrc file forcing --batch.</span></td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L65" class="blob-num js-line-number" data-line-number="65"></td>
+        <td id="file-dockerfile-LC65" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> echo <span class="pl-s">"startup --batch"</span> &gt;&gt;/etc/bazel.bazelrc</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L66" class="blob-num js-line-number" data-line-number="66"></td>
+        <td id="file-dockerfile-LC66" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">#</span> Similarly, we need to workaround sandboxing issues:</span></td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L67" class="blob-num js-line-number" data-line-number="67"></td>
+        <td id="file-dockerfile-LC67" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">#</span>   https://github.com/bazelbuild/bazel/issues/418</span></td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L68" class="blob-num js-line-number" data-line-number="68"></td>
+        <td id="file-dockerfile-LC68" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> echo <span class="pl-s">"build --spawn_strategy=standalone --genrule_strategy=standalone"</span> \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L69" class="blob-num js-line-number" data-line-number="69"></td>
+        <td id="file-dockerfile-LC69" class="blob-code blob-code-inner js-file-line">    &gt;&gt;/etc/bazel.bazelrc</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L70" class="blob-num js-line-number" data-line-number="70"></td>
+        <td id="file-dockerfile-LC70" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">#</span> Install the most recent bazel release.</span></td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L71" class="blob-num js-line-number" data-line-number="71"></td>
+        <td id="file-dockerfile-LC71" class="blob-code blob-code-inner js-file-line"><span class="pl-k">ENV</span> BAZEL_VERSION 0.15.0</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L72" class="blob-num js-line-number" data-line-number="72"></td>
+        <td id="file-dockerfile-LC72" class="blob-code blob-code-inner js-file-line"><span class="pl-k">WORKDIR</span> /</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L73" class="blob-num js-line-number" data-line-number="73"></td>
+        <td id="file-dockerfile-LC73" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> mkdir /bazel &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L74" class="blob-num js-line-number" data-line-number="74"></td>
+        <td id="file-dockerfile-LC74" class="blob-code blob-code-inner js-file-line">    cd /bazel &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L75" class="blob-num js-line-number" data-line-number="75"></td>
+        <td id="file-dockerfile-LC75" class="blob-code blob-code-inner js-file-line">    curl -H <span class="pl-s">"User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36"</span>
+ -fSsL -O 
+https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh
+ &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L76" class="blob-num js-line-number" data-line-number="76"></td>
+        <td id="file-dockerfile-LC76" class="blob-code blob-code-inner js-file-line">    curl -H <span class="pl-s">"User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36"</span> -fSsL -o /bazel/LICENSE.txt https://raw.githubusercontent.com/bazelbuild/bazel/master/LICENSE &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L77" class="blob-num js-line-number" data-line-number="77"></td>
+        <td id="file-dockerfile-LC77" class="blob-code blob-code-inner js-file-line">    chmod +x bazel-*.sh &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L78" class="blob-num js-line-number" data-line-number="78"></td>
+        <td id="file-dockerfile-LC78" class="blob-code blob-code-inner js-file-line">    ./bazel-$BAZEL_VERSION-installer-linux-x86_64.sh &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L79" class="blob-num js-line-number" data-line-number="79"></td>
+        <td id="file-dockerfile-LC79" class="blob-code blob-code-inner js-file-line">    cd / &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L80" class="blob-num js-line-number" data-line-number="80"></td>
+        <td id="file-dockerfile-LC80" class="blob-code blob-code-inner js-file-line">    rm -f /bazel/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L81" class="blob-num js-line-number" data-line-number="81"></td>
+        <td id="file-dockerfile-LC81" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L82" class="blob-num js-line-number" data-line-number="82"></td>
+        <td id="file-dockerfile-LC82" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L83" class="blob-num js-line-number" data-line-number="83"></td>
+        <td id="file-dockerfile-LC83" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L84" class="blob-num js-line-number" data-line-number="84"></td>
+        <td id="file-dockerfile-LC84" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L85" class="blob-num js-line-number" data-line-number="85"></td>
+        <td id="file-dockerfile-LC85" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">#</span> Download and build TensorFlow.</span></td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L86" class="blob-num js-line-number" data-line-number="86"></td>
+        <td id="file-dockerfile-LC86" class="blob-code blob-code-inner js-file-line"><span class="pl-k">WORKDIR</span> /tensorflow</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L87" class="blob-num js-line-number" data-line-number="87"></td>
+        <td id="file-dockerfile-LC87" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> git clone --branch=r1.12 --depth=1 https://github.com/tensorflow/tensorflow.git .</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L88" class="blob-num js-line-number" data-line-number="88"></td>
+        <td id="file-dockerfile-LC88" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L89" class="blob-num js-line-number" data-line-number="89"></td>
+        <td id="file-dockerfile-LC89" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">#</span> Configure the build for our CUDA configuration.</span></td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L90" class="blob-num js-line-number" data-line-number="90"></td>
+        <td id="file-dockerfile-LC90" class="blob-code blob-code-inner js-file-line"><span class="pl-k">ENV</span> CI_BUILD_PYTHON python3.6</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L91" class="blob-num js-line-number" data-line-number="91"></td>
+        <td id="file-dockerfile-LC91" class="blob-code blob-code-inner js-file-line"><span class="pl-k">ENV</span> LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L92" class="blob-num js-line-number" data-line-number="92"></td>
+        <td id="file-dockerfile-LC92" class="blob-code blob-code-inner js-file-line"><span class="pl-k">ENV</span> TF_NEED_CUDA 1</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L93" class="blob-num js-line-number" data-line-number="93"></td>
+        <td id="file-dockerfile-LC93" class="blob-code blob-code-inner js-file-line"><span class="pl-k">ENV</span> TF_NEED_TENSORRT 1</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L94" class="blob-num js-line-number" data-line-number="94"></td>
+        <td id="file-dockerfile-LC94" class="blob-code blob-code-inner js-file-line"><span class="pl-k">ENV</span> TF_CUDA_COMPUTE_CAPABILITIES=3.5,5.2,6.0,6.1,7.0</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L95" class="blob-num js-line-number" data-line-number="95"></td>
+        <td id="file-dockerfile-LC95" class="blob-code blob-code-inner js-file-line"><span class="pl-k">ENV</span> TF_CUDA_VERSION=9.0</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L96" class="blob-num js-line-number" data-line-number="96"></td>
+        <td id="file-dockerfile-LC96" class="blob-code blob-code-inner js-file-line"><span class="pl-k">ENV</span> TF_CUDNN_VERSION=7</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L97" class="blob-num js-line-number" data-line-number="97"></td>
+        <td id="file-dockerfile-LC97" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L98" class="blob-num js-line-number" data-line-number="98"></td>
+        <td id="file-dockerfile-LC98" class="blob-code blob-code-inner js-file-line"><span class="pl-k">RUN</span> ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L99" class="blob-num js-line-number" data-line-number="99"></td>
+        <td id="file-dockerfile-LC99" class="blob-code blob-code-inner js-file-line">    LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:${LD_LIBRARY_PATH} \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L100" class="blob-num js-line-number" data-line-number="100"></td>
+        <td id="file-dockerfile-LC100" class="blob-code blob-code-inner js-file-line">    tensorflow/tools/ci_build/builds/configured GPU \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L101" class="blob-num js-line-number" data-line-number="101"></td>
+        <td id="file-dockerfile-LC101" class="blob-code blob-code-inner js-file-line">    bazel build -c opt --copt=-mavx --config=cuda \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L102" class="blob-num js-line-number" data-line-number="102"></td>
+        <td id="file-dockerfile-LC102" class="blob-code blob-code-inner js-file-line">	--cxxopt=<span class="pl-s">"-D_GLIBCXX_USE_CXX11_ABI=0"</span> \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L103" class="blob-num js-line-number" data-line-number="103"></td>
+        <td id="file-dockerfile-LC103" class="blob-code blob-code-inner js-file-line">        tensorflow/tools/pip_package:build_pip_package &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L104" class="blob-num js-line-number" data-line-number="104"></td>
+        <td id="file-dockerfile-LC104" class="blob-code blob-code-inner js-file-line">    rm /usr/local/cuda/lib64/stubs/libcuda.so.1 &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L105" class="blob-num js-line-number" data-line-number="105"></td>
+        <td id="file-dockerfile-LC105" class="blob-code blob-code-inner js-file-line">    bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/pip &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L106" class="blob-num js-line-number" data-line-number="106"></td>
+        <td id="file-dockerfile-LC106" class="blob-code blob-code-inner js-file-line">    pip --no-cache-dir install --upgrade /tmp/pip/tensorflow-*.whl &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L107" class="blob-num js-line-number" data-line-number="107"></td>
+        <td id="file-dockerfile-LC107" class="blob-code blob-code-inner js-file-line">    rm -rf /tmp/pip &amp;&amp; \</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L108" class="blob-num js-line-number" data-line-number="108"></td>
+        <td id="file-dockerfile-LC108" class="blob-code blob-code-inner js-file-line">    rm -rf /root/.cache</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L109" class="blob-num js-line-number" data-line-number="109"></td>
+        <td id="file-dockerfile-LC109" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">#</span> Clean up pip wheel and Bazel cache when done.</span></td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L110" class="blob-num js-line-number" data-line-number="110"></td>
+        <td id="file-dockerfile-LC110" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L111" class="blob-num js-line-number" data-line-number="111"></td>
+        <td id="file-dockerfile-LC111" class="blob-code blob-code-inner js-file-line"><span class="pl-k">WORKDIR</span> /root</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L112" class="blob-num js-line-number" data-line-number="112"></td>
+        <td id="file-dockerfile-LC112" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L113" class="blob-num js-line-number" data-line-number="113"></td>
+        <td id="file-dockerfile-LC113" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">#</span> TensorBoard</span></td>
+      </tr>
+      <tr>
+        <td id="file-dockerfile-L114" class="blob-num js-line-number" data-line-number="114"></td>
+        <td id="file-dockerfile-LC114" class="blob-code blob-code-inner js-file-line"><span class="pl-k">EXPOSE</span> 6006</td>
+      </tr>
+</tbody></table>
+
+
+  </div>
+
+  </div>
+</div>
+
+      </div>
+      <div class="gist-meta">
+        <a href="https://gist.github.com/yochze/3898e1405bb3a024acfb9bb9eef132c3/raw/6b057bd8745b0fb8b6fb367b9198a8aaf3784b40/Dockerfile" style="float:right">view raw</a>
+        <a href="https://gist.github.com/yochze/3898e1405bb3a024acfb9bb9eef132c3#file-dockerfile">Dockerfile</a>
+        hosted with ❤ by <a href="https://github.com/">GitHub</a>
+      </div>
+    </div>
+</div>
+<script>var height = -1; var delayMs = 200; if (document) {document.domain = document.domain;}function notifyResize(height) {height = height ? height : document.documentElement.offsetHeight; var resized = false; if (window.donkey && donkey.resize) {donkey.resize(height);var elements = document.getElementsByClassName("gist-data"); for (var i = 0; i < elements.length; i++) {elements[i].style.overflow = "visible"}resized = true;}if (parent && parent._resizeIframe) {var obj = {iframe: window.frameElement, height: height}; parent._resizeIframe(obj); resized = true;}if (window.location && window.location.hash === "#amp=1" && window.parent && window.parent.postMessage) {window.parent.postMessage({sentinel: "amp", type: "embed-size", height: height}, "*");}if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.resize) {window.webkit.messageHandlers.resize.postMessage(height); resized = true;}return resized;}function maybeResize() {try {if (document.documentElement.offsetHeight != height && notifyResize()) {height = document.documentElement.offsetHeight;}delayMs = Math.min(delayMs * 2, 1000000); setTimeout(maybeResize, delayMs);} catch(error) {console.log('maybeResize error: ', error)}}maybeResize();</script></body></html>
