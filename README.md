@@ -39,7 +39,7 @@ See all the [mailing lists](https://www.tensorflow.org/community/forums).
 
 4- Enter the tensorflow_master folder from the command console.
 
-5- Execute "docker build -f ./devel-cpu.Dockerfile -t tf ."
+5- Execute "docker build -f ./tensorflow-cpu.Dockerfile -t tf ."
 
 6- Execute "docker run -v $(pwd):/my-devel -it tf". The container of the builded image will open.
 
