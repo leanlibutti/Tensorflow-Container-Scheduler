@@ -1,3 +1,13 @@
+Installation Guide (Docker Malleable Tensorflow 2.0.0) 
+
+1- Download this folder
+2- Unzip the folder where you want.
+3- Start a linux command console.
+4- Enter the tensorflow_master folder from the command console.
+5- Execute "docker build -f ./devel-cpu.Dockerfile -t tf ."
+6- Execute "docker run -v $(pwd):/my-devel -it tf". The container of the builded image will open.
+
+
 <div align="center">
   <img src="https://www.tensorflow.org/images/tf_logo_social.png">
 </div>

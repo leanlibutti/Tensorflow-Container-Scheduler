@@ -1,3 +1,24 @@
+# Copyright 2018 The TensorFlow Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ============================================================================
+#
+# THIS IS A GENERATED DOCKERFILE.
+#
+# This file was assembled from multiple pieces, whose use is documented
+# throughout. Please refer to the TensorFlow dockerfiles documentation
+# for more information.
+
 ARG UBUNTU_VERSION=18.04
 
 FROM ubuntu:${UBUNTU_VERSION} AS base
@@ -12,7 +33,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libzmq3-dev \
         pkg-config \
         rsync \
-        wget \
         software-properties-common \
 	sudo \
         unzip \
@@ -24,30 +44,65 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-ENV CI_BUILD_PYTHON python3.6
+ENV CI_BUILD_PYTHON python
 
-# In case of Python 2.7+ we need to add passwd entries for user and group id
+# CACHE_STOP is used to rerun future commands, otherwise cloning tensorflow will be cached and will not pull the most recent version
+ARG CACHE_STOP=1
+# Check out TensorFlow source code if --build-arg CHECKOUT_TF_SRC=1
+ARG CHECKOUT_TF_SRC=0
+
 RUN chmod a+w /etc/passwd /etc/group
+#RUN test "${CHECKOUT_TF_SRC}" -eq 1 && git clone https://github.com/tensorflow/tensorflow.git /tensorflow_src || true
+
 ADD . /tensorflow_src
 
-#RUN apt-get install -y software-properties-common vim
-RUN add-apt-repository ppa:deadsnakes/ppa
-#RUN add-apt-repository ppa:jonathonf/python-3.6
-RUN apt-get update
+ARG USE_PYTHON_3_NOT_2=1
+ARG _PY_SUFFIX=${USE_PYTHON_3_NOT_2:+3}
+ARG PYTHON=python${_PY_SUFFIX}
+ARG PIP=pip${_PY_SUFFIX}
 
-RUN apt-get install -y build-essential python3.6 python3.6-dev python3-pip python3.6-venv
-RUN apt-get install -y git
+# See http://bugs.python.org/issue19846
+ENV LANG C.UTF-8
 
-RUN python3.6 -m pip install pip --upgrade
-RUN python3.6 -m pip install wheel 
-RUN python3.6 -m pip install six numpy wheel mock
-RUN python3.6 -m pip install keras_applications
-RUN python3.6 -m pip install keras_preprocessing
+RUN apt-get update && apt-get install -y \
+    ${PYTHON} \
+    ${PYTHON}-pip
 
-RUN ln -s /usr/bin/python3.6 /usr/bin/python
+RUN ${PIP} --no-cache-dir install --upgrade \
+    pip \
+    setuptools
+
+# Some TF tools expect a "python" binary
+RUN ln -s $(which ${PYTHON}) /usr/local/bin/python 
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    wget \
+    openjdk-8-jdk \
+    ${PYTHON}-dev \
+    virtualenv \
+    swig
+
+RUN ${PIP} --no-cache-dir install \
+    Pillow \
+    h5py \
+    keras_applications \
+    keras_preprocessing \
+    matplotlib \
+    mock \
+    numpy \
+    scipy \
+    sklearn \
+    pandas \
+    future \
+    portpicker \
+    && test "${USE_PYTHON_3_NOT_2}" -eq 1 && true || ${PIP} --no-cache-dir install \
+    enum34
 
 # Install bazel
-ARG BAZEL_VERSION=1.1.0
+ARG BAZEL_VERSION=0.26.1
 RUN mkdir /bazel && \
     wget -O /bazel/installer.sh "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh" && \
     wget -O /bazel/LICENSE.txt "https://raw.githubusercontent.com/bazelbuild/bazel/master/LICENSE" && \
@@ -55,27 +110,23 @@ RUN mkdir /bazel && \
     /bazel/installer.sh && \
     rm -f /bazel/installer.sh
 
-#COPY bashrc /etc/bash.bashrc
-#RUN chmod a+rwx /etc/bash.bashrc
+RUN ls 
 
-WORKDIR /tensorflow_src
+#RUN cd /tensorflow_src && \
+#    bazel build //tensorflow/tools/pip_package:build_pip_package && \
+#    rm tensorflow/core/common_runtime/executor.cc && \ 
+#    rm tensorflow/core/platform/threadpool.* && \
+#    cp Modify_Archives/core/common_runtime/executor.cc tensorflow/core/common_runtime && \
+#    cp Modify_Archives/core/platform/* tensorflow/core/platform && \
+#    cp Modify_Archives/NonBlockingThreadPool.h bazel-out/k8-opt/bin/tensorflow/tools/pip_package/build_pip_package.runfiles/eigen_archive/unsupported/Eigen/CXX11/src/ThreadPool/NonBlockingThreadPool.h && \
+#    cp Modify_Archives/ThreadPoolInterface.h bazel-out/k8-opt/bin/tensorflow/tools/pip_package/build_pip_package.runfiles/eigen_archive/unsupported/Eigen/CXX11/src/ThreadPool/ThreadPoolInterface.h && \
+#    bazel build //tensorflow/tools/pip_package:build_pip_package && \
+#    ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg && \
+#    pip install /tmp/tensorflow_pkg/tensorflow-2.0.0-cp36-cp36m-linux_x86_64.whl
+#    cd ..
 
-RUN bazel build tensorflow/tools/pip_package:build_pip_package
-RUN bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-RUN pip --no-cache-dir install --upgrade /tmp/tensorflow_pkg/tensorflow-*.whl 
+RUN cd /tensorflow_src && \
+    pip install tensorflow-2.0.0-cp36-cp36m-linux_x86_64.whl
 
-#RUN bazel build //tensorflow/tools/pip_package:build_pip_package
-
-#RUN ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-
-WORKDIR /root
-
-RUN ${PIP} install jupyter matplotlib
-RUN ${PIP} install jupyter_http_over_ws
-RUN jupyter serverextension enable --py jupyter_http_over_ws
-
-EXPOSE 8888
-
-RUN ${PYTHON} -m ipykernel.kernelspec
-
-CMD ["bash", "-c", "source /etc/bash.bashrc && jupyter notebook --notebook-dir=/tf --ip 0.0.0.0 --no-browser --allow-root"]
+COPY bashrc /etc/bash.bashrc
+RUN chmod a+rwx /etc/bash.bashrc
