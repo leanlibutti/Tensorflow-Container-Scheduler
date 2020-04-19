@@ -75,6 +75,10 @@ limitations under the License.
 #include <thread>
 #include "tensorflow/core/distributed_runtime/rpc/grpc_schedule_client_impl.h"
 
+
+static int signal_value_=-1;
+std::mutex signal_mutex_;
+
 namespace tensorflow {
 namespace {
 
@@ -1351,6 +1355,8 @@ class ExecutorState {
 
   thread::ThreadPool* inter_threadpool;
   int max_active_threads_value_;
+  int max_threads_value_;
+  int min_threads_value_;
   mutex iterations_schedule_mu_;
   int iterations_schedule_count GUARDED_BY(iterations_schedule_mu_);
   ScheduleClient* schedule_client_;
@@ -1424,6 +1430,9 @@ class ExecutorState {
   void Finish();
   void ScheduleFinish();
 
+  static void my_handler(int signum);
+  static void changeSignal();
+
   // A standalone routine for this expression so that we can express
   // that we don't want thread safety analysis on this reference (it's
   // safe to do without the lock because the iterations array never
@@ -1483,6 +1492,9 @@ ExecutorState::ExecutorState(const Executor::Args& args, ExecutorImpl* impl)
 
   std::shared_ptr<::grpc::Channel> channel = ::grpc::CreateChannel("localhost:50051", ::grpc::InsecureChannelCredentials());
   schedule_client_= new ScheduleClient(channel);
+
+  signal( SIGUSR1,  my_handler);
+  signal( SIGUSR2, my_handler);
 }
 
 ExecutorState::~ExecutorState() {
@@ -1493,6 +1505,24 @@ ExecutorState::~ExecutorState() {
     device_context_->Unref();
   }
   delete slice_reader_cache_;
+}
+
+void ExecutorState::my_handler(int signum){
+  signal_mutex_.lock();
+  //if (signal_threads_ == 0){
+    if (signum==SIGUSR1){
+      VLOG(0) << "Recibido SIGUSR1. Decrement threads\n";
+      signal_value_=0;
+    }
+    if (signum==SIGUSR2){
+      VLOG(0) << "Recibido SIGUSR2. Increment threads\n";
+      signal_value_=1;
+    }
+  signal_mutex_.unlock();
+}
+
+void ExecutorState::changeSignal(){
+  signal_value_=-1;
 }
 
 Status ExecutorImpl::BuildControlFlowInfo(const Graph* g,
@@ -1579,6 +1609,16 @@ void ExecutorImpl::InitializePending(const Graph* graph,
 
 void ExecutorState::RunAsync(Executor::DoneCallback done) {
   TaggedNodeSeq ready;
+
+    if(inter_threadpool!=nullptr){
+      //inter_threadpool->SetLogging(true); 
+      const char * max_active_threads_env_ = std::getenv("MAX_ACTIVE_THREADS");
+      const char * max_threads_env_ = std::getenv("MAX_ENV_THREADS");
+      const char * min_threads_env_ = std::getenv("MIN_ENV_THREADS");
+      max_threads_value_= atoi(max_threads_env_);
+      min_threads_value_= atoi(min_threads_env_);
+      max_active_threads_value_ = atoi(max_active_threads_env_);
+    }
 
   // Ask the device to fill in the device context map.
   Device* device = impl_->params_.device;
@@ -2320,24 +2360,35 @@ bool ExecutorState::NodeDone(const Status& s, const TaggedNodeSeq& ready,
 void ExecutorState::ScheduleReady(const TaggedNodeSeq& ready,
                                   TaggedNodeReadyQueue* inline_ready) {
   bool not_sleep_thread= true;
-  int actives_threads= 0;
-  int thread_id= -2;
+  int thread_id=-2;
+  //int actives_threads= 0;
   if(inter_threadpool!= nullptr){
     //actives_threads= inter_threadpool->NumActivesThreads();
-    thread_id= inter_threadpool->CurrentThreadId();
-    //not_sleep_thread= inter_threadpool->IsActiveThread(thread_id);
-    not_sleep_thread= inter_threadpool->CheckSleep();
-
+    thread_id= inter_threadpool->CurrentThreadId(); 
+    not_sleep_thread= inter_threadpool->CheckSleep(); 
+    
     mutex_lock l(iterations_schedule_mu_);
     {
       iterations_schedule_count++;
       if(iterations_schedule_count==300){
-        VLOG(0) << "Change Max Actives Threads (Decrement)";
-        inter_threadpool->ChangeMaxActivesThreads(2);
+        VLOG(0) << "Change Max Actives Threads (Decrement)" << " - Thread ID: " << thread_id;
+        signal_mutex_.lock();
+        if ( signal_value_==0 ){
+          inter_threadpool->ChangeMaxActivesThreads(min_threads_value_);
+          VLOG(0) << "New Value Max Actives Threads:" << inter_threadpool->MaxActivesThreads() << " - Thread ID: " << thread_id;
+          ExecutorState::changeSignal();
+        }
+        signal_mutex_.unlock();
       }
       if(iterations_schedule_count==2000){
-        VLOG(0) << "Change Max Actives Threads (Increment)";
-        inter_threadpool->ChangeMaxActivesThreads(12);
+        VLOG(0) << "Change Max Actives Threads (Increment)" << " - Thread ID: " << thread_id;
+        signal_mutex_.lock();
+        if ( signal_value_==1 ){
+          inter_threadpool->ChangeMaxActivesThreads(max_threads_value_);
+          VLOG(0) << "New Value Max Actives Threads:" << inter_threadpool->MaxActivesThreads() << " - Thread ID: " << thread_id;
+          ExecutorState::changeSignal();
+        }
+        signal_mutex_.unlock();
       }
     }
   }
