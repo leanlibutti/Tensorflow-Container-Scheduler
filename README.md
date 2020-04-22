@@ -43,6 +43,30 @@ See all the [mailing lists](https://www.tensorflow.org/community/forums).
 
 6- Execute "docker run -v $(pwd):/my-devel -it tf". The container of the builded image will open.
 
+## Run multiple consoles in docker
+
+1- Run the image with docker run.
+
+2- Search with "docker ps" for the container id.
+
+3- Run docker exec -it container_id bash.
+
+## Save changes in Docker Container
+
+"docker commit" allows you to save a snapshot of your container as a docker image so you can return to it later. Like any docker image, these can be moved around to a different machines. Docker's git-like features really shine here -- you can roll back to previous commits, and pushing images with docker push is really fast since it pushes only differences.
+
+Quick overview:
+
+ 1- On the host machine that is running docker, look up the name or container id of the running container using docker ps. (You can also assign your own choice of name to the container when calling docker run and then use that).
+
+ 2-Save the running container as a docker image, e.g. docker commit <container-id> username/imagename. Optionally you can include commit messages with -m. Once the container is committed, you can now stop or remove the container without losing data.
+
+ 3- Push the container to the Docker Hub: docker push username/imagename. Be sure to use a private image (either on the Hub or by running a private registry) if necessary: just create the private image name on the Hub before pushing. (Alternatively you can save the container as a tarball with docker save and download that for future use. This approach does not benefit from transferring only the changed layers, so should be avoided in favor of docker push/pull if possible).
+
+NOTE: If you start an instance with a linked volume, docker commit will not capture changes to that volume
+
+Bibliography: https://github.com/rocker-org/rocker/wiki/How-to-save-data
+
 ## Install
 
 See the [TensorFlow install guide](https://www.tensorflow.org/install) for the
