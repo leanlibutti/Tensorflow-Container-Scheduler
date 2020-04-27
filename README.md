@@ -67,6 +67,17 @@ NOTE: If you start an instance with a linked volume, docker commit will not capt
 
 Bibliography: https://github.com/rocker-org/rocker/wiki/How-to-save-data
 
+## Use Tensorboard in Docker Container
+
+Run the saved image by binding port 6006 of the container to port 6006 of the local host. Use the following command:
+
+docker run -p 0.0.0.0:6006:6006 -it container_name:latest
+
+Luego, ejecutar tensorboard utilizando la opcion --bind_all. This will expose your TensorBoard instance to the network on both IPv4 and IPv6 (where available). Mutually exclusive with `--host`. Use the following command:
+
+tensorboard --logdir PATH_PROFILE --bind_all
+
+
 ## Install
 
 See the [TensorFlow install guide](https://www.tensorflow.org/install) for the
