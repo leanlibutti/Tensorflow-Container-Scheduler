@@ -110,8 +110,6 @@ RUN mkdir /bazel && \
     /bazel/installer.sh && \
     rm -f /bazel/installer.sh
 
-RUN ls 
-
 #RUN cd /tensorflow_src && \
 #    bazel build //tensorflow/tools/pip_package:build_pip_package && \
 #    rm tensorflow/core/common_runtime/executor.cc && \ 
@@ -127,6 +125,9 @@ RUN ls
 
 RUN cd /tensorflow_src && \
     pip install tensorflow-2.0.0-cp36-cp36m-linux_x86_64.whl
+
+RUN pip3 install packaging && \
+    pip3 install tensorflow-datasets
 
 COPY bashrc /etc/bash.bashrc
 RUN chmod a+rwx /etc/bash.bashrc

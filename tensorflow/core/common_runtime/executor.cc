@@ -1354,7 +1354,6 @@ class ExecutorState {
   gtl::FlatMap<string, FrameState*> outstanding_frames_ GUARDED_BY(mu_);
 
   thread::ThreadPool* inter_threadpool;
-  int max_active_threads_value_;
   int max_threads_value_;
   int min_threads_value_;
   mutex iterations_schedule_mu_;
@@ -1468,7 +1467,6 @@ ExecutorState::ExecutorState(const Executor::Args& args, ExecutorImpl* impl)
       sync_on_finish_(args.sync_on_finish),
       num_outstanding_ops_(0),
       inter_threadpool(args.inter_threadpool),
-      max_active_threads_value_(1),
       iterations_schedule_count(0) {
   if (args.user_intra_op_threadpool != nullptr) {
     Device* device = impl_->params_.device;
@@ -1612,12 +1610,10 @@ void ExecutorState::RunAsync(Executor::DoneCallback done) {
 
     if(inter_threadpool!=nullptr){
       //inter_threadpool->SetLogging(true); 
-      const char * max_active_threads_env_ = std::getenv("MAX_ACTIVE_THREADS");
       const char * max_threads_env_ = std::getenv("MAX_ENV_THREADS");
       const char * min_threads_env_ = std::getenv("MIN_ENV_THREADS");
       max_threads_value_= atoi(max_threads_env_);
       min_threads_value_= atoi(min_threads_env_);
-      max_active_threads_value_ = atoi(max_active_threads_env_);
     }
 
   // Ask the device to fill in the device context map.
