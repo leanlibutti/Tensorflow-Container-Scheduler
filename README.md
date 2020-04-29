@@ -51,6 +51,18 @@ See all the [mailing lists](https://www.tensorflow.org/community/forums).
 
 3- Run docker exec -it container_id bash.
 
+## Run Tensorflow Examples
+
+To run a tensorflow example, two environment variables must be exported:
+
+- export MIN_ENV_THREADS: defines the minimum number of threads used for execution.
+- export MAX_ENV_THREADS: defines the maximum number of threads used for execution.
+
+Then run the example keras_example_tf2.py located in the / tensorflow_src / tensorflow_examples folder:
+
+- cd tensorflow_src/tensorflow_examples
+- python keras_examples_tf2.py
+
 ## Save changes in Docker Container
 
 "docker commit" allows you to save a snapshot of your container as a docker image so you can return to it later. Like any docker image, these can be moved around to a different machines. Docker's git-like features really shine here -- you can roll back to previous commits, and pushing images with docker push is really fast since it pushes only differences.
