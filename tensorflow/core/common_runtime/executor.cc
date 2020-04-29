@@ -1511,11 +1511,11 @@ void ExecutorState::my_handler(int signum){
   signal_mutex_.lock();
   //if (signal_threads_ == 0){
     if (signum==SIGUSR1){
-      VLOG(0) << "Recibido SIGUSR1. Decrement threads\n";
+      VLOG(1) << "Recibido SIGUSR1. Decrement threads\n";
       signal_value_=0;
     }
     if (signum==SIGUSR2){
-      VLOG(0) << "Recibido SIGUSR2. Increment threads\n";
+      VLOG(1) << "Recibido SIGUSR2. Increment threads\n";
       signal_value_=1;
     }
   signal_mutex_.unlock();
@@ -2371,21 +2371,21 @@ void ExecutorState::ScheduleReady(const TaggedNodeSeq& ready,
     {
       iterations_schedule_count++;
       if(iterations_schedule_count==300){
-        VLOG(0) << "Change Max Actives Threads (Decrement)" << " - Thread ID: " << thread_id;
+        VLOG(1) << "Change Max Actives Threads (Decrement)" << " - Thread ID: " << thread_id;
         signal_mutex_.lock();
         if ( signal_value_==0 ){
           inter_threadpool->ChangeMaxActivesThreads(min_threads_value_);
-          VLOG(0) << "New Value Max Actives Threads:" << inter_threadpool->MaxActivesThreads() << " - Thread ID: " << thread_id;
+          VLOG(1) << "New Value Max Actives Threads:" << inter_threadpool->MaxActivesThreads() << " - Thread ID: " << thread_id;
           ExecutorState::changeSignal();
         }
         signal_mutex_.unlock();
       }
       if(iterations_schedule_count==2000){
-        VLOG(0) << "Change Max Actives Threads (Increment)" << " - Thread ID: " << thread_id;
+        VLOG(1) << "Change Max Actives Threads (Increment)" << " - Thread ID: " << thread_id;
         signal_mutex_.lock();
         if ( signal_value_==1 ){
           inter_threadpool->ChangeMaxActivesThreads(max_threads_value_);
-          VLOG(0) << "New Value Max Actives Threads:" << inter_threadpool->MaxActivesThreads() << " - Thread ID: " << thread_id;
+          VLOG(1) << "New Value Max Actives Threads:" << inter_threadpool->MaxActivesThreads() << " - Thread ID: " << thread_id;
           ExecutorState::changeSignal();
         }
         signal_mutex_.unlock();
