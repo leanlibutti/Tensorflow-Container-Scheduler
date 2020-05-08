@@ -40,6 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         zlib1g-dev \
         openjdk-8-jdk \
         openjdk-8-jre-headless \
+        iproute2 \
         && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
