@@ -1,14 +1,19 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: tf-demo21
+  name: tf-demo23
   namespace: tf-malleable-example
 spec:
   containers:
-  - name: tf-demo-ctr21
+  - name: tf-demo-ctr23
     image: tf-kubernetes
     imagePullPolicy: IfNotPresent
     command: [ "/bin/bash", "-ce", "/data/launch_all.sh" ]
+    resources:
+      limits:
+        cpu: "1000m"
+      requests: 
+        cpu: "500m"
     volumeMounts:
     - mountPath: /data
       name: volume
