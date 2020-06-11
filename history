@@ -1,0 +1,1000 @@
+ 1156  kubectl port-forward service/hono-grafana 3000 -n hono
+ 1157  kubectl port-forward service/eclipse-hono-grafana 3000 -n hono
+ 1158  git clone https://github.com/flame/blis.git
+ 1159  cd blis/
+ 1160  ls
+ 1161  vi config_registry 
+ 1162  ./configure zen
+ 1163  cd kernels/zen
+ 1164  ls
+ 1165  cd 3
+ 1166  ls -lt
+ 1167  cd ../../
+ 1168  ls
+ 1169  cd ..
+ 1170  cd -
+ 1171  cd zen2
+ 1172  ls
+ 1173  ls -lta
+ 1174  vi .gitignore 
+ 1175  vi bli_gemm_small.c
+ 1176  cd ../zen
+ 1177  vi bli_gemm_small.c
+ 1178  ls
+ 1179  cd 3
+ 1180  ls
+ 1181  vi bli_gemm_small.c
+ 1182  sudo apt-get update
+ 1183  sudo apt-get dist-upgrade
+ 1184  ls
+ 1185  htop
+ 1186  ssh marbore.dacya.ucm.es
+ 1187  clear
+ 1188  uname -a
+ 1189  man 2 stat
+ 1190  man stat
+ 1191  man 2 stat
+ 1192  man inode
+ 1193  man 2 stat
+ 1194  ssh artecslab001.dacya.ucm.es
+ 1195  ./test1.x 
+ 1196  ssh marbore.dcya.ucm.es
+ 1197  ssh marbore.dacya.ucm.es
+ 1198  ssh marbore.dacya.ucm.es
+ 1199  ssh etnafw.dacya.ucm.es -l root
+ 1200  clear
+ 1201  sudo apt-get update
+ 1202  sudo apt-get dist-upgrade
+ 1203  host 147.96.22.94
+ 1204  ping marbore.dacya.ucm.es
+ 1205  clear
+ 1206  egrep --color 'vmx|svm' /proc/cpuinfo
+ 1207  cd Work/
+ 1208  ls -lt
+ 1209  locate utv
+ 1210  cd 
+ 1211  cd Software/libflame/UTV/Greg/utv/
+ 1212  ls
+ 1213  cd ..
+ 1214  mkdir new_utv
+ 1215  cd new_utv
+ 1216  mv /home/figual/utv.tar.gz .
+ 1217  tar xvzf utv.tar.gz 
+ 1218  cd utv/
+ 1219  ls
+ 1220  ls -lt
+ 1221  cd ab
+ 1222  ls
+ 1223  vi README 
+ 1224  make
+ 1225  locate FLAME.h
+ 1226  vi Makefile 
+ 1227  vi c
+ 1228  vi ../../../utv/ab/c
+ 1229  vi ../../../utv/ab/Makefile 
+ 1230  vi Makefile 
+ 1231  make
+ 1232  ls -lt
+ 1233  kate FLA_UTV_AB_UT_var49a.c
+ 1234  grep FLAX_Get_nanoblock
+ 1235  grep FLAX_Get_nanoblock *
+ 1236  vi FLAX_Runtime_var49a.c 
+ 1237  ssh marbore.dacya.ucm.es
+ 1238  clear
+ 1239  cd ..
+ 1240  mkdir ab_sm
+ 1241  rmdir ab_sm
+ 1242  cp -R ab ab_sm
+ 1243  cd ab_sm
+ 1244  ls
+ 1245  vi time_utv.c 
+ 1246  grep main *
+ 1247  vi test_utv.c 
+ 1248  cd ../../../
+ 1249  ls
+ 1250  ls -lt
+ 1251  cd utv/
+ 1252  ls
+ 1253  ls -lt
+ 1254  cd flash/
+ 1255  ls
+ 1256  grep blis *
+ 1257  vi c
+ 1258  cp c ../../new_utv/utv/ab_sm/
+ 1259  :q
+ 1260  vi c
+ 1261  grep Generate_normal_column_panel *
+ 1262  vi FLA_UTV_AB_WY.c 
+ 1263  cd ../
+ 1264  cd ../new_utv/utv/
+ 1265  ls
+ 1266  cd octave_utv_
+ 1267  cd octave_utv_ab/
+ 1268  ls
+ 1269  cd ut_transformations/
+ 1270  ls
+ 1271  octave randUTV_ab.m 
+ 1272  octave
+ 1273  vi randUTV_ab.m 
+ 1274  mosquitto_pub
+ 1275  ssh tecnicos@artecslab001.dacya.ucm.es
+ 1276  ssh makalu.dacya.ucm.es
+ 1277  ssh tecnicos@makalu.dacya.ucm.es
+ 1278  ping tecnicos@makalu.dacya.ucm.es
+ 1279  ping makalu.dacya.ucm.es
+ 1280  ssh tecnicos@makalu.dacya.ucm.es
+ 1281  ssh volta1.dacya.ucm.es
+ 1282  clear
+ 1283  ping makalu.dacya.ucm.es
+ 1284  ssh tecnicos@makalu.dacya.ucm.es
+ 1285  clear
+ 1286  cd
+ 1287  clear
+ 1288  ssh root@cachalote.dacya.ucm.es
+ 1289  cd tmp/
+ 1290  vi foo.c
+ 1291  vi foo2.c
+ 1292  gcc foo2.c -o foo2
+ 1293  vi foo3.c
+ 1294  gcc foo3.c -o foo3
+ 1295  vi foo3.c 
+ 1296  gcc foo3.c -o foo3
+ 1297  ./foo3 
+ 1298  vi foo3.c 
+ 1299  clear
+ 1300  cd
+ 1301  cd Descargas/
+ 1302  tar xvzf plots_utv_sm_dm.tar.gz 
+ 1303  cd plots_utv_sm_dm/
+ 1304  ls
+ 1305  cd sm/
+ 1306  ls
+ 1307  ls data/
+ 1308  vi c
+ 1309  sh c
+ 1310  ls -lt
+ 1311  okular st_vs_n_or_utv_for_sm_marbore.pdf
+ 1312  vi plots.py 
+ 1313  ls
+ 1314  vi cleanDir 
+ 1315  ls
+ 1316  cd data/
+ 1317  ls
+ 1318  cd m
+ 1319  cd marbore_no_turbo/
+ 1320  ls
+ 1321  vi out.utv_ab.mt100.28c.txt
+ 1322  ssh figual@devarm.dacya.ucm.es -p 2222
+ 1323  ping makalu.dacya.ucm.es
+ 1324  ssh makalu.dacya.ucm.es 
+ 1325  ping makalu.dacya.ucm.es
+ 1326  ssh makalu.dacya.ucm.es
+ 1327  clear
+ 1328  ssh marbore.dacya.ucm.es
+ 1329  clear
+ 1330  ssh marbore.dacya.ucm.es
+ 1331  cd
+ 1332  cd Work/phdthesis
+ 1333  ls
+ 1334  okular build/full.pdf 
+ 1335  sudo apt-get update
+ 1336  sudo apt-get dist-upgrade
+ 1337  sudo apt-get update && sudo apt-get install -y apt-transport-https
+ 1338  curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+ 1339  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+ 1340  sudo apt-get update
+ 1341  sudo apt-get install -y kubectl
+ 1342  kubectl cluster-info
+ 1343  cd
+ 1344  wget https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/kube-up.sh
+ 1345  sh kube-up.sh 
+ 1346  sudo kube-up.sh
+ 1347  sudo ./kube-up.sh
+ 1348  chmod a+x kube-up.sh 
+ 1349  ./kube-up.sh 
+ 1350  vi ./kube-up.sh
+ 1351  sudo apt-cache search minikube
+ 1352  sudo apt-cache search kubernetes
+ 1353  sudo apt-get install kubeadm
+ 1354  kubectl cluster-info
+ 1355  sudo apt-cache search minikube
+ 1356  curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64   && chmod +x minikube
+ 1357  sudo cp minikube /usr/local/bin && rm minikube
+ 1358  kubectl cluster-info
+ 1359  ./kube-up.sh 
+ 1360  sh kube-up.sh 
+ 1361  minikube 
+ 1362  minikube start
+ 1363  kubectl cluster-info
+ 1364  kubectl cluster-info dump
+ 1365  minikube start --cpus 2 --memory 8192
+ 1366  eval $(minikube docker-env)
+ 1367  mvn clean install -Pbuild-docker-image,metrics-prometheus
+ 1368  sudo apt install maven
+ 1369  mvn clean install -Pbuild-docker-image,metrics-prometheus
+ 1370  cd tmp
+ 1371  helm repo add eclipse-iot https://eclipse.org/packages/charts
+ 1372  sudo snap install helm
+ 1373  sudo snap install helm --classic
+ 1374  helm repo add eclipse-iot https://eclipse.org/packages/charts
+ 1375  helm search repo
+ 1376  kubectl create namespace hono
+ 1377  helm install --dependency-update -n hono eclipse-hono eclipse-iot/hono
+ 1378  kubectl get service -n hono
+ 1379  export REGISTRY_IP=$(kubectl get service hono-service-device-registry-ext --output='jsonpath={.status.loadBalancer.ingress[0].ip}' -n hono)
+ 1380  kubectl port-forward service/hono-grafana 3000 -n hono
+ 1381  kubectl port-forward service/eclipse-hono-grafana 3000 -n hono
+ 1382  curl -sIX GET http://$REGISTRY_IP:28080/v1/tenants/DEFAULT_TENANT
+ 1383  kubectl port-forward service/hono-grafana 3000 -n hono
+ 1384  kubectl port-forward eclipse-hono-grafana 3000 -n hono
+ 1385  kubectl port-forward service/hono-grafana 3000 -n hono
+ 1386  kubectl get service -n hono
+ 1387  kubectl create namespace hono
+ 1388  helm install --dependency-update -n hono eclipse-hono eclipse-iot/hono
+ 1389  minikube start --cpus 2 --memory 8192
+ 1390  kubectl create namespace hono
+ 1391  helm install --dependency-update -n hono eclipse-hono eclipse-iot/hono
+ 1392  kubectl get service -n hono
+ 1393  minikube tunnel
+ 1394  export REGISTRY_IP=$(kubectl get service hono-service-device-registry-ext --output='jsonpath={.status.loadBalancer.ingress[0].ip}' -n hono)
+ 1395  minikube tunnel
+ 1396  sudo minikube tunnel
+ 1397  minikube delete
+ 1398  sudo minicube start
+ 1399  sudo minikube start
+ 1400  sudo minicube start
+ 1401  minikube start --cpus 2 --memory 8192
+ 1402  kubectl get service -n hono
+ 1403  helm install --dependency-update -n hono eclipse-hono eclipse-iot/hono
+ 1404  kubectl create namespace hono
+ 1405  helm install --dependency-update -n hono eclipse-hono eclipse-iot/hono
+ 1406  sudo minikube tunnel
+ 1407  minikube tunnel
+ 1408  locate OPTIM
+ 1409  cd /scratch/Backup_collara_Feb2019/figual/Work/sensors2014/
+ 1410  ls -lt
+ 1411  ls -lta
+ 1412  git remote rename origin old-origin
+ 1413  git remote add origin git@gitlabce.dacya.ucm.es:figual/sensors.git
+ 1414  git push -u origin --all
+ 1415  git push -u origin --tags
+ 1416  kubectl cluster-info
+ 1417  kubectl cluster-info dump
+ 1418  kubectl create deployment hello-minikube --image=k8s.gcr.io/echoserver:1.10
+ 1419  cd tmp/
+ 1420  mkdir SesionEstructurasEnMemoria
+ 1421  cd SesionEstructurasEnMemoria
+ 1422  ls
+ 1423  vi test1.c
+ 1424  gcc test1.c -o test1.x
+ 1425  man 2 open
+ 1426  fg
+ 1427  gcc test1.c -o test1.x
+ 1428  man 2 read
+ 1429  fg
+ 1430  vi test1.c 
+ 1431  gcc test1.c -o test1.x
+ 1432  ./test1.x 
+ 1433  vi entrada1.txt
+ 1434  ./test1.x 
+ 1435  fg
+ 1436  man 2 sleep
+ 1437  man 2 pause
+ 1438  fg
+ 1439  vi entrada1.txt
+ 1440  vi test1.c 
+ 1441  gcc test1.c -o test1.x
+ 1442  ./test1.x 
+ 1443  fg
+ 1444  gcc test1.c -o test1.x
+ 1445  ./test1.x 
+ 1446  fg
+ 1447  gcc test1.c -o test1.x
+ 1448  ./test1.x 
+ 1449  fg
+ 1450  gcc test1.c -o test1.x
+ 1451  ./test1.x 
+ 1452  fg
+ 1453  man 2 lseek
+ 1454  fg
+ 1455  vi test1.c 
+ 1456  fg
+ 1457  gcc test1.c -o test1.x
+ 1458  ./test1.x 
+ 1459  vi test.c
+ 1460  vi test1.c 
+ 1461  cd
+ 1462  cd /tmp/
+ 1463  mkdir mount
+ 1464  mount cachalote.dacya.ucm.es:/export/home/figual mount
+ 1465  sudo mount cachalote.dacya.ucm.es:/export/home/figual mount
+ 1466  sudo apt-cache search sshfs
+ 1467  sudo mount -t nfs cachalote.dacya.ucm.es:/export/home/figual mount
+ 1468  sudo apt-cache search nfs 
+ 1469  sudo apt-cache search nfs  | grep nfs
+ 1470  sudo apt-get install nfs-common
+ 1471  sudo mount -t nfs cachalote.dacya.ucm.es:/export/home/figual mount
+ 1472  cd mount
+ 1473  ls
+ 1474  clear
+ 1475  cd ..
+ 1476  sudo umount mount
+ 1477  clear
+ 1478  Self-Adaptive Resource Management using Reinforcement Learning (on power-constrained and quality-aware scenarios)
+ 1479  clear
+ 1480  ssh ldapvm.dacya.ucm.es
+ 1481  ssh ldapvm.dacya.ucm.es -l root
+ 1482  ssh root@ldapvm2.dacya.ucm.es
+ 1483  ping ldapvm2.dacya.ucm.es
+ 1484  ssh root@ldapvm2.dacya.ucm.es
+ 1485  ssh naranja.dacya.ucm.es -l root -X
+ 1486  ssh root@cachalote.dacya.ucm.es
+ 1487  ssh etnafw.dacya.ucm.es
+ 1488  ssh etnafw.dacya.ucm.es -l root
+ 1489  ssh makalu.dacya.ucm.es
+ 1490  ssh volta1.dacya.ucm.es
+ 1491  ssh figual@volta1.dacya.ucm.es
+ 1492  ssh adrfer@devarm.dacya.ucm.es -p 2222 
+ 1493  ssh figual@devarm.dacya.ucm.es -p 2222 
+ 1494  ssh adrfer@devarm.dacya.ucm.es -p 2222 
+ 1495  drl_j4f1
+ 1496  ssh adrfer@devarm.dacya.ucm.es -p 2222 
+ 1497  w
+ 1498  ssh adrfer@devarm.dacya.ucm.es -p 2222 
+ 1499  ping mostaza.dacya.ucm.es
+ 1500  ssh adrfer@devarm.dacya.ucm.es -p 2222 
+ 1501  df
+ 1502  sudo apt-get autoremove
+ 1503  sudo apt-get autoclean
+ 1504  d
+ 1505  sudo apt-get clean
+ 1506  cd
+ 1507  find . -name *.iso
+ 1508  find . -name "*.iso"
+ 1509  ls -lt ./Work/SPEC*
+ 1510  rm -rf ./Work/SPEC*
+ 1511  df
+ 1512  exit
+ 1513  sudo snap install multipass --classic
+ 1514  multipass launch --name ubuntu-lts
+ 1515  multipass exec ubuntu-lts -- lsb_release -a
+ 1516  multipass lis
+ 1517  multipass exec ubuntu-lts -- konsole
+ 1518  multipass exec ubuntu-lts -- ls
+ 1519  multipass exec ubuntu-lts -- ls -lta
+ 1520  multipass exec ubuntu-lts -- bash
+ 1521  multipass launch --name ubuntu-lts --disk=15G
+ 1522  multipass launch --name zephyr-devel --disk=15G
+ 1523  multipass shell zephyr-devel
+ 1524  ssh tecnicos@devarm.dacya.ucm.es -p 2222
+ 1525  ssh -p 2222 devarm.dacya.ucm.es
+ 1526  ssh -p 2222 devarm.dacya.ucm.es -l adrfer
+ 1527  ssh leviatan.dacya.ucm.es
+ 1528  clear
+ 1529  w
+ 1530  clear
+ 1531  cd
+ 1532  man ls
+ 1533  man ln
+ 1534  cd tmp/
+ 1535  vi hola
+ 1536  stat hola
+ 1537  ln hola enlace
+ 1538  stat hola
+ 1539  stat enlace
+ 1540  rm hola
+ 1541  stat enlace
+ 1542  ln -s enlace enlaces
+ 1543  stat enlace
+ 1544  stat enlaces
+ 1545  ssh marbore.dacya.ucm.es
+ 1546  cd
+ 1547  cd Software/
+ 1548  ls
+ 1549  cd libflame/
+ 1550  ls
+ 1551  cd ..
+ 1552  tar cvzf libflame.tgz libflame/
+ 1553  ls l-t
+ 1554  ls -lt
+ 1555  scp libflame.tgz marbore.dacya.ucm.es:
+ 1556  python
+ 1557  clear
+ 1558  w
+ 1559  ssh volta1.dacya.ucm.es
+ 1560  ping volta1.dacya.ucm.es
+ 1561  ssh volta1.dacya.ucm.es
+ 1562  w
+ 1563  clear
+ 1564  cd
+ 1565  cd tmp/
+ 1566  mkdir mountpoint
+ 1567  sudo mount cachalote.dacya.ucm.es/export/benchmarking mountpoint/
+ 1568  sudo mount cachalote.dacya.ucm.es:/export/benchmarking mountpoint/
+ 1569  ls mountpoint/
+ 1570  cd mountpoint/
+ 1571  touch foo
+ 1572  rm foo
+ 1573  ls -lt
+ 1574  clear
+ 1575  cd ..
+ 1576  sudo umount mountpoint
+ 1577  mount
+ 1578  cd zephyr/
+ 1579  ls
+ 1580  git log
+ 1581  multipass list
+ 1582  multipass shell zephyr-devel 
+ 1583  clear
+ 1584  exit
+ 1585  ls
+ 1586  cd
+ 1587  cd tmp/
+ 1588  ls -lt | head
+ 1589  ark all_packages-mipsbe-6.46.4.zip 
+ 1590  usbserial
+ 1591  sudo modprobe usbserial
+ 1592  fg
+ 1593  vi slides.md 
+ 1594  sh c
+ 1595  fg
+ 1596  sh c
+ 1597  fg
+ 1598  sh c
+ 1599  fg
+ 1600  sh c
+ 1601  fg
+ 1602  sh c
+ 1603  fg
+ 1604  sh c
+ 1605  fg
+ 1606  sh c
+ 1607  fg
+ 1608  sh c
+ 1609  fg
+ 1610  sh c
+ 1611  fg
+ 1612  sh c
+ 1613  wget https://raw.githubusercontent.com/flame/blis/master/docs/graphs/large/l3_perf_tx2_nt1.png
+ 1614  ffg
+ 1615  fg
+ 1616  sh c
+ 1617  fg
+ 1618  sh c
+ 1619  fg
+ 1620  sh c
+ 1621  fg
+ 1622  sh c
+ 1623  fg
+ 1624  sh c
+ 1625  fg
+ 1626  sh c
+ 1627  ls
+ 1628  rm arm_vs_skylake2.png
+ 1629  sh c
+ 1630  ls
+ 1631  rm arm_vs_skylake2.png~
+ 1632  ls
+ 1633  cd ..
+ 1634  tar cvzf PresentationHuawei.tgz PresentationHuawei/
+ 1635  cd
+ 1636  cd /tmp/
+ 1637  vi signals.c
+ 1638  gcc signals.c -o signals
+ 1639  ./signals 
+ 1640  fgb
+ 1641  fg
+ 1642  vi signals.c 
+ 1643  gcc signals.c -o signals
+ 1644  ./signals 
+ 1645  fg
+ 1646  scp signals.c marbore.dacya.ucm.es
+ 1647  scp signals.c marbore.dacya.ucm.es:
+ 1648  ssh marbore.dacya.ucm.es
+ 1649  ssh bujaruelo.dacya.ucm.es
+ 1650  ssh tecnicos@marbore.dacya.ucm.es
+ 1651  cd
+ 1652  cd Work/
+ 1653  ls -lt
+ 1654  exit
+ 1655  cd
+ 1656  cd Work/
+ 1657  git clone git@gitlabce.dacya.ucm.es:jcsaez/huawei-slides.git
+ 1658  sh c
+ 1659  ls
+ 1660  cd huawei-slides/
+ 1661  ls
+ 1662  cat build.sh 
+ 1663  sh build.sh 
+ 1664  okular slides.pdf 
+ 1665  vi slides.md 
+ 1666  sh c
+ 1667  sh build.sh 
+ 1668  okular slides.pdf 
+ 1669  fg
+ 1670  vi slides.md 
+ 1671  git commit -a -m "Added contact information"
+ 1672  git push origin master
+ 1673  mv slides.md /tmp/
+ 1674  cd ..
+ 1675  rm -rf huawei-slides/
+ 1676  git clone git@gitlabce.dacya.ucm.es:jcsaez/huawei-slides.git
+ 1677  cd huawei-slides/
+ 1678  mv /tmp/slides.md .
+ 1679  git commit -a -m "Added contact information"
+ 1680  git push origin master
+ 1681  sh c
+ 1682  sh build.sh 
+ 1683  okular slides.pdf 
+ 1684  cd
+ 1685  cd UCM/Docencia/2019-2020/MIOT/
+ 1686  ls
+ 1687  cd CharlaRPI-I/
+ 1688  ls
+ 1689  vi slides.md 
+ 1690  sh c
+ 1691  file sensortag.png 
+ 1692  display sensortag.png
+ 1693  convert sensortag.jpg sensortag.png 
+ 1694  display sensortag.png 
+ 1695  display sensortag.jpg 
+ 1696  wget https://www.mouser.es/images/marketingid/2019/img/176358243.png
+ 1697  display 176358243.png
+ 1698  mv 176358243.png sensortag.png
+ 1699  sh c
+ 1700  fg
+ 1701  wget https://www.mouser.es/images/marketingid/2018/microsites/106749925/LoPyfront.png
+ 1702  mv LoPyfront.png lopy.png
+ 1703  fg
+ 1704  ls
+ 1705  file lopy.png 
+ 1706  fg
+ 1707  pwd
+ 1708  ls -lt
+ 1709  file lopy.png 
+ 1710  mv lopy.png lopy.jpg
+ 1711  convert lopy.jpg lopy.png
+ 1712  file lopy.png
+ 1713  sh c
+ 1714  fg
+ 1715  dolphin .
+ 1716  fg
+ 1717  cd
+ 1718  cd Work/huawei-slides/
+ 1719  git push origin master
+ 1720  git pull
+ 1721  ping volta1.dacya.ucm.es
+ 1722  ssh volta1.dacya.ucm.es -l tecnicos
+ 1723  ssh tecnicos@volta1.dacya.ucm.es
+ 1724  ls
+ 1725  ssh figual@volta1.dacya.ucm.es
+ 1726  ssh makalu.dacya.ucm.es
+ 1727  ssh root@etnafw.dacya.ucm.es
+ 1728  ping root@etnafw.dacya.ucm.es
+ 1729  ping etnafw.dacya.ucm.es
+ 1730  ping root@etnafw.dacya.ucm.es
+ 1731  ping etnafw.dacya.ucm.es
+ 1732  ssh root@etnafw.dacya.ucm.es
+ 1733  ping etnafw.dacya.ucm.es
+ 1734  ssh root@etnafw.dacya.ucm.es
+ 1735  ssh marbore.dacya.ucm.es
+ 1736  ssh bujaruelo.dacya.ucm.es
+ 1737  ssh makalu.dacya.ucm.es
+ 1738  clear
+ 1739  ssh marbore.dacya.ucm.es
+ 1740  ssh bujaruelo.dacya.ucm.es
+ 1741  ssh -X quimera.dacya.ucm.es
+ 1742  ssh -X quimera.dacya.ucm.es -l root
+ 1743  ping volta2.dacya.ucm.es
+ 1744  ping haswell.dacya.ucm.es
+ 1745  ping hobbes.dacya.ucm.es
+ 1746  clear
+ 1747  sudo apt-get update
+ 1748  ssh cachalote.dacya.ucm.es
+ 1749  ssh cachalote.dacya.ucm.es -l root
+ 1750  ssh gitlabce.dacya.ucm.es -l root
+ 1751  ping gitlabce.dacya.ucm.es
+ 1752  ssh gitlabce.dacya.ucm.es -l root
+ 1753  ssh gitlabce.dacya.ucm.es -l tecnicos
+ 1754  locate firma
+ 1755  scp -P 2222 pc-fran.dacya.ucm.es:/scratch/Backup_collara_Feb2019/figual/Dropbox/firma.png .
+ 1756  scp -p 2222 pc-fran.dacya.ucm.es:/scratch/Backup_collara_Feb2019/figual/Dropbox/firma.png .
+ 1757  scp -P 2222 pc-fran.dacya.ucm.es:/scratch/Backup_collara_Feb2019/figual/Dropbox/firma.png .
+ 1758  sftp
+ 1759  sftp -P 2222 pc-fran.dacya.ucm.es
+ 1760  ssh -p 2222 pc-fran.dacya.ucm.es
+ 1761  ping pc-fran.dacya.ucm.es
+ 1762  sftp -P 2222 pc-fran.dacya.ucm.es
+ 1763  scp makalu.dacya.ucm.es:/tmp/firma* .
+ 1764  exit
+ 1765  ps -aux | grep ban
+ 1766  scp /scratch/Backup_collara_Feb2019/figual/Dropbox/firma.png makalu.dacya.ucm.es:/tmp
+ 1767  ls
+ 1768  clear
+ 1769  ssh speedy.dacya.ucm.es
+ 1770  ssh tecnicos@speedy.dacya.ucm.es
+ 1771  ping speedy.dacya.ucm.es
+ 1772  ssh tecnicos@speedy.dacya.ucm.es
+ 1773  ssh speedy.dacya.ucm.es
+ 1774  ping speedy.dacya.ucm.es
+ 1775  ssh speedy.dacya.ucm.es
+ 1776  locate sm-dm-paper.tar.gz
+ 1777  ls -lt sm-dm-paper.tar.gz
+ 1778  ls -lt /home/figual/Work/sm-dm-paper.tar.gz 
+ 1779  clear
+ 1780  locate arxiv
+ 1781  locate crc
+ 1782  locate crc | grep tex
+ 1783  locate crc | grep tex | less
+ 1784  cd Work/
+ 1785  ls -lt tex_crc_mpi 
+ 1786  ls -lt ../Descargas/tex_crc_mpi
+ 1787  locate sm_dm
+ 1788  locate sm_dm.pdf
+ 1789  locate sm-dm.pdf
+ 1790  cd Work/sm-dm-paper/
+ 1791  ls -lt
+ 1792  cd ../../Descargas/sm-dm-paper/
+ 1793  ls -lt
+ 1794  cd -
+ 1795  ls
+ 1796  vi sm-dm.tex 
+ 1797  cd PTU/Manuel/BooksOS/
+ 1798  ls
+ 1799  ls -ltR
+ 1800  cd ..
+ 1801  tar cvzf BooksOS.tgz BooksOS/
+ 1802  ls -lt
+ 1803  pwd
+ 1804  cd VirtualBox\ VMs/
+ 1805  ls
+ 1806  cd Windows/
+ 1807  ls
+ 1808  ls -lt
+ 1809  cd ..
+ 1810  ls
+ 1811  virtualbox 
+ 1812  cd /scratch/VirtualBox/
+ 1813  ls
+ 1814  pwd
+ 1815  virtualbox 
+ 1816  cd Work/
+ 1817  ls -lt
+ 1818  cd tex_crc_mpi/
+ 1819  ls
+ 1820  ls -lt
+ 1821  locate cover_letter.tex
+ 1822  vi /scratch/Backup_collara_Feb2019/figual/Dropbox/BLIS_gemm (1)/Olds2/cover_letter.tex
+ 1823  vi /scratch/Backup_collara_Feb2019/figual/Dropbox/BLIS_gemm\ \(1\)/Olds2/cover_letter.tex 
+ 1824  vi 
+ 1825  vi /scratch/Backup_collara_Feb2019/figual/Dropbox/BLIS_gemm\ \(1\)/Olds2/cover_letter.tex 
+ 1826  locate crc_distrib
+ 1827  cd /scratch/Backup_collara_Feb2019/figual/Work/crc_distrib
+ 1828  ls
+ 1829  cd crc/
+ 1830  ls
+ 1831  vi README.md 
+ 1832  cd ..
+ 1833  ls
+ 1834  cd ..
+ 1835  locate crc_distrib
+ 1836  locate crc_tomx
+ 1837  locate crc_toms
+ 1838  locate toms | grep crc
+ 1839  cd
+ 1840  locate "*crc*"
+ 1841  locate "*crc*" | grep test_crc
+ 1842  cd /scratch/Backup_collara_Feb2019/figual/Work/autotools/crc/crc/
+ 1843  sl -lt
+ 1844  ls -lt
+ 1845  cd v0.54
+ 1846  ls
+ 1847  vi README.md 
+ 1848  locate keepass
+ 1849  locate evernote
+ 1850  locate spotify
+ 1851  locate spotify | grep bin
+ 1852  clear
+ 1853  exit
+ 1854  ssh -p 2222 alarm@psmc.hopto.org
+ 1855  ssh -p 2222 alarm@89.129.10.181
+ 1856  ping 89.129.10.181
+ 1857  ping psmc.hopto.org
+ 1858  ssh -p 2222 alarm@89.129.10.181
+ 1859  ssh alarm@192.168.1.130
+ 1860  ping 192.168.1.130
+ 1861  ssh alarm@192.168.1.130
+ 1862  cd /scratch/Backup_collara_Feb2019/figual/Work/autotools/crc/crc/
+ 1863  ls
+ 1864  vi README_Serial_codes 
+ 1865  cd v0.59/
+ 1866  ls
+ 1867  vi README
+ 1868  find . -name README.md
+ 1869  vi mindistance-0.58/README.md 
+ 1870  scp mindistance-0.58/README.md marbore.dacya.ucm.es:/tmp
+ 1871  cd figual@calera:/scratch/Backup_collara_Feb2019/figual/Work/autotools/crc/crc/
+ 1872  cd /scratch/Backup_collara_Feb2019/figual/Work/autotools/crc/crc/
+ 1873  ls
+ 1874  cd mpi_v0.05/
+ 1875  ls
+ 1876  ls -lt
+ 1877  vi config.in
+ 1878  sh c
+ 1879  make
+ 1880  ssh marbore.dacya.ucm.es
+ 1881  locate README.md
+ 1882  locate README.md | grep autot
+ 1883  cd /scratch/Backup_collara_Feb2019/figual/Work/autotools/crc/crc/v0.59
+ 1884  ls
+ 1885  cd mindistance-0.58/
+ 1886  ls
+ 1887  vi README.md 
+ 1888  cp README.md /tmp/
+ 1889  scp README.md speedy.dacya.ucm.es:/tmp
+ 1890  exit
+ 1891  w
+ 1892  killall konsole
+ 1893  w
+ 1894  clear
+ 1895  ls
+ 1896  w
+ 1897  clear
+ 1898  tmux ls
+ 1899  tmux
+ 1900  cd Work/
+ 1901  ls
+ 1902  ls -lt
+ 1903  exit
+ 1904  clear
+ 1905  exit
+ 1906  locate CV-Bio-Figual.pdf
+ 1907  find /home/figual/ -name CV-Bio-Figual.pdf
+ 1908  locate Plantila
+ 1909  locate Plantilla
+ 1910  locate Plantilla |grep doc
+ 1911  clear
+ 1912  egrep --color 'vmx|svm' /proc/cpuinfo
+ 1913  clear
+ 1914  curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+ 1915  chmod +x ./kubectl
+ 1916  sudo mv ./kubectl /usr/local/bin/kubectl
+ 1917  kubectl version --client
+ 1918  sudo apt-get update && sudo apt-get install -y apt-transport-https gnupg2
+ 1919  curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+ 1920  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+ 1921  sudo apt-get update
+ 1922  sudo apt-get install -y kubectl
+ 1923  kubectl cluster-info
+ 1924  curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64   && chmod +x minikube
+ 1925  sudo cp minikube /usr/local/bin && rm minikube
+ 1926  minikube start
+ 1927  kubectl create deployment hello-minikube --image=k8s.gcr.io/echoserver:1.10
+ 1928  kubectl expose deployment hello-minikube --type=NodePort --port=8080
+ 1929  kubectl get pod
+ 1930  minikube service hello-minikube --url
+ 1931  kubectl delete services hello-minikube
+ 1932  kubectl delete deployment hello-minikube
+ 1933  minikube stop
+ 1934  minikube delete
+ 1935  ssh volta1.dacya.ucm.es
+ 1936  clear
+ 1937  minikube help
+ 1938  minikube version
+ 1939  minikube start --wait=false
+ 1940  kubectl cluster-info
+ 1941  kubectl get nodes
+ 1942  kubectl create deployment first-deployment --image=katacoda/docker-http-server
+ 1943  kubectl get pods
+ 1944  kubectl expose deployment first-deployment --port=80 --type=NodePort
+ 1945  export PORT=$(kubectl get svc first-deployment -o go-template='{{range.spec.ports}}{{if .nodePort}}{{.nodePort}}{{"\n"}}{{end}}{{end}}')
+ 1946  echo "Accessing host01:$PORT"
+ 1947  curl host01:$PORT
+ 1948  export PORT=$(kubectl get svc first-deployment -o go-template='{{range.spec.ports}}{{if .nodePort}}{{.nodePort}}{{"\n"}}{{end}}{{end}}')
+ 1949  echo "Accessing host01:$PORT"
+ 1950  curl host01:$PORT
+ 1951  minikube addons enable dashboard
+ 1952  kubectl get pods -n kubernetes-dashboard -w
+ 1953  ls .minikube/config/config.json 
+ 1954  vi .minikube/config/config.json
+ 1955  minikube
+ 1956  minikube dashbord
+ 1957  minikube dashboard
+ 1958  minikube addons enable metrics-server
+ 1959  kubectl get apiservices
+ 1960  kubectl create namespace cpu-example
+ 1961  kubectl apply -f https://k8s.io/examples/pods/resource/cpu-request-limit.yaml --namespace=cpu-example
+ 1962  kubectl get pod cpu-demo --namespace=cpu-example
+ 1963  kubectl get pod cpu-demo --output=yaml --namespace=cpu-example
+ 1964  kubectl top pod cpu-demo --namespace=cpu-example
+ 1965  kubectl get pod cpu-demo --output=yaml --namespace=cpu-example
+ 1966  kubectl apply -f https://k8s.io/examples/pods/resource/cpu-request-limit.yaml --namespace=cpu-example
+ 1967  kubectl get pod cpu-demo --namespace=cpu-example
+ 1968  kubectl get pod cpu-demo --output=yaml --namespace=cpu-example
+ 1969  kubectl top pod cpu-demo --namespace=cpu-example
+ 1970  kubectl delete pod cpu-demo --namespace=cpu-example
+ 1971  kubectl apply -f https://k8s.io/examples/pods/resource/cpu-request-limit-2.yaml --namespace=cpu-example
+ 1972  kubectl get pod cpu-demo-2 --namespace=cpu-example
+ 1973  kubectl describe pod cpu-demo-2 --namespace=cpu-example
+ 1974  kubectl delete pod cpu-demo-2 --namespace=cpu-example
+ 1975  kubectl create namespace qos-example
+ 1976  kubectl apply -f https://k8s.io/examples/pods/qos/qos-pod.yaml --namespace=qos-example
+ 1977  kubectl get pod qos-demo --namespace=qos-example --output=yaml
+ 1978  kubectl apply -f https://k8s.io/examples/pods/qos/qos-pod-2.yaml --namespace=qos-example
+ 1979  kubectl get pod qos-demo-2 --namespace=qos-example --output=yaml
+ 1980  kubectl apply -f https://k8s.io/examples/pods/qos/qos-pod-3.yaml --namespace=qos-example
+ 1981  kubectl get pod qos-demo-3 --namespace=qos-example --output=yaml
+ 1982  kubectl apply -f https://k8s.io/examples/pods/qos/qos-pod.yaml --namespace=qos-example
+ 1983  kubectl create namespace cpu-example
+ 1984  kubectl apply -f https://k8s.io/examples/pods/resource/cpu-request-limit.yaml --namespace=cpu-example
+ 1985  kubectl get pod cpu-demo --namespace=cpu-example
+ 1986  kubectl delete pod cpu-demo --namespace=cpu-example
+ 1987  cd Work/
+ 1988  mkdir Kubernetes
+ 1989  cd Kubernetes
+ 1990  git clone git@gitlabce.dacya.ucm.es:llibutti/tensorflow.git
+ 1991  cd tensorflow/
+ 1992  ls
+ 1993  doker build -f ./tensorflow-cpu.Dockerfile 
+ 1994  docker build -f ./tensorflow-cpu.Dockerfile 
+ 1995  docker build -f ./tensorflow-cpu.Dockerfile -t tf .
+ 1996  sudo docker build -f ./tensorflow-cpu.Dockerfile -t tf .
+ 1997  sudo groupadd docker
+ 1998  sudo usermod -aG docker figual
+ 1999  groups 
+ 2000  exit
+ 2001  groups
+ 2002  cd Work/Kubernetes/tensorflow/
+ 2003  docker build -f ./tensorflow-cpu.Dockerfile -t tf .
+ 2004  docker images
+ 2005  kubectl create namespace tf-malleable-example
+ 2006  vi cpu-request-limit.yaml
+ 2007  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2008  kubectl get pod tf-demo --namespace=tf-malleable-example
+ 2009  vi cpu-request-limit.yaml
+ 2010  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2011  kubectl get pod tf-demo --namespace=tf-malleable-example
+ 2012  kubectl get pod tf-demo2 --namespace=tf-malleable-example
+ 2013  kubectl get pod tf-demo3 --namespace=tf-malleable-example
+ 2014  kubectl delete namespace cpu-example
+ 2015  kubectl delete namespace qos-example
+ 2016  kubectl delete deployment first-deployment
+ 2017  kubectl get pod tf-demo --namespace=tf-malleable-example
+ 2018  kubectl get pod tf-demo2 --namespace=tf-malleable-example
+ 2019  kubectl get pod tf-demo --namespace=tf-malleable-example
+ 2020  docker images
+ 2021  ls
+ 2022  vi cpu-request-limit.yaml 
+ 2023  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2024  vi cpu-request-limit.yaml 
+ 2025  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2026  kubectl get pod tf-demo2 --namespace=tf-malleable-example
+ 2027  kubectl get pod tf-demo --namespace=tf-malleable-example
+ 2028  kubectl get pod tf-demo3 --namespace=tf-malleable-example
+ 2029  docker ls
+ 2030  docker ps
+ 2031  kubectl get pod tf-demo3 --namespace=tf-malleable-example
+ 2032  kubectl delete pod tf-demo
+ 2033  kubectl delete pod tf-demo2
+ 2034  kubectl delete pod tf-demo2 --namespace=tf-malleable-exxample
+ 2035  kubectl delete pod tf-demo2 --namespace=tf-malleable-example
+ 2036  kubectl delete pod tf-demo --namespace=tf-malleable-example
+ 2037  kubectl get pod tf-demo3 --namespace=tf-malleable-example
+ 2038  kubectl describe pod tf-demo3
+ 2039  kubectl describe pod tf-demo3 --namespace=tf-malleable-example
+ 2040  docker pull tf
+ 2041  sudo docker pull tf
+ 2042  docker run -v $(pwd):/my-devel -it tf
+ 2043  sudo dockerd
+ 2044  docker status
+ 2045  $ docker run -d -p 5000:5000 --restart=always --name registry registry:2
+ 2046  docker push localhost:5000/tf
+ 2047  docker tag tf localhost:5000/tf
+ 2048  docker push localhost:5000/tf
+ 2049  vi cpu-request-limit.yaml 
+ 2050  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2051  kubectl describe pod tf-demo4 --namespace=tf-malleable-example
+ 2052  kubectl delete pod tf-demo3
+ 2053  kubectl delete describe tf-demo3
+ 2054  kubectl delete pod tf-demo3 --namespace=tf-malleable-example
+ 2055  kubectl describe pod tf-demo4 --namespace=tf-malleable-example
+ 2056  vi cpu-request-limit.yaml 
+ 2057  kubectl delete pod tf-demo4 --namespace=tf-malleable-example
+ 2058  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2059  kubectl describe pod tf-demo5 --namespace=tf-malleable-example
+ 2060  vi cpu-request-limit.yaml 
+ 2061  kubectl delete pod tf-demo5 --namespace=tf-malleable-example
+ 2062  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2063  kubectl describe pod tf-demo6 --namespace=tf-malleable-example
+ 2064  vi cpu-request-limit.yaml 
+ 2065  eval $(minikube docker-env)
+ 2066  docker build -f ./tensorflow-cpu.Dockerfile -t tf-kubernetes .
+ 2067  docker images
+ 2068  vi cpu-request-limit.yaml 
+ 2069  kubectl delete pod tf-demo6 --namespace=tf-malleable-example
+ 2070  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2071  kubectl describe pod tf-demo7 --namespace=tf-malleable-example
+ 2072  docker ps
+ 2073  docker run  -it tf-kubernetes
+ 2074  kubectl describe pod tf-demo7 --namespace=tf-malleable-example
+ 2075  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2076  docker run   tf-kubernetes
+ 2077  docker ps
+ 2078  vi cpu-request-limit.yaml 
+ 2079  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2080  kubectl describe pod tf-demo7 --namespace=tf-malleable-example
+ 2081  kubectl describe pod tf-demo8 --namespace=tf-malleable-example
+ 2082  eval $(minikube docker-env)
+ 2083  kubectl describe pod tf-demo8 --namespace=tf-malleable-example
+ 2084  vi cpu-request-limit.yaml 
+ 2085  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2086  kubectl describe pod tf-demo9 --namespace=tf-malleable-example
+ 2087  docker images
+ 2088  fg
+ 2089  vi cpu-request-limit.yaml 
+ 2090  kubectl describe pod tf-demo9 --namespace=tf-malleable-example
+ 2091  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2092  vi cpu-request-limit.yaml 
+ 2093  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2094  kubectl describe pod tf-demo10 --namespace=tf-malleable-example
+ 2095  vi cpu-request-limit.yaml 
+ 2096  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2097  kubectl describe pod tf-demo11 --namespace=tf-malleable-example
+ 2098  kubectl exec -it tf-demo-ctr11 -- /bin/bash
+ 2099  kubectl exec -it tf-demo-ctr11 --namespace=tf-malleable-example -- /bin/bash 
+ 2100  kubectl exec -it tf-demo11 --namespace=tf-malleable-example -- /bin/bash 
+ 2101  vi cpu-request-limit.yaml 
+ 2102  pwd
+ 2103  fg
+ 2104  vi cpu-request-limit.yaml 
+ 2105  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2106  fg
+ 2107  vi cpu-request-limit.yaml 
+ 2108  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2109  fg
+ 2110  vi cpu-request-limit.yaml 
+ 2111  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2112  fg
+ 2113  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2114  kubectl delete pod tf-demo11 --namespace=tf-malleable-example
+ 2115  kubectl exec -it tf-demo13 --namespace=tf-malleable-example -- /bin/bash 
+ 2116  minikube stop
+ 2117  minkube start --mount-string="$HOME/Work/Kubernetes/tensorflow:/data"
+ 2118  minikube start --mount-string="$HOME/Work/Kubernetes/tensorflow:/data"
+ 2119  vi cpu-request-limit.yaml 
+ 2120  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2121  fg
+ 2122  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2123  vi cpu-request-limit.yaml 
+ 2124  kubectl create namespace tf-malleable-example
+ 2125  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2126  kubectl exec -it tf-demo14 --namespace=tf-malleable-example -- /bin/bash 
+ 2127  minikube stop
+ 2128  minikube start --mfafsdfaf --mount-string="$HOME/Work/Kubernetes/tensorflow:/data"
+ 2129  minikube start --mount --mount-string="$HOME/Work/Kubernetes/tensorflow:/data"
+ 2130  vi cpu-request-limit.yaml 
+ 2131  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2132  kubectl exec -it tf-demo15 --namespace=tf-malleable-example -- /bin/bash 
+ 2133  ls
+ 2134  vi launch_all.sh
+ 2135  chmod a+x launch_all.sh 
+ 2136  kubectl exec -it tf-demo15 --namespace=tf-malleable-example -- /bin/bash 
+ 2137  kubectl get svc --all-namespaces
+ 2138  kubectl exec -it tf-demo15 --namespace=tf-malleable-example -- /bin/bash 
+ 2139  kubectl run busybox --image=busybox --rm -ti --restart=Never --command -- ping -c 5 google-public-dns-a.google.com
+ 2140  kubectl run jenkins --image=jenkins --rm -ti --restart=Never --command -- /bin/sh
+ 2141  minikube ssh
+ 2142  kubectl exec -it tf-demo15 --namespace=tf-malleable-example -- /bin/bash 
+ 2143  vi launch_all.sh 
+ 2144  kubectl exec -it tf-demo15 --namespace=tf-malleable-example -- /bin/bash 
+ 2145  vi launch_all.sh 
+ 2146  ls
+ 2147  vi cpu-request-limit.yaml 
+ 2148  ls launch_all.sh 
+ 2149  kubectl delete pod tf-demo15 --namespace=tf-malleable-example
+ 2150  minikube dashboard
+ 2151  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2152  kubectl exec -it tf-demo16 --namespace=tf-malleable-example -- /bin/bash 
+ 2153  vi cpu-request-limit.yaml 
+ 2154  kubectl apply -f cpu-request-limit.yaml --namespace=tf-malleable-example
+ 2155  history > history
