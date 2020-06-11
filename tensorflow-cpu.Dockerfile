@@ -127,7 +127,10 @@ RUN cd /tensorflow_src && \
     pip install tensorflow-2.0.0-cp36-cp36m-linux_x86_64.whl
 
 RUN pip3 install packaging && \
-    pip3 install tensorflow-datasets
+    pip3 install tensorflow-datasets && \
+    pip3 install tensorboard && \
+    apt-get install htop && \ 
+    apt-get install nano
 
 COPY bashrc /etc/bash.bashrc
 RUN chmod a+rwx /etc/bash.bashrc
