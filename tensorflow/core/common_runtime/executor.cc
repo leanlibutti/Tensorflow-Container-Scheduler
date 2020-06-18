@@ -76,8 +76,11 @@ limitations under the License.
 #include "tensorflow/core/distributed_runtime/rpc/grpc_schedule_client_impl.h"
 
 
-static int signal_value_=-1;
-std::mutex signal_mutex_;
+static int signal_inter_value_=-1;
+std::mutex signal_inter_mutex_;
+
+static int signal_intra_value_=-1;
+std::mutex signal_intra_mutex_;
 
 namespace tensorflow {
 namespace {
@@ -1356,8 +1359,11 @@ class ExecutorState {
   thread::ThreadPool* inter_threadpool;
   int max_threads_value_;
   int min_threads_value_;
+  int iteration_down_value_;
+  int iteration_up_value_;
   mutex iterations_schedule_mu_;
-  int iterations_schedule_count GUARDED_BY(iterations_schedule_mu_);
+  int iterations_schedule_inter GUARDED_BY(iterations_schedule_mu_);
+  int iterations_schedule_intra;
   ScheduleClient* schedule_client_;
 
   // The unique name of a frame.
@@ -1429,8 +1435,10 @@ class ExecutorState {
   void Finish();
   void ScheduleFinish();
 
-  static void my_handler(int signum);
-  static void changeSignal();
+  static void handler_inter(int signum);
+  static void handler_intra(int signum);
+  static void changeSignalInter();
+  static void changeSignalIntra();
 
   // A standalone routine for this expression so that we can express
   // that we don't want thread safety analysis on this reference (it's
@@ -1491,8 +1499,10 @@ ExecutorState::ExecutorState(const Executor::Args& args, ExecutorImpl* impl)
   std::shared_ptr<::grpc::Channel> channel = ::grpc::CreateChannel("localhost:50051", ::grpc::InsecureChannelCredentials());
   schedule_client_= new ScheduleClient(channel);
 
-  signal( SIGUSR1,  my_handler);
-  signal( SIGUSR2, my_handler);
+  signal(SIGUSR1, handler_inter);
+  signal(SIGUSR2, handler_inter);
+  signal(16, handler_intra);
+  signal(17, handler_intra);
 }
 
 ExecutorState::~ExecutorState() {
@@ -1505,22 +1515,40 @@ ExecutorState::~ExecutorState() {
   delete slice_reader_cache_;
 }
 
-void ExecutorState::my_handler(int signum){
-  signal_mutex_.lock();
+void ExecutorState::handler_inter(int signum){
+  signal_inter_mutex_.lock();
   //if (signal_threads_ == 0){
     if (signum==SIGUSR1){
       VLOG(1) << "Recibido SIGUSR1. Decrement threads\n";
-      signal_value_=0;
+      signal_inter_value_=0;
     }
     if (signum==SIGUSR2){
       VLOG(1) << "Recibido SIGUSR2. Increment threads\n";
-      signal_value_=1;
+      signal_inter_value_=1;
     }
-  signal_mutex_.unlock();
+  signal_inter_mutex_.unlock();
 }
 
-void ExecutorState::changeSignal(){
-  signal_value_=-1;
+void ExecutorState::handler_intra(int signum){
+  signal_intra_mutex_.lock();
+  //if (signal_threads_ == 0){
+    if (signum==16){
+      VLOG(1) << "Recibido Signal 16. Decrement threads\n";
+      signal_intra_value_=0;
+    }
+    if (signum==17){
+      VLOG(1) << "Recibido Signal 17. Increment threads\n";
+      signal_intra_value_=1;
+    }
+  signal_intra_mutex_.unlock();
+}
+
+void ExecutorState::changeSignalInter(){
+  signal_inter_value_=-1;
+}
+
+void ExecutorState::changeSignalIntra(){
+  signal_intra_value_=-1;
 }
 
 Status ExecutorImpl::BuildControlFlowInfo(const Graph* g,
@@ -1612,6 +1640,10 @@ void ExecutorState::RunAsync(Executor::DoneCallback done) {
       //inter_threadpool->SetLogging(true); 
       const char * max_threads_env_ = std::getenv("MAX_ENV_THREADS");
       const char * min_threads_env_ = std::getenv("MIN_ENV_THREADS");
+      const char * iteration_down_env_ = std::getenv("ITERATION_DOWN");
+      const char * iteration_up_env_ = std::getenv("ITERATION_UP");
+      iteration_down_value_= atoi(iteration_down_env_);
+      iteration_up_value_= atoi(iteration_up_env_);
       max_threads_value_= atoi(max_threads_env_);
       min_threads_value_= atoi(min_threads_env_);
     }
@@ -1785,6 +1817,30 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_nsec) {
   bool completed = false;
   inline_ready.push_back(tagged_node);
   while (!inline_ready.empty()) {
+    mutex_intra_.lock();
+    iterations_schedule_intra++;
+    /* Only test */
+    VLOG(1) << "Iteration Num: " << iterations_schedule_intra << "Thread Id: " << thread_id;
+    VLOG(1) << "ThreadPool Device in Compute OpKernel in Process Execute: " << params.device->tensorflow_cpu_worker_threads()->workers->NumActivesThreads(); 
+    if(iterations_schedule_intra==iteration_down_value_){
+      signal_intra_mutex_.lock();
+      if ( signal_intra_value_==0 ){
+        params.device->tensorflow_cpu_worker_threads()->workers->ChangeMaxActivesThreads(min_threads_value_);
+        VLOG(1) << "Change Intra Threads - Thread Id: " << thread_id;
+        ExecutorState::changeSignalIntra();
+      }
+      signal_intra_mutex_.unlock();
+    }
+    if(iterations_schedule_intra==iteration_up_value_){
+      signal_intra_mutex_.lock();
+      if ( signal_intra_value_==1 ){
+        params.device->tensorflow_cpu_worker_threads()->workers->ChangeMaxActivesThreads(max_threads_value_);
+        VLOG(1) << "Change Intra Threads - Thread Id: " << thread_id;
+        ExecutorState::changeSignalIntra();
+      }
+      signal_intra_mutex_.unlock();
+    }
+    mutex_intra_.unlock();
     tagged_node = inline_ready.front();
     inline_ready.pop_front();
     const NodeItem& item = *tagged_node.node_item;
@@ -2365,26 +2421,26 @@ void ExecutorState::ScheduleReady(const TaggedNodeSeq& ready,
     
     mutex_lock l(iterations_schedule_mu_);
     {
-      iterations_schedule_count++;
-      if(iterations_schedule_count==300){
+      iterations_schedule_inter++;
+      if(iterations_schedule_inter==iteration_down_value_){
         VLOG(1) << "Change Max Actives Threads (Decrement)" << " - Thread ID: " << thread_id;
-        signal_mutex_.lock();
-        if ( signal_value_==0 ){
+        signal_inter_mutex_.lock();
+        if ( signal_inter_value_==0 ){
           inter_threadpool->ChangeMaxActivesThreads(min_threads_value_);
           VLOG(1) << "New Value Max Actives Threads:" << inter_threadpool->MaxActivesThreads() << " - Thread ID: " << thread_id;
-          ExecutorState::changeSignal();
+          ExecutorState::changeSignalInter();
         }
-        signal_mutex_.unlock();
+        signal_inter_mutex_.unlock();
       }
-      if(iterations_schedule_count==2000){
+      if(iterations_schedule_inter==iteration_up_value_){
         VLOG(1) << "Change Max Actives Threads (Increment)" << " - Thread ID: " << thread_id;
-        signal_mutex_.lock();
-        if ( signal_value_==1 ){
+        signal_inter_mutex_.lock();
+        if ( signal_inter_value_==1 ){
           inter_threadpool->ChangeMaxActivesThreads(max_threads_value_);
           VLOG(1) << "New Value Max Actives Threads:" << inter_threadpool->MaxActivesThreads() << " - Thread ID: " << thread_id;
-          ExecutorState::changeSignal();
+          ExecutorState::changeSignalInter();
         }
-        signal_mutex_.unlock();
+        signal_inter_mutex_.unlock();
       }
     }
   }
