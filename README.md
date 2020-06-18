@@ -57,11 +57,28 @@ To run a tensorflow example, two environment variables must be exported:
 
 - export MIN_ENV_THREADS: defines the minimum number of threads used for execution.
 - export MAX_ENV_THREADS: defines the maximum number of threads used for execution.
+- export ITERATION_DOWN: defines in which node of the graph the number of threads will decrease
+- export ITERATION_UP: defines in which node of the graph the number of threads will increase.
 
-Then run the example keras_example_tf2.py located in the / tensorflow_src / tensorflow_examples folder:
+Then run the examples located in the / tensorflow_src / tensorflow_examples folder:
 
 - cd tensorflow_src/tensorflow_examples
-- python keras_examples_tf2.py
+
+To run the VGG example:
+
+- python keras_example_VGG.py NUM_INTER NUM_INTRA
+
+To run the Resnet50 example:
+
+- python keras_example_renset.py NUM_INTER NUM_INTRA
+
+The script execution_script.sh allows you to run an example by varying the number of inter and intra threads from 1 to 32, testing all combinations. It has 5 parameters:
+
+- minimum number of threads
+- maxinum number of threads.
+- which node of the graph the number of threads will decrease.
+- which node of the graph the number of threads will increase.
+- nameo of the model example (VGG or Resnet50).
 
 ## Save changes in Docker Container
 

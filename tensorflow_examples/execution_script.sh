@@ -11,7 +11,7 @@ for value in {1..6}
 do
 	for value2 in {1..6}
 	do
-		python3 keras_example_VGG.py $inter $intra
+		python3 $5 $inter $intra
 		let intra=$intra*2
 	done
 	let intra=1
