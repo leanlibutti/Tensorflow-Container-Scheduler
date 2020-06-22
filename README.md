@@ -102,10 +102,25 @@ Run the saved image by binding port 6006 of the container to port 6006 of the lo
 
 docker run -p 0.0.0.0:6006:6006 -it container_name:latest
 
-Luego, ejecutar tensorboard utilizando la opcion --bind_all. This will expose your TensorBoard instance to the network on both IPv4 and IPv6 (where available). Mutually exclusive with `--host`. Use the following command:
+Then, execute Tensorflow with option --bind_all. This will expose your TensorBoard instance to the network on both IPv4 and IPv6 (where available). Mutually exclusive with `--host`. Use the following command:
 
 tensorboard --logdir PATH_PROFILE --bind_all
 
+## Use Linux signals to change parallelism
+
+To change the parallelism at runtime, we first look for the PID of the process that runs the tensorflow instance with the following command: 
+
+- pidof python example_name.py 
+
+Where name is keras_example_resnet.py or keras_example_VGG.py.
+
+If we want to modify the inter parallelism, we must use the signal 10 to decrease or 12 to increase.
+
+If we want to modify the intra parallelism, we must use the signal 16 to decrease or 17 to increase.
+
+Finally we execute the kill command to send the signal to the program:
+
+- kill -SIGNAL_NUMBER PID_PROCESS 
 
 ## Install
 
