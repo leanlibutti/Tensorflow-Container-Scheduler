@@ -53,7 +53,7 @@ See all the [mailing lists](https://www.tensorflow.org/community/forums).
 
 ## Run Tensorflow Examples
 
-To run a tensorflow example, two environment variables must be exported:
+To run a tensorflow example, four environment variables must be exported:
 
 - export MIN_ENV_THREADS: defines the minimum number of threads used for execution.
 - export MAX_ENV_THREADS: defines the maximum number of threads used for execution.
@@ -78,7 +78,7 @@ The script execution_script.sh allows you to run an example by varying the numbe
 - maxinum number of threads.
 - which node of the graph the number of threads will decrease.
 - which node of the graph the number of threads will increase.
-- nameo of the model example (VGG or Resnet50).
+- name of the model example (VGG or Resnet50).
 
 ## Save changes in Docker Container
 
