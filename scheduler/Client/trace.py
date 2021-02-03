@@ -43,12 +43,14 @@ class TraceLog:
         # Almacenar evento en la lista
         self.events_list.append(event)
 
-    def save_CSV(self):
+    def save_CSV(self,directory):
 
         ok=True
         
+        file_path= directory+'/trace_logging.txt'
+
         try: 
-            with open('trace_logging.txt', mode='w') as csv_file:
+            with open(file_path, mode='w') as csv_file:
                 writer_log = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 for event_l in self.events_list:
                     writer_log.writerow([event_l.get_event_type(), event_l.get_time()])
