@@ -8,12 +8,13 @@ class systemInfo:
         self.cores= multiprocessing.cpu_count()
         self.cores_used=0
 
+    def total_cores(self):
+        return self.cores
+    
     def check_resources(self):
-
         return self.cores - self.cores_used
 
     def apply_resources(self, parallelism):
-
         if parallelism > (self.cores - self.cores_used):
             return False
         else:

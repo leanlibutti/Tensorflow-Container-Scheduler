@@ -92,33 +92,45 @@ def updateExecutionInstance(container_name, new_inter_parallelism, new_intra_par
             x.setInterUser_parallelism(new_inter_parallelism)
             x.setIntraUser_parallelism(new_intra_parallelism)
 
+            print('Old Parallelism: Inter=', old_interParallelism, ' - Intra=', old_intraParallelism, ' New Parallelism: Inter=', new_inter_parallelism, ' - Intra=', new_intra_parallelism)
+
             if (new_inter_parallelism>old_interParallelism):
-                # se van a incrementar ambos paralelismos
                 if(new_intra_parallelism > old_intraParallelism):
+                    # se van a incrementar ambos paralelismos
                     parallelism_list= scheduler_container.schedule_parallelism(system_info, new_inter_parallelism-old_interParallelism, new_intra_parallelism-old_intraParallelism)
                     if parallelism_list:
-                        if systemInfo.apply_resources(parallelism_list[0]-old_interParallelism+parallelism_list[1]-old_intraParallelism):
+                        parallelism_apply=parallelism_list[0]-old_interParallelism+parallelism_list[1]-old_intraParallelism
+                        print("Parallelism Apply: ", parallelism_apply)
+                        if system_info.apply_resources(parallelism=parallelism_apply):
+                            print("Increment both parallelisms: ", new_inter_parallelism, ' - ', new_intra_parallelism)
                             ok = x.updateParallelism(new_inter_parallelism, new_intra_parallelism)
                         else:
                             print("Error: not update intra and inter parallelism in container:", x.getContainerName())
                 else:
                     # solo se incrementa el paralelismo inter
                     parallelism_list=scheduler_container.schedule_parallelism(system_info,new_inter_parallelism-old_interParallelism, 0)
-                    if(systemInfo.apply_resources(parallelism_list[0]-old_interParallelism)):
-                        ok = x.updateParallelism(new_inter_parallelism, old_intraParallelism)
+                    parallelism_apply= parallelism_list[0]-old_interParallelism+(old_intraParallelism-new_intra_parallelism)
+                    print("Parallelism Apply: ", parallelism_apply)
+                    if(system_info.apply_resources(parallelism=parallelism_apply)):
+                        print("Only increment inter parallelism: ", new_inter_parallelism)
+                        ok = x.updateParallelism(new_inter_parallelism, new_intra_parallelism)
                     else:
                         print("Error: not update inter parallelism in container:", x.getContainerName())
             else:
                 if new_intra_parallelism>old_intraParallelism:
                     # solo se incrementa el paralelismo intra
                     parallelism_list=scheduler_container.schedule_parallelism(system_info,0, new_intra_parallelism-old_intraParallelism)
-                    if(systemInfo.apply_resources(parallelism_list[1]-old_intraParallelism)):
-                        ok = x.updateParallelism(old_interParallelism, new_intra_parallelism)
+                    parallelism_apply=parallelism_list[1]-old_intraParallelism+(old_interParallelism-new_inter_parallelism)
+                    if(system_info.apply_resources(parallelism=parallelism_apply)):
+                        print("Only increment intra parallelism: ", new_intra_parallelism)
+                        ok = x.updateParallelism(new_inter_parallelism, new_intra_parallelism)
                     else:
                         print("Error: not update intra parallelism in container:", x.getContainerName())
                 else:
                     # se disminuyen ambos paralelismos
-                    systemInfo.free_resources(old_interParallelism-new_inter_parallelism+old_intraParallelism-new_intra_parallelism)
+                    system_info.free_resources(old_interParallelism-new_inter_parallelism+old_intraParallelism-new_intra_parallelism)
+                    print("Decrement both parallelisms: ", new_inter_parallelism, ' - ', new_intra_parallelism)
+                    ok = x.updateParallelism(new_inter_parallelism, new_intra_parallelism)
     mutex_execInfo.release()
     
     return ok
@@ -136,6 +148,8 @@ def generateExecutionRequest():
     # Cantidad de peticiones a realizar
     request_count = 0
 
+    docker_image= 'tf_malleable'
+
     while request_count < 10:
 
         # Tiempo de espera para la próxima petición
@@ -150,7 +164,7 @@ def generateExecutionRequest():
         # -Imagen docker 
         inter_parallelism = random.randint(1, 6)
         intra_parallelism = random.randint(1, 12)
-        docker_image= 'tf_malleable'
+        
 
         #Crear peticion 
         request_exec = Request(request_type="execution", container_name="null", docker_image=docker_image, inter_parallelism=inter_parallelism, intra_parallelism=intra_parallelism)
@@ -186,12 +200,21 @@ def generateUpdateRequest():
     # Cantidad de peticiones a realizar
     request_count = 0
 
-    while request_count < 5:
+    docker_image= 'tf_malleable'
 
-        with cv_update:
-            # Esperar a que el hilo attentionRequest ejecute alguna instancia
-            cv_update.wait()
-            print('Me desperté Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
+    while request_count < 5:
+        
+        wait_containers=True
+
+        while (wait_containers):
+            with cv_update:
+                # Esperar a que el hilo attentionRequest ejecute alguna instancia
+                value=cv_update.wait()
+                print('Wake up - Thread:', threading.current_thread().getName())
+            if value:
+                wait_containers=False
+            else:
+                print('Wait Timeout', threading.current_thread().getName())
 
         # Tiempo de espera para la próxima petición
         # Se utiliza distribución normal de tiempo con medio en 20 segundos y desviación estándar de 5 segundos
@@ -214,7 +237,7 @@ def generateUpdateRequest():
         intra_parallelism = random.randint(1, 12)
 
         #Crear peticion de actualización 
-        request_exec = Request(request_type="update", container_name= container_name, inter_parallelism=inter_parallelism, intra_parallelism=intra_parallelism)
+        request_exec = Request(request_type="update", container_name= container_name, docker_image=docker_image,inter_parallelism=inter_parallelism, intra_parallelism=intra_parallelism)
     
         #Comprobar scheduling de peticiones (con o sin prioridad)
         if priority_queue: 
@@ -233,9 +256,12 @@ def generateUpdateRequest():
         event_logs.save_event(4, threading.current_thread().ident, 0)
         mutex_eventlogs.release()
 
-def container_client(clientsocket,addr,container_name, interExec_parallelism, intraExec_parallelism):
+def container_client(clientsocket,addr,container_name, instance_number, interExec_parallelism, intraExec_parallelism):
 
     container_eliminated= False
+
+    # Enviar ID de cliente 
+    clientsocket.send(bytes(str(instance_number), 'utf-8'))
 
     # Enviar comando TF de ejecución 
     #clientsocket.send(bytes(request.command, 'utf-8'))
@@ -248,7 +274,7 @@ def container_client(clientsocket,addr,container_name, interExec_parallelism, in
         try:
             # Recibir mensaje de finalización o problema del contenedor
             msg = clientsocket.recv(1024).decode('utf-8')
-            print (container_name, "send message: ", msg)
+            #print (container_name, "send message: ", msg) (ver por qué recibe tantos mensajes vacios)
         except socket.timeout: # fail after 60 second of no activity
             print("Didn't receive data! [Timeout]")
 
@@ -329,7 +355,7 @@ def schedule_request(request, socket_schedule, instance_number=0):
 
     if request.request_type == 'execution':
 
-        print('Planificar peticion de ejecucion: ',threading.current_thread().getName())
+        print('Schedule Execution Request: ',threading.current_thread().getName())
 
         parallelism_container= scheduler_container.schedule_parallelism(system_info, request.inter_parallelism, request.intra_parallelism)
 
@@ -338,14 +364,12 @@ def schedule_request(request, socket_schedule, instance_number=0):
         
             # Atender petición de ejecución
             container_name= 'instance' + str(instance_number)
-
-            instance_number+=1
             
             # Comando para iniciar contenedor con una imagen dada en la petición (opciones dit permiten dejar ejecutando el contenedor en background)
             print("Creating Docker Container...")
 
-            docker_command= 'docker run -dit --name '+ container_name + ' -p ' + str(port) + ':8787 --volume /var/run/docker.sock:/var/run/docker.sock ' + request.docker_image 
-
+            #docker_command= 'docker run -dit --name '+ container_name + ' -p ' + str(port) + ':8787 --volume /var/run/docker.sock:/var/run/docker.sock ' + request.docker_image 
+            docker_command= 'docker run -dit --name '+ container_name + ' -p ' + str(port) + ':8787 --volume /home/leandro/Documentos/Data:/home/Data ' + request.docker_image 
             # Ejecutar comando (con os.p)
             # Los primeros 12 caracteres de stdout son el container ID
             process_command = Popen([docker_command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
@@ -364,7 +388,7 @@ def schedule_request(request, socket_schedule, instance_number=0):
                     c, addr = socket_schedule.accept()
                     conn_established = True
                     # Crear hilo para la comunicación con el contenedor
-                    tmp_thread = threading.Thread(target=container_client, args=(c,addr,container_name, parallelism_container[0], parallelism_container[1],))
+                    tmp_thread = threading.Thread(target=container_client, args=(c,addr,container_name, instance_number, parallelism_container[0], parallelism_container[1],))
                     tmp_thread.start()
                 except socket.timeout:
                     print("Connection establish timeout")
@@ -383,7 +407,7 @@ def schedule_request(request, socket_schedule, instance_number=0):
                 container_id =  stdout[:12]
                 
                 # almacenar ID del proceso
-                process_id_command= 'docker container top' + container_id + '-o pid'
+                process_id_command= 'docker container top ' + container_id + ' -o pid'
                 process_command = Popen([process_id_command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
                 stdout, stderr = process_command.communicate()
 
@@ -416,10 +440,14 @@ def schedule_request(request, socket_schedule, instance_number=0):
                 if execInfo_list.count == 1:
                     with cv_update:
                         cv_update.notify()
+
+                state=1
+        else:
+            state=0
     else:
         # Atender petición de actualización
 
-        print('Planificar peticion de ejecucion: ',threading.current_thread().getName())
+        print('Schedule Update Request: ',threading.current_thread().getName())
 
         # Obtener objeto ExecutionInfo correspondiente a la instancia que se desea actualizar 
         ok = updateExecutionInstance(request.container_name, request.inter_parallelism, request.intra_parallelism)
@@ -429,26 +457,30 @@ def schedule_request(request, socket_schedule, instance_number=0):
             mutex_eventlogs.acquire()
             event_logs.save_event(2, threading.current_thread().ident, 0)
             mutex_eventlogs.release()
+            state=1
         else:
             print("Container is not running (abort update)")
+            state=0
     
-    return instance_number
+    return state
 
 def attentionRequest(socket_schedule):
     print('AttentionRequest Thread:', threading.current_thread().getName())
 
     instance_number=0
+
+    request_pending=False
     
     while True:
 
         with cv_attention:
             # Esperar a que alguno de los demas hilos avise que hay peticiones pendientes (ejecución, actualización, replanificación o eliminación de contenedores)
             cv_attention.wait()
-            print('Me desperté:', threading.current_thread().getName())
+            print('Wake up:', threading.current_thread().getName())
 
         if not q_finish_container.empty():
 
-            print('Atender peticiones de terminacion/act/exe: ',threading.current_thread().getName())
+            print('Attention finish request: ',threading.current_thread().getName())
 
             # Atender peticiones de finalización de contenedores
             while not q_finish_container.empty():
@@ -456,6 +488,8 @@ def attentionRequest(socket_schedule):
                 mutex_systemInfo.acquire()
                 system_info.free_resources(parallelism_free)
                 mutex_systemInfo.release()
+
+            print('Reassigment free parallelism: ',threading.current_thread().getName())
 
             # reasigno contenedores con prioridad de los contenedores mas viejos (indicando que se aumenten sus recursos asignados)
             mutex_systemInfo.acquire()
@@ -467,49 +501,39 @@ def attentionRequest(socket_schedule):
                 mutex_eventlogs.release()
             mutex_systemInfo.release()
 
-            # me fijo si puedo atender peticiones de act/exe
-            if priority_queue:
-                if not q_priority_exec_update.empty():
-                    mutex_systemInfo.acquire()
-                    resources_availables= system_info.check_resources()
-                    while resources_availables > 0:
-                        request = q_priority_exec_update.get()
-                        instance_number= schedule_request(request, socket_schedule, instance_number)
-                        resources_availables= system_info.check_resources()
-                    mutex_systemInfo.release()
-                else:
-                    if not q_normal_exec_update.empty():
-                        mutex_systemInfo.acquire()
-                        resources_availables= system_info.check_resources()
-                        while resources_availables > 0:
-                            request = q_normal_exec_update.get()
-                            instance_number= schedule_request(request, socket_schedule, instance_number)  
-                            resources_availables= system_info.check_resources()
-                        mutex_systemInfo.release()                      
-        else:
+        print('Attention act/exe request: ',threading.current_thread().getName())
 
-            print('Atender peticiones de act/exe: ',threading.current_thread().getName())
-
-            mutex_systemInfo.acquire()
-            resources_availables= system_info.check_resources()
-            while (resources_availables > 0) and ((not q_normal_exec_update.empty()) or (not q_priority_exec_update.empty())):
-                # Atender petición de ejecución/actualización
+        mutex_systemInfo.acquire()
+        resources_availables= system_info.check_resources()
+        while (resources_availables > 0) and ((not q_normal_exec_update.empty()) or (not q_priority_exec_update.empty())):
+            # Atender petición de ejecución/actualización
+            if not request_pending:
                 if priority_queue:
-                    print('Atender peticiones de act/exe de cola con prioridad: ',threading.current_thread().getName())
+                    print('Serve queue act / exe requests with priority : ',threading.current_thread().getName())
                     if not q_priority_exec_update.empty():
                         request = q_priority_exec_update.get()
                 else:
-                    print('Atender peticiones de act/exe de cola sin prioridad: ',threading.current_thread().getName())
+                    print('Serve queue act / exe requests without priority : ',threading.current_thread().getName())
                     if not q_normal_exec_update.empty():
                         request = q_normal_exec_update.get()
-                resources_availables= system_info.check_resources() 
-                print('Planificar peticion de act/exe: ',threading.current_thread().getName())
-                instance_number= schedule_request(request, socket_schedule, instance_number)
-                resources_availables= system_info.check_resources()
+            resources_availables= system_info.check_resources() 
+            print('Schedule act/exe request: ',threading.current_thread().getName())
+            state= schedule_request(request, socket_schedule, instance_number)
+            resources_availables= system_info.check_resources()
+            
+            # Verificar si no se pudo atender la peticion
+            if (state==0):
+                # Verificar si la cantidad de paralelismo solicitada no excede el máximo de la máquina
+                if((request.inter_parallelism+request.intra_parallelism)<system_info.total_cores()):
+                    request_pending= True
+                else:
+                    print("Request discarded because the parallelism requested exceeds the maximum number of cores of the machine")
+            else: 
                 # Avisar al hilo generador de peticiones de actualización cuando se crea una instancia Docker
                 with cv_update:
-                    cv_update.notify()
-            mutex_systemInfo.release() 
+                    cv_update.notify() 
+                request_pending=False
+        mutex_systemInfo.release() 
 '''
 def deletionInstances():
 
