@@ -587,10 +587,16 @@ def attentionRequest(socket_schedule):
             state= schedule_request(request, socket_schedule, instance_number, port_host, requested_resources)
 
             mutex_systemInfo.acquire()
-            if state!=0:
+            if state==0:
                 print ("Pending petition could not be answered")
                 q_aux.put(request)
                 system_info.free_resources(requested_resources)
+            else:
+                if request.request_type=="execution":
+                    instance_number=instance_number+1
+                    port_host= port_host+1   
+                    with cv_update:
+                        cv_update.notify()
             resources_availables= system_info.check_resources()
         mutex_systemInfo.release()
 
@@ -645,8 +651,8 @@ def attentionRequest(socket_schedule):
             else:
                 print('Schedule request:', request.request_type,' Inter-Parallelism:', request.inter_parallelism, ' Intra-Parallelism:', request.intra_parallelism, ' Thread-ID:', threading.current_thread().getName()) 
             
-            state= schedule_request(request, socket_schedule, instance_number, port_host, requested_resources)
-            port_host= port_host+1    
+            state= schedule_request(request, socket_schedule, instance_number, port_host, requested_resources)  
+
             # Verificar si no se pudo atender la peticion
             if (state==0):
                 # Verificar si la cantidad de paralelismo solicitada excede el máximo de la máquina
@@ -658,10 +664,11 @@ def attentionRequest(socket_schedule):
                 system_info.free_resources(requested_resources)
             else: 
                 # Avisar al hilo generador de peticiones de actualización cuando se crea una instancia Docker
-                with cv_update:
-                    cv_update.notify() 
                 if request.request_type =='execution':
                     instance_number=instance_number+1
+                    port_host= port_host+1   
+                    with cv_update:
+                        cv_update.notify() 
 
             mutex_systemInfo.acquire()
             resources_availables= system_info.check_resources()
