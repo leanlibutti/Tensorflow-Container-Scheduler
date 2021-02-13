@@ -45,20 +45,21 @@ class ExecutionInfo:
         new_parallelism= inter_parallelism + intra_parallelism
 
         # Comando de actualización del paralelismo del contenedor
-        run_command= 'docker update ' + self.docker_ps + ' --cpus ' + new_parallelism
+        run_command= 'docker update ' + str(self.docker_ps) + ' --cpus ' + str(new_parallelism)        
         
-        if inter_parallelism != 0:
+        if inter_parallelism > 0:
             # Setear las variable de entorno correspondiente al paralelismo inter de la instancia de Tensorflow actual (hacer en el cliente del contenedor)
             #os.environ["INTER_PARALELLISM"] = inter_parallelism
             #kill_command= "docker kill --signal=10 " + docker_ps # verificar si es esa señal (numero) 
-            self.clientsocket.send(bytes(10, 'utf-8'))
-            self.clientsocket.send(bytes(inter_parallelism, 'utf-8'))
+            self.clientsocket.send(bytes(str(10), 'utf-8'))
+            self.clientsocket.send(bytes(str(inter_parallelism), 'utf-8'))
        
             # Enviar señal que sera capturada por la instancia de Tensorflow dentro del contenedor
             #process_command = Popen([kill_command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
             #stdout, stderr = process_command.communicate()
 
             # Actualizar informacion del inter paralelismo del contenedor
+            self.intraUser_parallelism= inter_parallelism
             self.interExecution_parallelism= inter_parallelism
 
             '''
@@ -67,18 +68,19 @@ class ExecutionInfo:
                 return False
             '''
 
-        if intra_parallelism != 0:
+        if intra_parallelism >0:
             # Setear las variable de entorno correspondiente al paralelismo inter de la instancia de Tensorflow actual (hacer en el cliente del contenedor)
             #os.environ["INTRA_PARALELLISM"]  = intra_parallelism 
             #kill_command= "docker kill --signal=12 " + docker_ps # verificar si es esa señal (numero)
-            self.clientsocket.send(bytes(12, 'utf-8'))
-            self.clientsocket.send(bytes(intra_parallelism, 'utf-8'))
+            self.clientsocket.send(bytes(str(12), 'utf-8'))
+            self.clientsocket.send(bytes(str(intra_parallelism), 'utf-8'))
             
             # Enviar señal que sera capturada por la instancia de Tensorflow dentro del contenedor
             #process_command = Popen([kill_command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
             #stdout, stderr = process_command.communicate()
 
             # Actualizar informacion del intra paralelismo del contenedor
+            self.intraUser_parallelism= intra_parallelism
             self.intraExecution_parallelism= intra_parallelism
 
             '''
