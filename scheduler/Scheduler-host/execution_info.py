@@ -1,6 +1,6 @@
 # Clase que contiene la información asociada a una instancia de ejecución de Tensorflow
 class ExecutionInfo:
-    def __init__(self, container_name, container_port, docker_ps, interUser_parallelism, intraUser_parallelism, interExecution_parallelism, intraExecution_parallelism, clientsocket):
+    def __init__(self, container_name, container_number, container_port, docker_ps, interUser_parallelism, intraUser_parallelism, interExecution_parallelism, intraExecution_parallelism, clientsocket):
         self.container_name = container_name
         self.docker_ps = docker_ps
         self.interUser_parallelism = interUser_parallelism
@@ -9,6 +9,7 @@ class ExecutionInfo:
         self.interExecution_parallelism = interExecution_parallelism
         self.container_port = container_port
         self.clientsocket = clientsocket
+        self.container_number=container_number
 
     def getInterUser_parallelism(self):
         return self.interUser_parallelism
@@ -37,6 +38,9 @@ class ExecutionInfo:
     # Retorna el nombre del contenedor de la instancia TF en ejecución
     def getContainerName(self):
         return self.container_name
+
+    def getContainerNumber(self):
+        return self.container_number
 
     # Actualizar el paralelismo total del contenedor en ejecución
     # Retorna si la operacion de actualización se pudo realizar correctamente
