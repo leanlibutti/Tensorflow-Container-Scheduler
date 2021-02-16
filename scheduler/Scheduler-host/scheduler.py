@@ -13,12 +13,19 @@ from trace import TraceLog
 from system import systemInfo
 from scheduling_policy import FFSnotReassignment, FFSReassignment
 import copy
+import events
 
 #Mutex para acceder al trace log
 mutex_eventlogs= threading.Lock()
 
 # Almacena la informacion de los eventos en el planificador
 event_logs= TraceLog(12)
+
+#Mutex para acceder al proximo numero de hilo
+mutex_numberThread= threading.Lock()
+
+# Numero de hilo que identifica unicamente a cada uno
+number_thread=0
 
 # Encargada de manejar los recursos disponibles y utilizados en el sistema
 system_info = systemInfo()
@@ -125,7 +132,7 @@ def attentionSignal(num, frame):
 
 # Métodos asignados a hilos #
 
-def generateExecutionRequest():
+def generateExecutionRequest(thread_id):
     print('ExecutionRequest Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
 
     # Cantidad de peticiones a realizar
@@ -166,7 +173,7 @@ def generateExecutionRequest():
             q_normal_exec_update.put(request_exec)
 
         mutex_eventlogs.acquire()
-        event_logs.save_event(3, threading.current_thread().ident, 0)
+        event_logs.save_event(events.GENERATE_REQUEST_EXE, thread_id, 0)
         mutex_eventlogs.release()
 
         # Avisar al hilo de atencion que se encoló una nueva petición.
@@ -177,7 +184,7 @@ def generateExecutionRequest():
         # Esperar un tiempo para realizar la siguiente petición
         time.sleep(time_wait)
 
-def generateUpdateRequest():
+def generateUpdateRequest(thread_id):
     print('UpdateRequest Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
 
     # Cantidad de peticiones a realizar
@@ -244,10 +251,10 @@ def generateUpdateRequest():
                 q_normal_exec_update.put(request_exec)
 
             mutex_eventlogs.acquire()
-            event_logs.save_event(4, threading.current_thread().ident, 0)
+            event_logs.save_event(events.GENERATE_REQUEST_UP, thread_id, 0)
             mutex_eventlogs.release()
 
-def container_client(clientsocket,addr,container_name, instance_number, interExec_parallelism, intraExec_parallelism):
+def container_client(clientsocket,addr,container_name, instance_number, interExec_parallelism, intraExec_parallelism, thread_id):
 
     container_eliminated= False
 
@@ -282,7 +289,7 @@ def container_client(clientsocket,addr,container_name, instance_number, interExe
         if msg == 'finalize':
 
             mutex_eventlogs.acquire()
-            event_logs.save_event(5, threading.current_thread().ident, 0)
+            event_logs.save_event(events.FINISH_CONTAINER, thread_id, instance_number)
             mutex_eventlogs.release()
 
             # Buscar contenedor en la lista
@@ -321,13 +328,18 @@ def container_client(clientsocket,addr,container_name, instance_number, interExe
     print("Finish Cliet Thread - Container: ", instance_number)
 
 # System Info Safe
-def oldest_reassigment(resources_availables, increase_or_reduce, amount_reduce=0):
+def oldest_reassigment(resources_availables, increase_or_reduce, amount_reduce=0, thread_id):
 
     print("Reassigment Containers with oldest policy")
-    
+
+    mutex_eventlogs.acquire()
+    event_logs.save_event(events.REASSIGMENT_RESOURCES,thread_id,-1)
+    mutex_eventlogs.release()
+
     if increase_or_reduce:
         mutex_execInfo.acquire()
         for container in execInfo_list:
+            ok=False
             interUser_parallelism= container.getInterUser_parallelism()
             intraUser_parallelism= container.getIntraUser_parallelism()
             interparallelism_required= interUser_parallelism -  container.getInterExecution_parallelism()
@@ -354,6 +366,7 @@ def oldest_reassigment(resources_availables, increase_or_reduce, amount_reduce=0
                             container.updateParallelism(inter_parallelism=interUser_parallelism+resources_availables)
                             resources_availables=0 
                             print("Update inter parallelism in container: ", container.getContainerName(), "to: ", interUser_parallelism+resources_availables)
+                    ok=True
                 else:
                     if(intraparallelism_required>0):
                         if (resources_availables >= intraparallelism_required):
@@ -364,6 +377,7 @@ def oldest_reassigment(resources_availables, increase_or_reduce, amount_reduce=0
                             container.updateParallelism(intra_parallelism=intraUser_parallelism+resources_availables) 
                             resources_availables=0
                             print("Update intra parallelism in container: ", container.getContainerName(), "to: ", intraUser_parallelism+resources_availables)
+                        ok=True
                     else:
                         if(interparallelism_required>0):
                             if (resources_availables >= interparallelism_required):
@@ -374,6 +388,11 @@ def oldest_reassigment(resources_availables, increase_or_reduce, amount_reduce=0
                                 container.updateParallelism(inter_parallelism=interUser_parallelism+resources_availables) 
                                 resources_availables=0
                                 print("Update inter parallelism in container: ", container.getContainerName(), "to: ", interUser_parallelism+resources_availables)
+                            ok=True
+            if ok:
+                mutex_eventlogs.acquire()
+                event_logs.save_event(events.REASSIGMENT_RESOURCES, thread_id, container.getContainerNumber())
+                mutex_eventlogs.release()
             if resources_availables == 0:
                 break
         mutex_execInfo.release()
@@ -383,7 +402,7 @@ def oldest_reassigment(resources_availables, increase_or_reduce, amount_reduce=0
 
     return resources_availables
 
-def schedule_request(request, socket_schedule, instance_number=0, port_host=0, resources_availables=0):
+def schedule_request(request, socket_schedule, instance_number=0, port_host=0, resources_availables=0, thread_id=0):
 
     if request.request_type == 'execution':
 
@@ -421,8 +440,11 @@ def schedule_request(request, socket_schedule, instance_number=0, port_host=0, r
                     c, addr = socket_schedule.accept()
                     conn_established = True
                     # Crear hilo para la comunicación con el contenedor
-                    tmp_thread = threading.Thread(target=container_client, args=(c,addr,container_name, instance_number, parallelism_container[0], parallelism_container[1],))
+                    tmp_thread = threading.Thread(target=container_client, args=(c,addr,container_name, instance_number, parallelism_container[0], parallelism_container[1],number_thread,))
                     tmp_thread.start()
+                    mutex_numberThread.acquire()
+                    number_thread=number_thread+1
+                    mutex_numberThread.release()
                 except socket.timeout:
                     print("Connection establish timeout")
                     attemps= attemps+1
@@ -433,7 +455,7 @@ def schedule_request(request, socket_schedule, instance_number=0, port_host=0, r
             if attemps != 5:
 
                 mutex_eventlogs.acquire()
-                event_logs.save_event(1, threading.current_thread().ident, 0)
+                event_logs.save_event(events.ATTENTION_REQUEST_EXE, thread_id, instance_number)
                 mutex_eventlogs.release()
 
                 #Transformar stdout en container ID
@@ -457,7 +479,7 @@ def schedule_request(request, socket_schedule, instance_number=0, port_host=0, r
                     print('Name of request: ', container_name, ' - Container ID: ', container_id, 'Container Process ID: ', process_id)
 
                 # Crear un ExecutionInfo para almacenar la informacion de la instancia ejecutada
-                exec_info = ExecutionInfo(container_name, port_host, process_id, request.inter_parallelism, request.intra_parallelism, parallelism_container[0], parallelism_container[1], c)
+                exec_info = ExecutionInfo(container_name, instance_number, port_host, process_id, request.inter_parallelism, request.intra_parallelism, parallelism_container[0], parallelism_container[1], c)
 
                 # Almacenar instancia de execución en la lista de ejecuciones activas (es thread safe)
                 mutex_execInfo.acquire()
@@ -492,13 +514,15 @@ def schedule_request(request, socket_schedule, instance_number=0, port_host=0, r
             event_logs.save_event(2, threading.current_thread().ident, 0)
             mutex_eventlogs.release()
             state=1
+            mutex_eventlogs.acquire()
+            event_logs.save_event(events.ATTENTION_REQUEST_UP, thread_id, instance_number)
         else:
             print("Container is not running (abort update)")
             state=0
     
     return state
 
-def attentionRequest(socket_schedule):
+def attentionRequest(socket_schedule, thread_id):
     print('AttentionRequest Thread:', threading.current_thread().getName())
 
     instance_number=0
@@ -536,7 +560,7 @@ def attentionRequest(socket_schedule):
             if resources_availables>0: 
                 system_info.apply_resources(resources_availables)
                 mutex_systemInfo.release()
-                resources_availables= oldest_reassigment(resources_availables, True)
+                resources_availables= oldest_reassigment(resources_availables, True, thread_id)
                 if resources_availables > 0:
                     mutex_systemInfo.acquire()
                     system_info.free_resources(resources_availables)
@@ -584,7 +608,7 @@ def attentionRequest(socket_schedule):
             mutex_systemInfo.release()
 
             # Intentar planificar peticion pendiente       
-            state= schedule_request(request, socket_schedule, instance_number, port_host, requested_resources)
+            state= schedule_request(request, socket_schedule, instance_number, port_host, requested_resources, thread_id)
 
             mutex_systemInfo.acquire()
             if state==0:
@@ -651,7 +675,7 @@ def attentionRequest(socket_schedule):
             else:
                 print('Schedule request:', request.request_type,' Inter-Parallelism:', request.inter_parallelism, ' Intra-Parallelism:', request.intra_parallelism, ' Thread-ID:', threading.current_thread().getName()) 
             
-            state= schedule_request(request, socket_schedule, instance_number, port_host, requested_resources)  
+            state= schedule_request(request, socket_schedule, instance_number, port_host, requested_resources, thread_id)  
 
             # Verificar si no se pudo atender la peticion
             if (state==0):
@@ -704,13 +728,16 @@ if __name__ == "__main__":
     print("Creating threads...")
 
     # Crear hilo para la atención de solicitudes
-    attention_thread = threading.Thread(target=attentionRequest, args=(socket_schedule,))
+    attention_thread = threading.Thread(target=attentionRequest, args=(socket_schedule,number_thread,))
+    number_thread= number_thread+1
 
     # Crear hilo para la generacion de peticiones de ejecución
-    request_thread = threading.Thread(target=generateExecutionRequest)
+    request_thread = threading.Thread(target=generateExecutionRequest, args=(number_thread,))
+    number_thread=number_thread+1
 
     # Crear hilo para la generacion de peticiones de actualización de paralelismo de contenedores
-    update_thread = threading.Thread(target=generateUpdateRequest)
+    update_thread = threading.Thread(target=generateUpdateRequest, args=(number_thread,))
+    number_thread=number_thread+1
     
     # Iniciar todos los hilos
     attention_thread.start()
