@@ -18,6 +18,11 @@ filename_path= '/home/Data/log/log-'+str(threading.get_ident())
 mutex_finalize = threading.Lock()
 finalize=False
 
+# Variable condición utilizada para avisar al hilo Atencion de que hay pedidos pendientes en alguna cola.
+cv_update = threading.Condition()
+data=''
+parallelism=''
+
 logging.basicConfig(filename=filename_path,
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -25,69 +30,85 @@ logging.basicConfig(filename=filename_path,
                             level=logging.DEBUG)
 
 def receiveSignal(socket_scheduler, signalNumber, frame):
+
+    global finalize
     
     try:
-        print('Recieve signal finalize')
+        logging.info('Recieve signal finalize')
 
         mutex_eventlogs.acquire()
         event_logs.save_event(5, threading.current_thread().ident, 0)
         mutex_eventlogs.release()
 
         # Enviar finalización de TF al Scheduler
+        logging.info('Send finalize message')
         socket_scheduler.send(bytes('finalize', 'utf-8'))
 
         mutex_finalize.acquire()
         finalize=True
         mutex_finalize.release()
-
-        logging.info("Wait ACK from scheduler...")
-        ack = socket_scheduler.recv(1).decode('utf-8')
-
-        logging.info('Send finalize message')
     except:
         logging.info("Unexpected error in handle signal :(")
 
-def attentionUpdate(socket_scheduler, pid_tf):
+def attention_socket(socket_scheduler):
+
+    continue_exec=True
+
+    while continue_exec:
+        try:
+            logging.info('Wait message from scheduler...')
+            data = socket_scheduler.recv(2).decode('utf-8')
+
+            if data=='10' or data=='12':      
+                paralellism = socket_scheduler.recv(2).decode('utf-8')
+                with cv_update:
+                    cv_update.notify()
+            else:
+                logging.info("ACK from scheduler: " + str(data))
+                continue_exec=False
+        except socket_scheduler.timeout:
+            logging.info("Socket timeout")
+    with cv_update:
+        cv_update.notify()
+    logging.info("Finish attention socket thread")
+
+def attentionUpdate(pid_tf):
 
     print('Attention Update Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
 
-    execute_command=False
+    global parallelism
+    global finalize
 
     try:
         mutex_finalize.acquire()    
         while not finalize:
 
             mutex_finalize.release()
-            
-            logging.info('Wait scheduler update message')
-            signal = socket_scheduler.recv(2).decode('utf-8')
-            paralellism = socket_scheduler.recv(2).decode('utf-8')
 
-            logging.info("Recieve Change Parallelism: Signal="+ str(signal)+" Parallelism="+str(paralellism))
+            logging.info('Wait scheduler update message... - Finalize= ' + str(finalize))
+            with cv_update:
+                cv_update.wait()
 
-            mutex_eventlogs.acquire()
-            event_logs.save_event(4, threading.current_thread().ident, int(signal))
-            mutex_eventlogs.release()
+            if signal=='10' or signal=='12':
+                logging.info("Recieve Change Parallelism: Signal="+ str(data)+" Parallelism="+str(parallelism))
+                mutex_eventlogs.acquire()
+                event_logs.save_event(4, threading.current_thread().ident, int(data))
+                mutex_eventlogs.release()
 
-            if signal == '10':
-                # Cambiar el paralelismo inter
-                os.environ["INTER_PARALELLISM"]  = paralellism 
-                kill_command= "kill -10 " + str(pid_tf)
-                logging.info('Change Inter Parallelism: ' + str(paralellism))
-                execute_command=True
-
-            else:
-                if signal == '12':
-                    # Cambiar el paralelismo intra
-                    os.environ["INTRA_PARALELLISM"]  = paralellism 
-                    kill_command= "kill -12 " + str(pid_tf)
-                    logging.info('Change Intra Parallelism: ' + str(paralellism))
-                    execute_command=True
-            
-            if execute_command:
+                if signal == '10':
+                    # Cambiar el paralelismo inter
+                    os.environ["INTER_PARALELLISM"]  = parallelism
+                    kill_command= "kill -10 " + str(pid_tf)
+                    logging.info('Change Inter Parallelism: ' + str(parallelism))
+                else:
+                    if signal == '12':
+                        # Cambiar el paralelismo intra
+                        os.environ["INTRA_PARALELLISM"]  = parallelism
+                        kill_command= "kill -12 " + str(pid_tf)
+                        logging.info('Change Intra Parallelism: ' + str(parallelism))
+                
                 logging.info("Execute parallelism change...")
                 process_command = Popen(kill_command, shell=True)
-                execute_command=False
 
             mutex_finalize.acquire()
         mutex_finalize.release()
@@ -180,13 +201,19 @@ if __name__ == "__main__":
 
         # Crear hilo para la atención de solicitudes
         logging.info("Creating update attention thread...")
-        update_thread = threading.Thread(target=attentionUpdate, args=(socket_scheduler, pid_tf,))
+        update_thread = threading.Thread(target=attentionUpdate, args=(pid_tf,))
 
-        # Ejecutar hilo creado
+        # Crear hilo para la atención de solicitudes
+        logging.info("Creating socket attention thread...")
+        socket_thread = threading.Thread(target=attention_socket, args=(socket_scheduler,))
+
+        # Ejecutar hilos
         update_thread.start()
+        socket_thread.start()
 
-        # Hacer el join del hilo update
+        # Hacer el join de los hilos
         update_thread.join()
+        socket_thread.join()
         
         logging.info("Save log in CSV format...")
         event_logs.save_CSV('/home/Data/log')

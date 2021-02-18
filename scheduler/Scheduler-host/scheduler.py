@@ -52,6 +52,8 @@ q_finish_container= queue.Queue(10)
 # Cola para almacenar peticiones pendientes de atencion
 q_request_pending= queue.Queue()
 
+client_threads= queue.Queue()
+
 # Variable que indica si el hilo Atencion debe replanificar los hilos de los contenedores
 rescheduling_containers= False
 
@@ -80,7 +82,144 @@ containerName_list=[]
 # Utilizada para bloquear al hilo generador de peticiones de actualizaciones hasta que haya ejecuciones disponibles.
 cv_update = threading.Condition()
 
+mutex_finishExecution= threading.Lock()
+
+finish_execution=False
+
+# Metodos para manejo de señales #
+
+def handler_finish(signum, frame):
+    global finish_execution
+    # Cambiar el valor de variable de finalizacion de planificador
+    print("Signal finalize scheduler")
+    mutex_finishExecution.acquire()
+    finish_execution=True
+    mutex_finishExecution.release()
+
+# Fin de metodos para manejo de señales
+
 # Métodos Generales #
+
+def schedule_request(request, socket_schedule, instance_number=0, port_host=0, resources_availables=0, thread_id=0):
+
+    global number_thread
+
+    if request.request_type == 'execution':
+
+        # Atender peticion de actualizacion
+
+        print('Schedule Execution Request: ',threading.current_thread().getName())
+
+        parallelism_container= scheduler_container.schedule_parallelism(resources_availables, request.inter_parallelism, request.intra_parallelism)
+
+        # Accede a consultar si hay paralelismo disponible (system_info es thread-safe en este momento)
+        if parallelism_container:
+        
+            container_name= 'instance' + str(instance_number)
+            
+            # Comando para iniciar contenedor con una imagen dada en la petición (opciones dit permiten dejar ejecutando el contenedor en background)
+            print("Creating Docker Container...")
+
+            #docker_command= 'docker run -dit --name '+ container_name + ' -p ' + str(port) + ':8787 --volume /var/run/docker.sock:/var/run/docker.sock ' + request.docker_image 
+            docker_command= 'docker run -dit --name '+ container_name + ' -p ' + str(port_host) + ':8787 --volume /home/leandro/Documentos/Data:/home/Data ' + request.docker_image
+            # Ejecutar comando (con os.p)
+            # Los primeros 12 caracteres de stdout son el container ID
+            process_command = Popen([docker_command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
+            stdout, stderr = process_command.communicate()
+
+            if(len(stderr)):
+                print(stderr)
+            else:
+                print(stdout)
+
+            conn_established = False
+            attemps = 0
+            while (conn_established == False) and (attemps < 5):
+                try:
+                    # Establecer conexión con el contenedor cliente 
+                    c, addr = socket_schedule.accept()
+                    conn_established = True
+                    # Crear hilo para la comunicación con el contenedor
+                    tmp_thread = threading.Thread(target=container_client, args=(c,addr,container_name, instance_number, parallelism_container[0], parallelism_container[1],number_thread,))
+                    tmp_thread.start()
+                    client_threads.put(tmp_thread)
+                    mutex_numberThread.acquire()
+                    number_thread=number_thread+1
+                    mutex_numberThread.release()
+                except socket.timeout:
+                    print("Connection establish timeout")
+                    attemps= attemps+1
+                    if attemps == 5:
+                        print("Could not create docker container")
+                    pass
+            
+            if attemps != 5:
+
+                mutex_eventlogs.acquire()
+                event_logs.save_event(events.ATTENTION_REQUEST_EXE, thread_id, instance_number)
+                mutex_eventlogs.release()
+
+                #Transformar stdout en container ID
+                container_id =  stdout[:12]
+                
+                # almacenar ID del proceso
+                process_id_command= 'docker container top ' + container_id + ' -o pid'
+                process_command = Popen([process_id_command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
+                stdout, stderr = process_command.communicate()
+
+                #Transformar la salida de stdout en process ID 
+                # Salida del tipo:
+                # PID
+                # 4483   
+                # Me quedo con la parte de abajo de la salida (si tiene hasta 4 dígitos el PID, sino ver cómo solucionar)
+                process_id = stdout[4:8] 
+
+                if(len(stderr)):
+                    print(stderr)
+                else:
+                    print('Name of request: ', container_name, ' - Container ID: ', container_id, 'Container Process ID: ', process_id)
+
+                # Crear un ExecutionInfo para almacenar la informacion de la instancia ejecutada
+                exec_info = ExecutionInfo(container_name, instance_number, port_host, process_id, request.inter_parallelism, request.intra_parallelism, parallelism_container[0], parallelism_container[1], c)
+
+                # Almacenar instancia de execución en la lista de ejecuciones activas (es thread safe)
+                mutex_execInfo.acquire()
+                execInfo_list.append(exec_info)
+                mutex_execInfo.release()
+
+                # Almacenar nombre del contenedor para que en el update pueda actualizarlos 
+                mutex_containerList.acquire()
+                containerName_list.append(container_name)
+                mutex_containerList.release()
+
+                # Despertar al hilo GenerateUpdateRequest cuando ya hay instancias en ejecución 
+                if execInfo_list.count == 1:
+                    with cv_update:
+                        cv_update.notify()
+
+                state=1
+        else:
+            state=0
+
+    else:
+        # Atender petición de actualización
+
+        print('Schedule Update Request: ',threading.current_thread().getName() + ' - Container: ' + str(instance_number))
+
+        # Obtener objeto ExecutionInfo correspondiente a la instancia que se desea actualizar 
+        ok = updateExecutionInstance(request.container_name, request.inter_parallelism, request.intra_parallelism, resources_availables)
+
+        if(ok):
+            print("Container: ",request.container_name," updated successfully")
+            mutex_eventlogs.acquire()
+            event_logs.save_event(events.ATTENTION_REQUEST_UP, thread_id, instance_number)
+            mutex_eventlogs.release()
+            state=1  
+        else:
+            print("Container is not running (abort update)")
+            state=0
+    
+    return state
 
 def updateExecutionInstance(container_name, new_inter_parallelism, new_intra_parallelism, resources_availables):
     
@@ -125,210 +264,8 @@ def updateExecutionInstance(container_name, new_inter_parallelism, new_intra_par
     
     return ok
 
-def attentionSignal(num, frame):
-    pass
-
-# Fin Métodos Generales #
-
-# Métodos asignados a hilos #
-
-def generateExecutionRequest(thread_id):
-    print('ExecutionRequest Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
-
-    # Cantidad de peticiones a realizar
-    request_count = 0
-
-    docker_image= 'tf_test'
-
-    while request_count < 10:
-
-        # Tiempo de espera para la próxima petición
-        # Se utiliza distribución normal de tiempo con medio en 30 segundos y desviación estándar de 5 segundos
-        normal_time = np.random.normal(loc=30, scale=5, size=1)
-        time_wait= int(normal_time[0])
-
-        # Preparar request con los datos necesarios:
-        # -Paralelismo inter
-        # -Paralelismo intra
-        # -Nombre de archivo python
-        # -Imagen docker 
-        inter_parallelism = random.randint(1, 6)
-        intra_parallelism = random.randint(1, 6)
-        
-
-        #Crear peticion 
-        request_exec = Request(request_type="execution", container_name="null", docker_image=docker_image, inter_parallelism=inter_parallelism, intra_parallelism=intra_parallelism)
-    
-        #Comprobar scheduling de peticiones (con o sin prioridad)
-        if priority_queue: 
-            # Generar prioridad de peticion (0 = prioridad baja - 1 = prioridad media - 2 = prioridad alta)
-            priority_request = random.randint(0, 2)
-
-            # Almacenar peticion de ejecucion en la cola con prioridad
-            # Ya es thread-safe la cola 
-            q_priority_exec_update.put(priority_request, request_exec)
-        else:
-            # Almacenar la peticion en la cola sin prioridad
-            # Ya es thread-safe la cola 
-            q_normal_exec_update.put(request_exec)
-
-        mutex_eventlogs.acquire()
-        event_logs.save_event(events.GENERATE_REQUEST_EXE, thread_id, 0)
-        mutex_eventlogs.release()
-
-        # Avisar al hilo de atencion que se encoló una nueva petición.
-        with cv_attention:
-            cv_attention.notify()
-            print('Send notify, Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
-        
-        # Esperar un tiempo para realizar la siguiente petición
-        time.sleep(time_wait)
-
-def generateUpdateRequest(thread_id):
-    print('UpdateRequest Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
-
-    # Cantidad de peticiones a realizar
-    request_count = 0
-
-    docker_image= 'tf_test'
-
-    while request_count < 5:
-
-        skip=False
-
-        wait_containers=True
-
-        while (wait_containers):
-            with cv_update:
-                # Esperar a que el hilo attentionRequest ejecute alguna instancia
-                value=cv_update.wait()
-                print('Wake up - Thread:', threading.current_thread().getName())
-            if value:
-                wait_containers=False
-            else:
-                print('Wait Timeout', threading.current_thread().getName())
-
-        # Tiempo de espera para la próxima petición
-        # Se utiliza distribución normal de tiempo con medio en 20 segundos y desviación estándar de 5 segundos
-        normal_time = np.random.normal(loc=20, scale=5, size=1)
-        time_wait= int(normal_time[0])
-        print("Time Wait in Update Request: ",  time_wait)
-
-        # Esperar un tiempo para realizar la siguiente petición
-        time.sleep(time_wait) 
-
-        try:
-            # Preparar petición de actualización con los datos necesarios:
-            # -Nombre del contenedor a actualizar
-            # -Paralelismo inter
-            # -Paralelismo intra
-            mutex_containerList.acquire()
-            container_name = random.choice(containerName_list)
-            mutex_containerList.release()
-        except: 
-            print("Container not exist in List")
-            skip=True
-        
-        if not skip:
-
-            inter_parallelism = random.randint(1, 6)
-            intra_parallelism = random.randint(1, 12)
-
-            #Crear peticion de actualización 
-            request_exec = Request(request_type="update", container_name= container_name, docker_image=docker_image,inter_parallelism=inter_parallelism, intra_parallelism=intra_parallelism)
-        
-            #Comprobar scheduling de peticiones (con o sin prioridad)
-            if priority_queue: 
-                # Generar prioridad de peticion (0 = prioridad baja - 1 = prioridad media - 2 = prioridad alta)
-                priority_request = random.randint(0, 2)
-
-                # Almacenar peticion de ejecucion en la cola con prioridad
-                # Ya es thread-safe la cola 
-                q_priority_exec_update.put(priority_request, request_exec)
-            else:
-                # Almacenar la peticion en la cola sin prioridad
-                # Ya es thread-safe la cola 
-                q_normal_exec_update.put(request_exec)
-
-            mutex_eventlogs.acquire()
-            event_logs.save_event(events.GENERATE_REQUEST_UP, thread_id, 0)
-            mutex_eventlogs.release()
-
-def container_client(clientsocket,addr,container_name, instance_number, interExec_parallelism, intraExec_parallelism, thread_id):
-
-    container_eliminated= False
-
-    # Enviar ID de cliente 
-    clientsocket.send(bytes(str(instance_number), 'utf-8'))
-
-    # Enviar comando TF de ejecución 
-    #clientsocket.send(bytes(request.command, 'utf-8'))
-    clientsocket.send(bytes(str(interExec_parallelism), 'utf-8'))
-    clientsocket.send(bytes(str(intraExec_parallelism), 'utf-8'))
-
-    msg=''
-
-    loop=0
-
-    # Esperar mensaje de finalización. 
-    while not container_eliminated:
-
-        try:
-            # Recibir mensaje de finalización o problema del contenedor
-            msg = clientsocket.recv(1024).decode('utf-8')
-            if loop==0:
-                print('Message recieved from Client ID: '+ str(instance_number)+" - Message: "+ msg)
-            loop=loop+1
-            #print (container_name, "send message: ", msg) (ver por qué recibe tantos mensajes vacios)
-        except socket.timeout: # fail after 60 second of no activity
-            print("Didn't receive data! [Timeout] - Container: " + str(instance_number))
-        except socket.error as ex: 
-            print("Connection reset by peer with request count=" + str(loop))
-            print(ex)
-
-        if msg == 'finalize':
-
-            mutex_eventlogs.acquire()
-            event_logs.save_event(events.FINISH_CONTAINER, thread_id, instance_number)
-            mutex_eventlogs.release()
-
-            # Buscar contenedor en la lista
-            # Eliminar objeto contenedor de la lista de contenedores activos
-            mutex_execInfo.acquire()
-            for elem in execInfo_list:
-                if (elem.container_name == container_name):
-                    
-                    # Encolar paralelismo liberado por el contenedor
-                    q_finish_container.put(elem.getInterExecution_parallelism() + elem.getIntraExecution_parallelism())
-                    print("Push Free Parallelism of Container: ", container_name, " Parallelism: ", elem.getInterExecution_parallelism() + elem.getIntraExecution_parallelism())
-
-                    #Despertar al hilo de atencion
-                    with cv_attention:
-                        cv_attention.notify()
-                        print('Send notify, Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
-            
-                    execInfo_list.remove(elem)
-                    print('Eliminate Container ', container_name, ' because it finished')
-                    container_eliminated= True
-                    break
-            mutex_execInfo.release()
-
-            # Eliminar el nombre de la lista de contenedores activos para que no se generen nuevas peticiones de actualización
-            mutex_containerList.acquire()
-            containerName_list.remove(container_name)
-            mutex_containerList.release()
-
-            # Informar en caso de que no se pueda eliminar el contenedor
-            if not container_eliminated:
-                print('The container ', container_name, ' could not be deleted')
-            else: 
-                # Enviar ACK indicando finalizacion de la eliminacion del cliente
-                print("Send ACK to client: " + str(instance_number))
-                clientsocket.send(bytes('f', 'utf-8'))
-    print("Finish Cliet Thread - Container: ", instance_number)
-
 # System Info Safe
-def oldest_reassigment(resources_availables, increase_or_reduce, amount_reduce=0, thread_id):
+def oldest_reassigment(resources_availables, increase_or_reduce, amount_reduce=0, thread_id=0):
 
     print("Reassigment Containers with oldest policy")
 
@@ -402,138 +339,231 @@ def oldest_reassigment(resources_availables, increase_or_reduce, amount_reduce=0
 
     return resources_availables
 
-def schedule_request(request, socket_schedule, instance_number=0, port_host=0, resources_availables=0, thread_id=0):
+# Fin Métodos Generales #
 
-    if request.request_type == 'execution':
+# Métodos asignados a hilos #
 
-        # Atender peticion de actualizacion
-
-        print('Schedule Execution Request: ',threading.current_thread().getName())
-
-        parallelism_container= scheduler_container.schedule_parallelism(resources_availables, request.inter_parallelism, request.intra_parallelism)
-
-        # Accede a consultar si hay paralelismo disponible (system_info es thread-safe en este momento)
-        if parallelism_container:
-        
-            container_name= 'instance' + str(instance_number)
-            
-            # Comando para iniciar contenedor con una imagen dada en la petición (opciones dit permiten dejar ejecutando el contenedor en background)
-            print("Creating Docker Container...")
-
-            #docker_command= 'docker run -dit --name '+ container_name + ' -p ' + str(port) + ':8787 --volume /var/run/docker.sock:/var/run/docker.sock ' + request.docker_image 
-            docker_command= 'docker run -dit --name '+ container_name + ' -p ' + str(port_host) + ':8787 --volume /home/leandro/Documentos/Data:/home/Data ' + request.docker_image
-            # Ejecutar comando (con os.p)
-            # Los primeros 12 caracteres de stdout son el container ID
-            process_command = Popen([docker_command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
-            stdout, stderr = process_command.communicate()
-
-            if(len(stderr)):
-                print(stderr)
-            else:
-                print(stdout)
-
-            conn_established = False
-            attemps = 0
-            while (conn_established == False) and (attemps < 5):
-                try:
-                    # Establecer conexión con el contenedor cliente 
-                    c, addr = socket_schedule.accept()
-                    conn_established = True
-                    # Crear hilo para la comunicación con el contenedor
-                    tmp_thread = threading.Thread(target=container_client, args=(c,addr,container_name, instance_number, parallelism_container[0], parallelism_container[1],number_thread,))
-                    tmp_thread.start()
-                    mutex_numberThread.acquire()
-                    number_thread=number_thread+1
-                    mutex_numberThread.release()
-                except socket.timeout:
-                    print("Connection establish timeout")
-                    attemps= attemps+1
-                    if attemps == 5:
-                        print("Could not create docker container")
-                    pass
-            
-            if attemps != 5:
-
-                mutex_eventlogs.acquire()
-                event_logs.save_event(events.ATTENTION_REQUEST_EXE, thread_id, instance_number)
-                mutex_eventlogs.release()
-
-                #Transformar stdout en container ID
-                container_id =  stdout[:12]
-                
-                # almacenar ID del proceso
-                process_id_command= 'docker container top ' + container_id + ' -o pid'
-                process_command = Popen([process_id_command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
-                stdout, stderr = process_command.communicate()
-
-                #Transformar la salida de stdout en process ID 
-                # Salida del tipo:
-                # PID
-                # 4483   
-                # Me quedo con la parte de abajo de la salida (si tiene hasta 4 dígitos el PID, sino ver cómo solucionar)
-                process_id = stdout[4:8] 
-
-                if(len(stderr)):
-                    print(stderr)
-                else:
-                    print('Name of request: ', container_name, ' - Container ID: ', container_id, 'Container Process ID: ', process_id)
-
-                # Crear un ExecutionInfo para almacenar la informacion de la instancia ejecutada
-                exec_info = ExecutionInfo(container_name, instance_number, port_host, process_id, request.inter_parallelism, request.intra_parallelism, parallelism_container[0], parallelism_container[1], c)
-
-                # Almacenar instancia de execución en la lista de ejecuciones activas (es thread safe)
-                mutex_execInfo.acquire()
-                execInfo_list.append(exec_info)
-                mutex_execInfo.release()
-
-                # Almacenar nombre del contenedor para que en el update pueda actualizarlos 
-                mutex_containerList.acquire()
-                containerName_list.append(container_name)
-                mutex_containerList.release()
-
-                # Despertar al hilo GenerateUpdateRequest cuando ya hay instancias en ejecución 
-                if execInfo_list.count == 1:
-                    with cv_update:
-                        cv_update.notify()
-
-                state=1
-        else:
-            state=0
-
-    else:
-        # Atender petición de actualización
-
-        print('Schedule Update Request: ',threading.current_thread().getName() + ' - Container: ' + str(instance_number))
-
-        # Obtener objeto ExecutionInfo correspondiente a la instancia que se desea actualizar 
-        ok = updateExecutionInstance(request.container_name, request.inter_parallelism, request.intra_parallelism, resources_availables)
-
-        if(ok):
-            print("Container: ",request.container_name," updated successfully")
-            mutex_eventlogs.acquire()
-            event_logs.save_event(2, threading.current_thread().ident, 0)
-            mutex_eventlogs.release()
-            state=1
-            mutex_eventlogs.acquire()
-            event_logs.save_event(events.ATTENTION_REQUEST_UP, thread_id, instance_number)
-        else:
-            print("Container is not running (abort update)")
-            state=0
+def generateExecutionRequest(thread_id):
+    print('ExecutionRequest Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
     
-    return state
+    global finish_execution
+    docker_image= 'tf_test'
+
+    mutex_finishExecution.acquire()
+    while not finish_execution:
+
+        mutex_finishExecution.release()
+
+        # Tiempo de espera para la próxima petición
+        # Se utiliza distribución normal de tiempo con medio en 60 segundos y desviación estándar de 20 segundos
+        normal_time = np.random.normal(loc=60, scale=20, size=1)
+        time_wait= int(normal_time[0])
+
+        # Preparar request con los datos necesarios:
+        # -Paralelismo inter
+        # -Paralelismo intra
+        # -Nombre de archivo python
+        # -Imagen docker 
+        inter_parallelism = random.randint(1, 6)
+        intra_parallelism = random.randint(1, 6)
+        
+
+        #Crear peticion 
+        request_exec = Request(request_type="execution", container_name="null", docker_image=docker_image, inter_parallelism=inter_parallelism, intra_parallelism=intra_parallelism)
+    
+        #Comprobar scheduling de peticiones (con o sin prioridad)
+        if priority_queue: 
+            # Generar prioridad de peticion (0 = prioridad baja - 1 = prioridad media - 2 = prioridad alta)
+            priority_request = random.randint(0, 2)
+
+            # Almacenar peticion de ejecucion en la cola con prioridad
+            # Ya es thread-safe la cola 
+            q_priority_exec_update.put(priority_request, request_exec)
+        else:
+            # Almacenar la peticion en la cola sin prioridad
+            # Ya es thread-safe la cola 
+            q_normal_exec_update.put(request_exec)
+
+        mutex_eventlogs.acquire()
+        event_logs.save_event(events.GENERATE_REQUEST_EXE, thread_id, 0)
+        mutex_eventlogs.release()
+
+        # Avisar al hilo de atencion que se encoló una nueva petición.
+        with cv_attention:
+            cv_attention.notify()
+            print('Send notify, Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
+        
+        # Esperar un tiempo para realizar la siguiente petición
+        time.sleep(time_wait)
+
+        mutex_finishExecution.acquire()
+
+    mutex_finishExecution.release()
+    print("Finish execution request thread")
+
+def generateUpdateRequest(thread_id):
+    print('UpdateRequest Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
+
+    # Cantidad de peticiones a realizar
+    global finish_execution
+    request_count = 0
+    docker_image= 'tf_test'
+
+    mutex_finishExecution.acquire()
+    while not finish_execution:
+
+        mutex_finishExecution.release()
+
+        skip=False
+
+        wait_containers=True
+
+        while (wait_containers):
+            with cv_update:
+                # Esperar a que el hilo attentionRequest ejecute alguna instancia
+                value=cv_update.wait()
+                print('Wake up - Thread:', threading.current_thread().getName())
+            if value:
+                wait_containers=False
+            else:
+                print('Wait Timeout', threading.current_thread().getName())
+
+        # Tiempo de espera para la próxima petición
+        # Se utiliza distribución normal de tiempo con medio en 80 segundos y desviación estándar de 20 segundos
+        normal_time = np.random.normal(loc=80, scale=20, size=1)
+        time_wait= int(normal_time[0])
+        print("Time Wait in Update Request: ",  time_wait)
+
+        # Esperar un tiempo para realizar la siguiente petición
+        time.sleep(time_wait) 
+
+        try:
+            # Preparar petición de actualización con los datos necesarios:
+            # -Nombre del contenedor a actualizar
+            # -Paralelismo inter
+            # -Paralelismo intra
+            mutex_containerList.acquire()
+            container_name = random.choice(containerName_list)
+            mutex_containerList.release()
+        except: 
+            print("Container not exist in List")
+            skip=True
+        
+        if not skip:
+
+            inter_parallelism = random.randint(1, 6)
+            intra_parallelism = random.randint(1, 12)
+
+            #Crear peticion de actualización 
+            request_exec = Request(request_type="update", container_name= container_name, docker_image=docker_image,inter_parallelism=inter_parallelism, intra_parallelism=intra_parallelism)
+        
+            #Comprobar scheduling de peticiones (con o sin prioridad)
+            if priority_queue: 
+                # Generar prioridad de peticion (0 = prioridad baja - 1 = prioridad media - 2 = prioridad alta)
+                priority_request = random.randint(0, 2)
+
+                # Almacenar peticion de ejecucion en la cola con prioridad
+                # Ya es thread-safe la cola 
+                q_priority_exec_update.put(priority_request, request_exec)
+            else:
+                # Almacenar la peticion en la cola sin prioridad
+                # Ya es thread-safe la cola 
+                q_normal_exec_update.put(request_exec)
+
+            mutex_eventlogs.acquire()
+            event_logs.save_event(events.GENERATE_REQUEST_UP, thread_id, 0)
+            mutex_eventlogs.release()
+        
+        mutex_finishExecution.acquire()
+    mutex_finishExecution.release()
+    print("Finish update request thread")
+
+def container_client(clientsocket,addr,container_name, instance_number, interExec_parallelism, intraExec_parallelism, thread_id):
+
+    container_eliminated= False
+
+    # Enviar ID de cliente 
+    clientsocket.send(bytes(str(instance_number), 'utf-8'))
+
+    # Enviar comando TF de ejecución 
+    #clientsocket.send(bytes(request.command, 'utf-8'))
+    clientsocket.send(bytes(str(interExec_parallelism), 'utf-8'))
+    clientsocket.send(bytes(str(intraExec_parallelism), 'utf-8'))
+
+    msg=''
+
+    loop=0
+
+    # Esperar mensaje de finalización. 
+    while not container_eliminated:
+
+        try:
+            # Recibir mensaje de finalización o problema del contenedor
+            msg = clientsocket.recv(1024).decode('utf-8')
+            if loop==0:
+                print('Message recieved from Client ID: '+ str(instance_number)+" - Message: "+ msg)
+            loop=loop+1
+            #print (container_name, "send message: ", msg) (ver por qué recibe tantos mensajes vacios)
+        except socket.timeout: # fail after 60 second of no activity
+            print("Didn't receive data! [Timeout] - Container: " + str(instance_number))
+        except socket.error as ex: 
+            print("Connection reset by peer with request count=" + str(loop))
+            print(ex)
+
+        if msg == 'finalize':
+
+            mutex_eventlogs.acquire()
+            event_logs.save_event(events.FINISH_CONTAINER, thread_id, instance_number)
+            mutex_eventlogs.release()
+
+            # Buscar contenedor en la lista
+            # Eliminar objeto contenedor de la lista de contenedores activos
+            mutex_execInfo.acquire()
+            for elem in execInfo_list:
+                if (elem.container_name == container_name):
+                    
+                    # Encolar paralelismo liberado por el contenedor
+                    q_finish_container.put(elem.getInterExecution_parallelism() + elem.getIntraExecution_parallelism())
+                    print("Push Free Parallelism of Container: ", container_name, " Parallelism: ", elem.getInterExecution_parallelism() + elem.getIntraExecution_parallelism())
+
+                    #Despertar al hilo de atencion
+                    with cv_attention:
+                        cv_attention.notify()
+                        print('Send notify, Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
+            
+                    execInfo_list.remove(elem)
+                    print('Eliminate Container ', container_name, ' because it finished')
+                    container_eliminated= True
+                    break
+            mutex_execInfo.release()
+
+            # Eliminar el nombre de la lista de contenedores activos para que no se generen nuevas peticiones de actualización
+            mutex_containerList.acquire()
+            containerName_list.remove(container_name)
+            mutex_containerList.release()
+
+            # Informar en caso de que no se pueda eliminar el contenedor
+            if not container_eliminated:
+                print('The container ', container_name, ' could not be deleted')
+            else: 
+                # Enviar ACK indicando finalizacion de la eliminacion del cliente
+                print("Send ACK to client: " + str(instance_number))
+                clientsocket.send(bytes('f', 'utf-8'))
+    print("Finish Client Thread - Container: ", instance_number)
 
 def attentionRequest(socket_schedule, thread_id):
     print('AttentionRequest Thread:', threading.current_thread().getName())
 
     instance_number=0
-
     request_pending=False
-
     port_host=8787
-
     global q_request_pending
+    global finish_execution
+    mutex_finishExecution.acquire()
     
-    while True:
+    while not finish_execution:
+
+        mutex_finishExecution.release()
 
         with cv_attention:
             # Esperar a que alguno de los demas hilos avise que hay peticiones pendientes (ejecución, actualización o eliminación de contenedores)
@@ -622,6 +652,7 @@ def attentionRequest(socket_schedule, thread_id):
                     with cv_update:
                         cv_update.notify()
             resources_availables= system_info.check_resources()
+            print("Resources availables after schedule: " + str(resources_availables)) 
         mutex_systemInfo.release()
 
         # Almacenar las peticiones antiguas pendientes en la cola nuevamente
@@ -699,6 +730,14 @@ def attentionRequest(socket_schedule, thread_id):
             print("Resources availables after schedule: " + str(resources_availables))   
         mutex_systemInfo.release() 
 
+        mutex_finishExecution.acquire()
+    
+    mutex_finishExecution.release()
+
+    print("Finish attention thread")
+
+# Programa Principal #
+
 if __name__ == "__main__":
 
     print("Scheduler for Instances TF")
@@ -725,8 +764,10 @@ if __name__ == "__main__":
     socket_schedule.bind(('172.17.0.1', 65000))
     socket_schedule.listen()
 
-    print("Creating threads...")
+    print("Add ctl+z signal handler...")
+    signal.signal(signal.SIGTSTP, handler_finish)
 
+    print("Creating threads...")
     # Crear hilo para la atención de solicitudes
     attention_thread = threading.Thread(target=attentionRequest, args=(socket_schedule,number_thread,))
     number_thread= number_thread+1
@@ -748,3 +789,15 @@ if __name__ == "__main__":
     attention_thread.join()
     request_thread.join()
     update_thread.join()
+
+    # Esperar la terminacion de los hilos clientes
+    while not client_threads.empty():
+        client= client_threads.get()
+        client.join()
+
+    socket_schedule.close()
+
+    event_logs.save_CSV('/home/leandro/Documentos/Data/log/')
+    event_logs.plot_events()
+
+# Fin de Programa Principal #
