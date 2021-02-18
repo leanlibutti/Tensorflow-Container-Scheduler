@@ -59,7 +59,8 @@ class TraceLog:
             ok=False
         return ok
 
-    def plot_events(self):
+    # Visualiza hasta 100 eventos para cada hilo (si se desean más eventos por hilo debe enviarse por parámetro)
+    def plot_events(self, event_per_thread=100):
 
         print(" Event List before start")
         for i in range(len(self.events_list)-1):
@@ -93,7 +94,7 @@ class TraceLog:
             print(data_event)
 
             # Completar el vector de datos del hilos para que todas las filas tenga la misma dimension
-            while (len(data_event) < 20):
+            while (len(data_event) < event_per_thread):
                 data_event.append(0)
 
             print("Data Event after fill to zeros:")
