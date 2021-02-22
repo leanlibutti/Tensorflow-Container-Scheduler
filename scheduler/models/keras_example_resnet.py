@@ -350,7 +350,7 @@ model.fit(train_data,
 
 ## Agregado para el scheduler ##
 
-command = "kill -10 " + pid_client
+command = "kill -10 " + str(pid_client)
 
 # Avisar al cliente del contenedor que se termina la ejecución del programa TF
 process_command = Popen([command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)

@@ -1,4 +1,5 @@
 import os
+import sys
 import threading 
 import random
 import numpy as np
@@ -9,23 +10,23 @@ from subprocess import Popen, PIPE, STDOUT
 import signal
 import socket
 from execution_info import ExecutionInfo
-from trace import TraceLog
 from system import systemInfo
 from scheduling_policy import FFSnotReassignment, FFSReassignment
 import copy
-import events
+from Commons.trace import TraceLog
+from Commons import events
 
 #Mutex para acceder al trace log
 mutex_eventlogs= threading.Lock()
 
 # Almacena la informacion de los eventos en el planificador
-event_logs= TraceLog(12)
+event_logs= TraceLog(1)
 
 #Mutex para acceder al proximo numero de hilo
 mutex_numberThread= threading.Lock()
 
 # Numero de hilo que identifica unicamente a cada uno
-number_thread=0
+number_thread=1
 
 # Encargada de manejar los recursos disponibles y utilizados en el sistema
 system_info = systemInfo()
@@ -120,8 +121,8 @@ def schedule_request(request, socket_schedule, instance_number=0, port_host=0, r
             # Comando para iniciar contenedor con una imagen dada en la petición (opciones dit permiten dejar ejecutando el contenedor en background)
             print("Creating Docker Container...")
 
-            #docker_command= 'docker run -dit --name '+ container_name + ' -p ' + str(port) + ':8787 --volume /var/run/docker.sock:/var/run/docker.sock ' + request.docker_image 
-            docker_command= 'docker run -dit --name '+ container_name + ' -p ' + str(port_host) + ':8787 --volume /home/leandro/Documentos/Data:/home/Data ' + request.docker_image
+            docker_command= 'docker run -dit --name '+ container_name + ' -p ' + str(port_host) + ':8787 --volume $HOME/Documentos/gitlab/tensorflow/scheduler:/home/Scheduler ' + request.docker_image
+            
             # Ejecutar comando (con os.p)
             # Los primeros 12 caracteres de stdout son el container ID
             process_command = Popen([docker_command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
@@ -142,6 +143,8 @@ def schedule_request(request, socket_schedule, instance_number=0, port_host=0, r
                     # Crear hilo para la comunicación con el contenedor
                     tmp_thread = threading.Thread(target=container_client, args=(c,addr,container_name, instance_number, parallelism_container[0], parallelism_container[1],number_thread,))
                     tmp_thread.start()
+                    event_logs.add_thread()
+                    number_thread=number_thread+1
                     client_threads.put(tmp_thread)
                     mutex_numberThread.acquire()
                     number_thread=number_thread+1
@@ -156,7 +159,7 @@ def schedule_request(request, socket_schedule, instance_number=0, port_host=0, r
             if attemps != 5:
 
                 mutex_eventlogs.acquire()
-                event_logs.save_event(events.ATTENTION_REQUEST_EXE, thread_id, instance_number)
+                event_logs.save_event(events.ATTENTION_REQUEST_EXE, thread_id, instance_number, parallelism_container[0]+parallelism_container[1])
                 mutex_eventlogs.release()
 
                 #Transformar stdout en container ID
@@ -168,7 +171,7 @@ def schedule_request(request, socket_schedule, instance_number=0, port_host=0, r
                 stdout, stderr = process_command.communicate()
 
                 #Transformar la salida de stdout en process ID 
-                # Salida del tipo:
+                # Salida de ejemplo:
                 # PID
                 # 4483   
                 # Me quedo con la parte de abajo de la salida (si tiene hasta 4 dígitos el PID, sino ver cómo solucionar)
@@ -212,7 +215,7 @@ def schedule_request(request, socket_schedule, instance_number=0, port_host=0, r
         if(ok):
             print("Container: ",request.container_name," updated successfully")
             mutex_eventlogs.acquire()
-            event_logs.save_event(events.ATTENTION_REQUEST_UP, thread_id, instance_number)
+            event_logs.save_event(events.ATTENTION_REQUEST_UP, thread_id, instance_number, request.intra_parallelism+request.inter_parallelism)
             mutex_eventlogs.release()
             state=1  
         else:
@@ -328,7 +331,7 @@ def oldest_reassigment(resources_availables, increase_or_reduce, amount_reduce=0
                             ok=True
             if ok:
                 mutex_eventlogs.acquire()
-                event_logs.save_event(events.REASSIGMENT_RESOURCES, thread_id, container.getContainerNumber())
+                event_logs.save_event(events.REASSIGMENT_RESOURCES, thread_id, container.getContainerNumber(), container.getInterExecution_parallelism()+container.getIntraExecution_parallelism())
                 mutex_eventlogs.release()
             if resources_availables == 0:
                 break
@@ -385,7 +388,7 @@ def generateExecutionRequest(thread_id):
             q_normal_exec_update.put(request_exec)
 
         mutex_eventlogs.acquire()
-        event_logs.save_event(events.GENERATE_REQUEST_EXE, thread_id, 0)
+        event_logs.save_event(events.GENERATE_REQUEST_EXE, thread_id, request_exec.inter_parallelism+request_exec.intra_parallelism)
         mutex_eventlogs.release()
 
         # Avisar al hilo de atencion que se encoló una nueva petición.
@@ -471,7 +474,7 @@ def generateUpdateRequest(thread_id):
                 q_normal_exec_update.put(request_exec)
 
             mutex_eventlogs.acquire()
-            event_logs.save_event(events.GENERATE_REQUEST_UP, thread_id, 0)
+            event_logs.save_event(events.GENERATE_REQUEST_UP, thread_id, request_exec.container_name, request_exec.inter_parallelism+request_exec.intra_parallelism)
             mutex_eventlogs.release()
         
         mutex_finishExecution.acquire()
@@ -595,10 +598,6 @@ def attentionRequest(socket_schedule, thread_id):
                     mutex_systemInfo.acquire()
                     system_info.free_resources(resources_availables)
                     mutex_systemInfo.release()
-                mutex_eventlogs.acquire()
-                event_logs.save_event(6, threading.current_thread().ident, 0)
-                mutex_eventlogs.release()
-            
 
         print('Attention act/exe request pending: ',threading.current_thread().getName())
 
@@ -743,6 +742,7 @@ if __name__ == "__main__":
     print("Scheduler for Instances TF")
 
     print("Connecting Network...")
+
     '''
     # Obtener Ip de la red docker
     network_command= Popen(["docker network inspect schedule-net --format {{.IPAM.Config}}"], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
@@ -797,7 +797,7 @@ if __name__ == "__main__":
 
     socket_schedule.close()
 
-    event_logs.save_CSV('/home/leandro/Documentos/Data/log/')
+    event_logs.save_CSV('./Data/log/', 'scheduler_events.txt')
     event_logs.plot_events()
 
 # Fin de Programa Principal #
