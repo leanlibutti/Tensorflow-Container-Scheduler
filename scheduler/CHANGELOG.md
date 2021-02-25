@@ -1,3 +1,9 @@
+## Release 0.5.3 (2021-02-25)
+
+- Remove finished container with command "docker container prune -f"
+
+- Fix problems in event logs.
+
 ## Release 0.5.2 (2021-02-24)
 
 - Attribute error in client: the signal variable had the same name as the signal class.

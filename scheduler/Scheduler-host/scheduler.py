@@ -216,7 +216,7 @@ def schedule_request(request, socket_schedule, instance_number=0, port_host=0, r
         if(ok):
             print("Container: ",request.container_name," updated successfully")
             mutex_eventlogs.acquire()
-            event_logs.save_event(events.ATTENTION_REQUEST_UP, thread_id, instance_number, request.intra_parallelism+request.inter_parallelism)
+            event_logs.save_event(events.ATTENTION_REQUEST_UP, thread_id, int(request.container_name[8]), request.intra_parallelism+request.inter_parallelism)
             mutex_eventlogs.release()
             state=1  
         else:
@@ -475,7 +475,7 @@ def generateUpdateRequest(thread_id):
                 q_normal_exec_update.put(request_exec)
 
             mutex_eventlogs.acquire()
-            event_logs.save_event(events.GENERATE_REQUEST_UP, thread_id, request_exec.container_name, request_exec.inter_parallelism+request_exec.intra_parallelism)
+            event_logs.save_event(events.GENERATE_REQUEST_UP, thread_id, int(request_exec.container_name[8]), request_exec.inter_parallelism+request_exec.intra_parallelism)
             mutex_eventlogs.release()
         
         mutex_finishExecution.acquire()
@@ -563,6 +563,14 @@ def container_client(clientsocket,addr,container_name, instance_number, interExe
         except socket.error as ex: 
             print("Connection reset by peer with request count=" + str(loop))
             print(ex)
+
+        #Esperar a que finalice el contenedor
+        time.sleep(1)
+
+        # Eliminar contenedor pausado (docker container prune)
+        command= "docker container prune -f"
+        eliminate_container = Popen(command, shell=True)
+
     print("Finish Client Thread - Container: ", instance_number)
 
 def attentionRequest(socket_schedule, thread_id):

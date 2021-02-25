@@ -140,7 +140,13 @@ class TraceLog:
         plt.ylabel('events[integer]')
 
         for i in range(0, len(self.events_list)):
-            data_label=str(self.events_list[i].get_event_type())+"\n"+str(self.events_list[i].get_value())+"\n"+str(self.events_list[i].get_value2())
+            if (self.events_list[i].get_value() != -1) and (self.events_list[i].get_value2() != -1):
+                data_label=str(self.events_list[i].get_event_type())+"\n"+str(self.events_list[i].get_value())+"\n"+str(self.events_list[i].get_value2())
+            else:
+                if(self.events_list[i].get_value() != -1):
+                     data_label=str(self.events_list[i].get_event_type())+"\n"+str(self.events_list[i].get_value())
+                else:
+                    data_label=str(self.events_list[i].get_event_type())
             plt.annotate(data_label,(self.events_list[i].get_time(), self.events_list[i].get_thread()))
 
         plt.show()
