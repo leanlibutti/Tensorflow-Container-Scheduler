@@ -15,6 +15,7 @@ from scheduling_policy import FFSnotReassignment, FFSReassignment
 import copy
 from Commons.trace import TraceLog
 from Commons import events
+from Commons import json_data_socket
 
 #Mutex para acceder al trace log
 mutex_eventlogs= threading.Lock()
@@ -485,14 +486,20 @@ def container_client(clientsocket,addr,container_name, instance_number, interExe
 
     container_eliminated= False
 
+    data= {
+        "container": instance_number,
+        "inter_parallelism": interExec_parallelism,
+        "intra_parallelism": intraExec_parallelism
+    }
+    json_data_socket._send(clientsocket, data)
+    '''
     # Enviar ID de cliente 
     clientsocket.send(bytes(str(instance_number), 'utf-8'))
-
     # Enviar comando TF de ejecución 
     #clientsocket.send(bytes(request.command, 'utf-8'))
     clientsocket.send(bytes(str(interExec_parallelism), 'utf-8'))
     clientsocket.send(bytes(str(intraExec_parallelism), 'utf-8'))
-
+    '''
     msg=''
 
     loop=0
@@ -502,56 +509,60 @@ def container_client(clientsocket,addr,container_name, instance_number, interExe
 
         try:
             # Recibir mensaje de finalización o problema del contenedor
-            msg = clientsocket.recv(1024).decode('utf-8')
+            msg= json_data_socket._recv(clientsocket)
             if loop==0:
-                print('Message recieved from Client ID: '+ str(instance_number)+" - Message: "+ msg)
+                print('Message recieved from Client ID: '+ str(instance_number)+" - Message: "+ msg["status"])
             loop=loop+1
             #print (container_name, "send message: ", msg) (ver por qué recibe tantos mensajes vacios)
+            if msg["status"] == 'exit':
+
+                mutex_eventlogs.acquire()
+                event_logs.save_event(events.FINISH_CONTAINER, thread_id, instance_number)
+                mutex_eventlogs.release()
+
+                # Buscar contenedor en la lista
+                # Eliminar objeto contenedor de la lista de contenedores activos
+                mutex_execInfo.acquire()
+                for elem in execInfo_list:
+                    if (elem.container_name == container_name):
+                        
+                        # Encolar paralelismo liberado por el contenedor
+                        q_finish_container.put(elem.getInterExecution_parallelism() + elem.getIntraExecution_parallelism())
+                        print("Push Free Parallelism of Container: ", container_name, " Parallelism: ", elem.getInterExecution_parallelism() + elem.getIntraExecution_parallelism())
+
+                        #Despertar al hilo de atencion
+                        with cv_attention:
+                            cv_attention.notify()
+                            print('Send notify, Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
+                
+                        execInfo_list.remove(elem)
+                        print('Eliminate Container ', container_name, ' because it finished')
+                        container_eliminated= True
+                        break
+                mutex_execInfo.release()
+
+                # Eliminar el nombre de la lista de contenedores activos para que no se generen nuevas peticiones de actualización
+                mutex_containerList.acquire()
+                containerName_list.remove(container_name)
+                mutex_containerList.release()
+
+                # Informar en caso de que no se pueda eliminar el contenedor
+                if not container_eliminated:
+                    print('The container ', container_name, ' could not be deleted')
+                else: 
+                    # Enviar ACK indicando finalizacion de la eliminacion del cliente
+                    print("Send ACK to client: " + str(instance_number))
+                    data={
+                        "container": instance_number,
+                        "inter_parallelism": -1,
+                        "intra_parallelism": -1
+                    }
+                    json_data_socket._send(clientsocket, data)
         except socket.timeout: # fail after 60 second of no activity
             print("Didn't receive data! [Timeout] - Container: " + str(instance_number))
         except socket.error as ex: 
             print("Connection reset by peer with request count=" + str(loop))
             print(ex)
-
-        if msg == 'finalize':
-
-            mutex_eventlogs.acquire()
-            event_logs.save_event(events.FINISH_CONTAINER, thread_id, instance_number)
-            mutex_eventlogs.release()
-
-            # Buscar contenedor en la lista
-            # Eliminar objeto contenedor de la lista de contenedores activos
-            mutex_execInfo.acquire()
-            for elem in execInfo_list:
-                if (elem.container_name == container_name):
-                    
-                    # Encolar paralelismo liberado por el contenedor
-                    q_finish_container.put(elem.getInterExecution_parallelism() + elem.getIntraExecution_parallelism())
-                    print("Push Free Parallelism of Container: ", container_name, " Parallelism: ", elem.getInterExecution_parallelism() + elem.getIntraExecution_parallelism())
-
-                    #Despertar al hilo de atencion
-                    with cv_attention:
-                        cv_attention.notify()
-                        print('Send notify, Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
-            
-                    execInfo_list.remove(elem)
-                    print('Eliminate Container ', container_name, ' because it finished')
-                    container_eliminated= True
-                    break
-            mutex_execInfo.release()
-
-            # Eliminar el nombre de la lista de contenedores activos para que no se generen nuevas peticiones de actualización
-            mutex_containerList.acquire()
-            containerName_list.remove(container_name)
-            mutex_containerList.release()
-
-            # Informar en caso de que no se pueda eliminar el contenedor
-            if not container_eliminated:
-                print('The container ', container_name, ' could not be deleted')
-            else: 
-                # Enviar ACK indicando finalizacion de la eliminacion del cliente
-                print("Send ACK to client: " + str(instance_number))
-                clientsocket.send(bytes('f', 'utf-8'))
     print("Finish Client Thread - Container: ", instance_number)
 
 def attentionRequest(socket_schedule, thread_id):
@@ -770,14 +781,17 @@ if __name__ == "__main__":
     print("Creating threads...")
     # Crear hilo para la atención de solicitudes
     attention_thread = threading.Thread(target=attentionRequest, args=(socket_schedule,number_thread,))
+    event_logs.add_thread()
     number_thread= number_thread+1
 
     # Crear hilo para la generacion de peticiones de ejecución
     request_thread = threading.Thread(target=generateExecutionRequest, args=(number_thread,))
+    event_logs.add_thread()
     number_thread=number_thread+1
 
     # Crear hilo para la generacion de peticiones de actualización de paralelismo de contenedores
     update_thread = threading.Thread(target=generateUpdateRequest, args=(number_thread,))
+    event_logs.add_thread()
     number_thread=number_thread+1
     
     # Iniciar todos los hilos
