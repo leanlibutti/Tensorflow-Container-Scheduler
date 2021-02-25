@@ -8,6 +8,7 @@ import signal
 from functools import partial
 import time
 from Commons.trace import TraceLog
+from Commons import json_data_socket
 
 mutex_eventlogs = threading.Lock()
 event_logs= TraceLog(1)
@@ -20,8 +21,10 @@ finalize=False
 
 # Variable condición utilizada para avisar al hilo Atencion de que hay pedidos pendientes en alguna cola.
 cv_update = threading.Condition()
-signal=''
-parallelism=''
+mutex_inter_up= threading.Lock()
+inter_parallelism_up=0
+mutex_intra_up= threading.Lock()
+intra_parallelism_up=0
 
 logging.basicConfig(filename=filename_path,
                             filemode='a',
@@ -29,7 +32,7 @@ logging.basicConfig(filename=filename_path,
                             datefmt='%H:%M:%S',
                             level=logging.DEBUG)
 
-def receiveSignal(socket_scheduler, number_thread, signalNumber, frame):
+def receiveSignal(socket_scheduler, signalNumber, frame):
 
     global finalize
     
@@ -37,12 +40,15 @@ def receiveSignal(socket_scheduler, number_thread, signalNumber, frame):
         logging.info('Recieve signal finalize')
 
         mutex_eventlogs.acquire()
-        event_logs.save_event(5, number_thread, 0)
+        event_logs.save_event(5, 0, 0)
         mutex_eventlogs.release()
 
         # Enviar finalización de TF al Scheduler
         logging.info('Send finalize message')
-        socket_scheduler.send(bytes('finalize', 'utf-8'))
+        data= {
+            "status": 'exit'
+        }
+        json_data_socket._send(socket_scheduler, data)
 
         mutex_finalize.acquire()
         finalize=True
@@ -51,23 +57,26 @@ def receiveSignal(socket_scheduler, number_thread, signalNumber, frame):
         logging.info("Unexpected error in handle signal :(")
 
 def attention_socket(socket_scheduler, number_thread):
-    global parallelism
-    global signal
     continue_exec=True
     while continue_exec:
         try:
             logging.info('Wait message from scheduler...')
-            data = socket_scheduler.recv(2).decode('utf-8')
-
-            if data=='10' or data=='12':   
-                logging.info("Recieve signal: " + str(data)) 
-                signal= data  
-                paralellism = socket_scheduler.recv(2).decode('utf-8')
-                logging.info("Parallelism revieved: " + str(paralellism))
+            data = json_data_socket._recv(socket_scheduler)
+            if data["inter_parallelism"] > 0:  
+                mutex_inter_up.acquire()
+                inter_parallelism_up= data["inter_parallelism"]
+                mutex_inter_up.release()
+                logging.info(" Inter Parallelism revieved: " + str(data["inter_parallelism"]))
+            if data["intra_parallelism"] > 0:
+                mutex_intra_up.acquire()
+                intra_parallelism_up= data["intra_parallelism"]
+                mutex_intra_up.release()
+                logging.info(" Intra Parallelism revieved: " + str(data["intra_parallelism"]))
+            if ((data["inter_parallelism"] > 0) or (data["intra_parallelism"] >0)):
                 with cv_update:
                     cv_update.notify()
-            else:
-                logging.info("ACK from scheduler: " + str(data))
+            if data["inter_parallelism"] == -1:
+                logging.info("ACK from scheduler")
                 continue_exec=False
         except socket_scheduler.timeout:
             logging.info("Socket timeout")
@@ -79,8 +88,8 @@ def attentionUpdate(pid_tf, number_thread):
 
     print('Attention Update Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
 
-    global parallelism
-    global signal
+    global inter_parallelism_up
+    global intra_parallelism_up
     global finalize
 
     try:
@@ -93,26 +102,32 @@ def attentionUpdate(pid_tf, number_thread):
             with cv_update:
                 cv_update.wait()
 
-            if signal=='10' or signal=='12':
-                logging.info("Recieve Change Parallelism: Signal="+ str(signal)+" Parallelism="+str(parallelism))
-                mutex_eventlogs.acquire()
-                event_logs.save_event(4, number_thread, int(signal))
-                mutex_eventlogs.release()
-
-                if signal == '10':
-                    # Cambiar el paralelismo inter
-                    os.environ["INTER_PARALELLISM"]  = parallelism
-                    kill_command= "kill -10 " + str(pid_tf)
-                    logging.info('Change Inter Parallelism: ' + str(parallelism))
-                else:
-                    if signal == '12':
-                        # Cambiar el paralelismo intra
-                        os.environ["INTRA_PARALELLISM"]  = parallelism
-                        kill_command= "kill -12 " + str(pid_tf)
-                        logging.info('Change Intra Parallelism: ' + str(parallelism))
-                
+            mutex_inter_up.acquire()
+            if inter_parallelism_up>0:
+                # Cambiar el paralelismo inter
+                os.environ["INTER_PARALELLISM"]  = inter_parallelism_up
+                kill_command= "kill -10 " + str(pid_tf)
+                logging.info('Change Inter Parallelism: ' + str(inter_parallelism_up))
                 logging.info("Execute parallelism change...")
                 process_command = Popen(kill_command, shell=True)
+                mutex_eventlogs.acquire()
+                event_logs.save_event(4, number_thread, 10)
+                mutex_eventlogs.release()
+                inter_parallelism_up=0
+            mutex_inter_up.release()
+            mutex_intra_up.acquire()
+            if intra_parallelism_up>0:
+                # Cambiar el paralelismo intra
+                os.environ["INTRA_PARALELLISM"]  = intra_parallelism_up
+                kill_command= "kill -12 " + str(pid_tf)
+                logging.info('Change Intra Parallelism: ' + str(intra_parallelism_up)) 
+                logging.info("Execute parallelism change...")
+                process_command = Popen(kill_command, shell=True)
+                mutex_eventlogs.acquire()
+                event_logs.save_event(4, number_thread, 12)
+                mutex_eventlogs.release()
+                intra_parallelism_up=0
+            mutex_intra_up.release()
 
             mutex_finalize.acquire()
         mutex_finalize.release()
@@ -160,23 +175,20 @@ if __name__ == "__main__":
 
         event_logs.save_event(0, 0)
 
-        # Recibir el ID de cliente del planificador
-        logging.info('Wait client ID...')
-        client_id= socket_scheduler.recv(1).decode('utf-8')
-        logging.info('Client ID recieved: '+ str(client_id))
-
-        # Recibir paralelismo del planificador
-        logging.info('Wait parallelism...')
-        inter_parallelism= socket_scheduler.recv(1).decode('utf-8')
-        logging.info('Inter parallelism recieved: ' + str(inter_parallelism))
-        intra_parallelism= socket_scheduler.recv(1).decode('utf-8')
-        logging.info('Intra parallelism recieved: ' + str(intra_parallelism))
+        # Recibir informacion del planificador
+        logging.info('Wait data...')
+        #data= json_data_socket._recv(socket_scheduler)
+          # read the length of the data
+        length_str = ''
+        data = json_data_socket._recv(socket_scheduler)
+        logging.info('Client ID recieved: '+ str(data["container"]))
+        logging.info('Inter parallelism recieved: ' + str(data["inter_parallelism"]))
+        logging.info('Intra parallelism recieved: ' + str(data["intra_parallelism"]))
 
         # Preparar comando de ejecución para TF
-        tf_command = "cd /home/Scheduler/models && " + 'python3 ' + algorithm + '.py ' + str(inter_parallelism) + ' ' + str(intra_parallelism) + ' ' + str(os.getpid())
-        #command = "ls" 
+        tf_command = "cd /home/Scheduler/models && " + 'python3 ' + algorithm + '.py ' + str(data["inter_parallelism"]) + ' ' + str(data["intra_parallelism"]) + ' ' + str(os.getpid())
 
-        event_logs.save_event(1, 0, inter_parallelism, intra_parallelism)
+        event_logs.save_event(1, 0, data["inter_parallelism"], data["intra_parallelism"])
 
         # Ejecutar comando TF
         logging.info('Execute TF algrithm in background...')
@@ -203,7 +215,7 @@ if __name__ == "__main__":
         logging.info('TF PID: ' + str(pid_tf))
 
         logging.info("Add signal handle...")
-        signal.signal(signal.SIGUSR1, partial(receiveSignal, socket_scheduler, 0))
+        signal.signal(signal.SIGUSR1, partial(receiveSignal, socket_scheduler))
 
         # Crear hilo para la atención de solicitudes
         logging.info("Creating update attention thread...")
@@ -227,7 +239,7 @@ if __name__ == "__main__":
         
         logging.info("Save log in CSV format...")
 
-        log_name= 'client_events_' + str(client_id) + '.txt'
+        log_name= 'client_events_' + str(data["container"]) + '.txt'
 
         event_logs.save_CSV('/home/Scheduler/Data/log/',log_name)
         # Cerrar conexión del cliente con el scheduler
@@ -236,6 +248,13 @@ if __name__ == "__main__":
 
         logging.info("Finish program :)")
 
+    except KeyboardInterrupt:
+        logging.info("Keyboard interrupt")
+    except BaseException as e:
+        logging.info(e.__class__.__name__)
+        logging.info(repr(e))
+        logging.info(e)
+        logging.info("Base error")
     except (SyntaxError, IndentationError, NameError) as err:
         logging.info(err)
     except socket_scheduler.error as err:

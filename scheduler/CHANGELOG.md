@@ -1,3 +1,13 @@
+## Release 0.5.2 (2021-02-24)
+
+- Attribute error in client: the signal variable had the same name as the signal class.
+
+- Add JSON objects messages over socket.
+
+- Trace plotting problem:
+    + Add the call to add_thread in the creation of the main threads. 
+    + Fixed problem in the amount of thread plots. 
+
 ## Release 0.5.1 (2021-02-22)
 
 - Sorting the folders
