@@ -1,3 +1,4 @@
+'''
 import matplotlib.pyplot as plt
 from matplotlib.dates import (YEARLY, DateFormatter,
                               rrulewrapper, RRuleLocator, drange)
@@ -5,6 +6,7 @@ import datetime
 import numpy as np
 import matplotlib
 from trace import TraceLog
+
 
 trace= TraceLog(1)
 trace.save_event(0,0,0)
@@ -21,8 +23,26 @@ trace.save_event(0,2,1)
 trace.save_event(1,2,1)
 
 trace.plot_events()
+'''
+import plotly.express as px
+import pandas as pd
+import datetime
+import time
 
+tiempo= datetime.datetime.now()
 
+print (datetime.datetime.now())
+
+time.sleep(3)
+
+df=[]
+df.append(dict(Task="Job A", Start=tiempo, Finish=datetime.datetime.now(), Completion_pct=50))
+df.append( dict(Task="Job B", Start=tiempo, Finish=datetime.datetime.now(), Completion_pct=25))
+df.append(dict(Task="Job C", Start=tiempo, Finish=datetime.datetime.now(), Completion_pct=75))
+
+fig = px.timeline(df, x_start="Start", x_end="Finish", y="Task", color="Completion_pct")
+fig.update_yaxes(autorange="reversed")
+fig.show()
 
 '''
 

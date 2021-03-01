@@ -161,6 +161,7 @@ def schedule_request(request, socket_schedule, instance_number=0, port_host=0, r
 
                 mutex_eventlogs.acquire()
                 event_logs.save_event(events.ATTENTION_REQUEST_EXE, thread_id, instance_number, parallelism_container[0]+parallelism_container[1])
+                event_logs.init_container_event(instance_number, parallelism_container[0]+parallelism_container[1])
                 mutex_eventlogs.release()
 
                 #Transformar stdout en container ID
@@ -208,15 +209,17 @@ def schedule_request(request, socket_schedule, instance_number=0, port_host=0, r
     else:
         # Atender petición de actualización
 
-        print('Schedule Update Request: ',threading.current_thread().getName() + ' - Container: ' + str(instance_number))
+        print('Schedule Update Request: ',threading.current_thread().getName() + ' - Container: ' + str(request.container_name[8:]))
 
         # Obtener objeto ExecutionInfo correspondiente a la instancia que se desea actualizar 
-        ok = updateExecutionInstance(request.container_name, request.inter_parallelism, request.intra_parallelism, resources_availables)
+        ok, parallelism_apply = updateExecutionInstance(request.container_name, request.inter_parallelism, request.intra_parallelism, resources_availables)
 
         if(ok):
             print("Container: ",request.container_name," updated successfully")
             mutex_eventlogs.acquire()
             event_logs.save_event(events.ATTENTION_REQUEST_UP, thread_id, int(request.container_name[8]), request.intra_parallelism+request.inter_parallelism)
+            event_logs.finish_container_event(int(request.container_name[8:]))
+            event_logs.init_container_event(int(request.container_name[8:]),parallelism_apply)
             mutex_eventlogs.release()
             state=1  
         else:
@@ -227,13 +230,11 @@ def schedule_request(request, socket_schedule, instance_number=0, port_host=0, r
 
 def updateExecutionInstance(container_name, new_inter_parallelism, new_intra_parallelism, resources_availables):
     
+    parallelism_apply= 0
+    
     # Buscar en la lista execInfo_list la instancia de ejecucion perteneciente al contenedor con nombre container_name y actualizar el paralelismo
-
-    # En este momento system_info es thread-safe (desde attentionRequest)
-    
+    # En este momento system_info es thread-safe (desde attentionRequest)  
     ok=False
-    
-    # realiza la búsqueda en la lista y obtiene el contenedor a actualizar
     mutex_execInfo.acquire()
     for x in execInfo_list:
         if x.getContainerName() == container_name:
@@ -254,6 +255,7 @@ def updateExecutionInstance(container_name, new_inter_parallelism, new_intra_par
                 if parallelism_list:
                     print("Parallelism Apply: ", parallelism_list[0] + parallelism_list[1])
                     ok = x.updateParallelism(old_interParallelism+parallelism_list[0] , old_intraParallelism+parallelism_list[1])
+                    parallelism_apply= old_interParallelism+parallelism_list[0] + old_intraParallelism+parallelism_list[1]
                     if(new_inter_parallelism-old_interParallelism < 0):
                         print("Increment intra parallelism and decrement inter parallelism")
                     else:
@@ -266,7 +268,7 @@ def updateExecutionInstance(container_name, new_inter_parallelism, new_intra_par
                     ok=False
     mutex_execInfo.release()
     
-    return ok
+    return ok, parallelism_apply
 
 # System Info Safe
 def oldest_reassigment(resources_availables, increase_or_reduce, amount_reduce=0, thread_id=0):
@@ -441,17 +443,18 @@ def generateUpdateRequest(thread_id):
         # Esperar un tiempo para realizar la siguiente petición
         time.sleep(time_wait) 
 
+        
+        # Preparar petición de actualización con los datos necesarios:
+        # -Nombre del contenedor a actualizar
+        # -Paralelismo inter
+        # -Paralelismo intra
+        mutex_containerList.acquire()
         try:
-            # Preparar petición de actualización con los datos necesarios:
-            # -Nombre del contenedor a actualizar
-            # -Paralelismo inter
-            # -Paralelismo intra
-            mutex_containerList.acquire()
             container_name = random.choice(containerName_list)
-            mutex_containerList.release()
         except: 
             print("Container not exist in List")
             skip=True
+        mutex_containerList.release()
         
         if not skip:
 
@@ -518,6 +521,7 @@ def container_client(clientsocket,addr,container_name, instance_number, interExe
 
                 mutex_eventlogs.acquire()
                 event_logs.save_event(events.FINISH_CONTAINER, thread_id, instance_number)
+                event_logs.finish_container_event(instance_number)
                 mutex_eventlogs.release()
 
                 # Buscar contenedor en la lista
@@ -543,6 +547,7 @@ def container_client(clientsocket,addr,container_name, instance_number, interExe
 
                 # Eliminar el nombre de la lista de contenedores activos para que no se generen nuevas peticiones de actualización
                 mutex_containerList.acquire()
+                print("Remove container from container list")
                 containerName_list.remove(container_name)
                 mutex_containerList.release()
 
@@ -564,12 +569,12 @@ def container_client(clientsocket,addr,container_name, instance_number, interExe
             print("Connection reset by peer with request count=" + str(loop))
             print(ex)
 
-        #Esperar a que finalice el contenedor
-        time.sleep(1)
+    #Esperar a que finalice el contenedor
+    time.sleep(10)
 
-        # Eliminar contenedor pausado (docker container prune)
-        command= "docker container prune -f"
-        eliminate_container = Popen(command, shell=True)
+    # Eliminar contenedor pausado (docker container prune)
+    command= "docker container prune -f"
+    eliminate_container = Popen(command, shell=True)
 
     print("Finish Client Thread - Container: ", instance_number)
 
@@ -813,13 +818,17 @@ if __name__ == "__main__":
     update_thread.join()
 
     # Esperar la terminacion de los hilos clientes
+    print("Join client threads...")
     while not client_threads.empty():
         client= client_threads.get()
         client.join()
 
     socket_schedule.close()
 
+    print("Save data log...")
     event_logs.save_CSV('./Data/log/', 'scheduler_events.txt')
+    print("Print data events...")
     event_logs.plot_events()
+    event_logs.plot_gantt()
 
 # Fin de Programa Principal #

@@ -1,3 +1,17 @@
+## Release 0.5.5 (2021-03-01)
+
+- Add support for Gantt Charts.
+
+- Scheduler host:
+    + Changes in update function to return parallelism applied to container
+    + Add event logs for Gantt chart.
+    + Fixed issue in the choice of container to generate an update request.
+    + Fixed issue in docker container prune which was running on every message wait.
+
+## Release 0.5.4 (2021-02-26)
+
+- Add event values in CSV file.
+
 ## Release 0.5.3 (2021-02-25)
 
 - Remove finished container with command "docker container prune -f"

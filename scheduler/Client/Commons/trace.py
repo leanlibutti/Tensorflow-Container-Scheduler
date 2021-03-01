@@ -3,6 +3,9 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
+import plotly.express as px
+import pandas as pd
+import datetime
 
 # Clase encargada de definir un evento del planificador.
 class TraceEvent:
@@ -35,6 +38,7 @@ class TraceLog:
     def __init__(self, threads_count):
         super().__init__()
         self.events_list= []
+        self.df_events= []
         self.init_systemTime_seconds= time.time() #almacenar tiempo de inicio 
         self.threads_count= threads_count
 
@@ -60,7 +64,7 @@ class TraceLog:
             with open(file_path, mode='w') as csv_file:
                 writer_log = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 for event_l in self.events_list:
-                    writer_log.writerow([event_l.get_event_type(), event_l.get_time()])
+                    writer_log.writerow([event_l.get_event_type(), event_l.get_value(), event_l.get_value2(), event_l.get_time()])
         
         except:
             ok=False
@@ -150,3 +154,22 @@ class TraceLog:
             plt.annotate(data_label,(self.events_list[i].get_time(), self.events_list[i].get_thread()))
 
         plt.show()
+            
+    ##### Gantt Diagram #####
+    
+    # Almacenar comienzo de ejecución del contenedor en dataframe        
+    def init_container_event(self,container, threads):
+        self.df_events.append(dict(Task=container, Start=datetime.datetime.now(), Finish=-1, Cores=threads))
+        
+    # Asignar tiempo de finalizacion del contenedor en el dataframe
+    def finish_container_event(self, container_number):
+        for container in self.df_events:
+            if container["Task"] == container_number:
+                container["Finish"] = datetime.datetime.now()
+                
+    def plot_gantt(self):
+        fig = px.timeline(self.df_events, x_start="Start", x_end="Finish", y="Task", color="Cores")
+        fig.update_yaxes(autorange="reversed")
+        fig.show()
+                
+    #### End Gantt Diagram #####
