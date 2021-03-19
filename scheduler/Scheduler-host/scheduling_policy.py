@@ -1,22 +1,84 @@
 import abc
 from abc import ABCMeta
 from system import systemInfo
+import queue
 
 class SchedulingPolicy(metaclass=ABCMeta):
 
-    def __init__(self):
-        pass
+    def __init__(self, assigment_type, feedback=False):
+        self.__assignment_type= assigment_type
+        self.__feedback= feedback
+        self.__queue_array=[]
+        self.__queue_pending_array= []
 
+    def get_feedback(self):
+        return self.__feedback
+    
+    def get_assigment_type(self):
+        return self.__assignment_type
+    
+    def get_queue_request(self, id_queue):
+        if not self.__queue_array[id_queue].empty():
+            return self.__queue_array[id_queue].get()
+        else: 
+            return []
+        
+    def get_pending_queue_request(self, id_queue):
+        if not self.__queue_pending_array[id_queue].empty():
+            return self.__queue_pending_array[id_queue].get()
+        else: 
+            return []
+        
+    def add_queue(self):
+        self.__queue_array.append(queue.Queue())
+
+    def add_pending_queue(self):
+            self.__queue_pending_array.append(queue.Queue())
+
+    def add_queue_request(self,id_queue, data):
+        self.__queue_array[id_queue].put(data)
+        
+    def add_pending_queue_request(self,id_queue, data):
+        self.__queue_pending_array[id_queue].put(data)
+        
+    @abc.abstractmethod
+    def get_new_request(self):
+        """ Definir cómo retornar una nueva peticion"""
+        
+    @abc.abstractmethod    
+    def get_pending_request(self):
+            """ Definir cómo retornar una peticion pendiente"""
+    
+    @abc.abstractmethod   
+    def add_new_request(self):
+        """ Definir cómo agregar una nueva peticion a alguna de las colas de la política de planificación"""
+        
+    @abc.abstractmethod   
+    def add_pending_request(self):
+        """ Definir cómo agregar una nueva peticion a alguna de las colas de la política de planificación"""
+        
     @abc.abstractmethod
     def schedule_parallelism(self, system_info, inter_parallelism, intra_parallelism):
-        """Definir el paralelismo para el contenedor dependiendo de la politica de planificación y 
-        de los recursos disponibles"""
-
+        """Definir el paralelismo para el contenedor dependiendo de la politica de planificación"""
 
 class FFSnotReassignment(SchedulingPolicy):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, assigment_type, feedback=False):
+        super().__init__(assigment_type, feedback)
+        super().add_queue()
+        super().add_pending_queue()
+        
+    def get_new_request(self):
+        return super().get_queue_request(0)
+        
+    def get_pending_request(self):
+        return super().get_pending_queue_request(0)
+    
+    def add_new_request(self, data):
+        super().add_queue_request(0, data)
+        
+    def add_pending_request(self,data):
+        super().add_pending_queue_request(0,data)
 
     # Define la cantidad de nuevo paralelismo requerido por el contenedor
     # inter_parallelism e intra_parallelism puede ser negativos.
