@@ -1,3 +1,14 @@
+## Release 0.6.0 (2021-03-19)
+
+- Added Request class.
+- Code modularization in scheduler.
+- Added docker pause handling.
+- Added active container handling when you want to finish the scheduler.
+- Add new event (PAUSE_CONTAINER and RESUME_CONTAINER).
+- Fixed problem in gantt chart plotting.
+- Add plotly and pandas libraries.
+- Request queues now belong to the scheduling policy.
+
 ## Release 0.5.5 (2021-03-01)
 
 - Add support for Gantt Charts.

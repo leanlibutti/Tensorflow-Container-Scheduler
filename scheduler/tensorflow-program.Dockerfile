@@ -62,7 +62,7 @@ RUN chmod a+w /etc/passwd /etc/group
 
 ARG USE_PYTHON_3_NOT_2=1
 ARG _PY_SUFFIX=${USE_PYTHON_3_NOT_2:+3}
-ARG PYTHON=python${_PY_SUFFIX}
+ARG PYTHON=python3
 ARG PIP=pip${_PY_SUFFIX}
 
 # See http://bugs.python.org/issue19846
@@ -129,8 +129,8 @@ RUN mkdir /bazel && \
 
 RUN pip3 --version
 
-#RUN cd /tensorflow_src && \
-#    pip3 install tensorflow-2.4.0-cp38-cp38-linux_x86_64.whl
+#RUN cd /scheduler_src && \
+#   pip3 install tensorflow-2.4.0-cp38-cp38-linux_x86_64.whl
 RUN pip install tensorflow
 
 RUN pip3 install packaging && \
@@ -138,6 +138,9 @@ RUN pip3 install packaging && \
     pip3 install tensorboard && \
     apt-get install htop && \ 
     apt-get install nano
+
+RUN pip3 install plotly && \
+    pip3 install pandas
 
 RUN apt-get update 
 RUN apt install docker.io -y

@@ -164,10 +164,12 @@ class TraceLog:
     # Asignar tiempo de finalizacion del contenedor en el dataframe
     def finish_container_event(self, container_number):
         for container in self.df_events:
-            if container["Task"] == container_number:
+            if ((container["Task"] == container_number) and (container["Finish"] ==-1)):
                 container["Finish"] = datetime.datetime.now()
                 
     def plot_gantt(self):
+        #for container in self.df_events:
+        #    print("Task = ", container["Task"], " Start= ", container["Start"], " Finish= ", container["Finish"], " Cores= ", container["Cores"])
         fig = px.timeline(self.df_events, x_start="Start", x_end="Finish", y="Task", color="Cores")
         fig.update_yaxes(autorange="reversed")
         fig.show()
