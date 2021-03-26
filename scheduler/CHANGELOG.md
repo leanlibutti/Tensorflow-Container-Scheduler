@@ -1,3 +1,10 @@
+## Release 0.6.1 (2021-03-26)
+
+- Added thread that reads request file.
+- Add requests file.
+- The arrival of requests are visualized in the Gantt chart.
+- Structural changes to scheduling_policy.
+
 ## Release 0.6.0 (2021-03-19)
 
 - Added Request class.
