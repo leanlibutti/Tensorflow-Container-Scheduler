@@ -11,12 +11,13 @@ import signal
 import socket
 from execution_info import ExecutionInfo
 from system import systemInfo
-from scheduling_policy import FFSnotReassignment, FFSReassignment
+from scheduling_policy import FCFS
 import copy
 from Commons.trace import TraceLog
 from Commons import events
 from Commons import json_data_socket
 from request import Start, Pause, Update, Resume, Finish
+import csv
 
 #Mutex para acceder al trace log
 mutex_eventlogs= threading.Lock()
@@ -34,7 +35,7 @@ mutex_systemInfo = threading.Lock()
 system_info = systemInfo()
 
 # Política de asignación de recursos a los contenedores (puede modificarse)
-scheduler_container= FFSnotReassignment("strict")
+scheduler_container= FCFS("strict")
 
 # Cola para almacenar peticiones de finalización de contenedor (almacena el paralelismo total liberado)
 q_finish_container= queue.Queue(10)
@@ -58,8 +59,6 @@ mutex_containerList= threading.Lock()
 # Lista de nombres de contenedores en ejecución (para que el hilo update sepa a cuáles contenedores puede actualizar)
 containerName_list=[]
 
-# Utilizada para bloquear al hilo generador de peticiones de actualizaciones hasta que haya ejecuciones disponibles.
-cv_update = threading.Condition()
 # Variable condición utilizada para avisar al hilo Atencion de que hay pedidos pendientes en alguna cola.
 cv_attention = threading.Condition()
 
@@ -75,6 +74,8 @@ def handler_finish(signum, frame):
     mutex_finishExecution.acquire()
     finish_execution=True
     mutex_finishExecution.release()
+    with cv_attention:
+        cv_attention.notify()
 
 # Fin de metodos para manejo de señales
 
@@ -227,12 +228,6 @@ def schedule_request(request_, socket_schedule, instance_number=0, port_host=0, 
                 mutex_containerList.acquire()
                 containerName_list.append(container_name)
                 mutex_containerList.release()
-
-                # Despertar al hilo GenerateUpdateRequest cuando ya hay instancias en ejecución 
-                if execInfo_list.count == 1:
-                    with cv_update:
-                        cv_update.notify()
-
                 state=1
     else:
         container_number= int(request_.get_container_name()[8])
@@ -439,90 +434,38 @@ def generatePauseResumeRequest(thread_id):
         mutex_finishExecution.acquire()
     mutex_finishExecution.release()
     print("Finish Pause-Resume request thread")
-
-def generateExecutionRequest(thread_id):
-    print('ExecutionRequest Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)  
-    global finish_execution
-    docker_image= 'tf_test'
-    mutex_finishExecution.acquire()
-    while not finish_execution:
-        mutex_finishExecution.release()
-        # Tiempo de espera para la próxima petición
-        # Se utiliza distribución normal de tiempo con medio en 60 segundos y desviación estándar de 20 segundos
-        normal_time = np.random.normal(loc=60, scale=20, size=1)
-        time_wait= int(normal_time[0])
-        # Preparar request con los datos necesarios:
-        # -Paralelismo inter
-        # -Paralelismo intra
-        # -Nombre de archivo python
-        # -Imagen docker 
-        inter_parallelism = random.randint(1, 6)
-        intra_parallelism = random.randint(1, 6)
-        #Crear peticion 
-        request_exec = Start("", docker_image, inter_parallelism, intra_parallelism)
-        scheduler_container.add_new_request(request_exec)
-        mutex_eventlogs.acquire()
-        event_logs.save_event(events.GENERATE_REQUEST_EXE, thread_id, request_exec.get_inter_parallelism()+request_exec.get_intra_parallelism())
-        mutex_eventlogs.release()
-        # Avisar al hilo de atencion que se encoló una nueva petición.
-        with cv_attention:
-            cv_attention.notify()
-            #print('Send notify, Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
-        # Esperar un tiempo para realizar la siguiente petición
-        time.sleep(time_wait)
-        mutex_finishExecution.acquire()
-    mutex_finishExecution.release()
-    print("Finish execution request thread")
-
-def generateUpdateRequest(thread_id):
-    print('UpdateRequest Thread:', threading.current_thread().getName(), ' - ID:', threading.current_thread().ident)
-    global finish_execution
-    # Cantidad de peticiones a realizar
-    request_count = 0
-    mutex_finishExecution.acquire()
-    while not finish_execution:
-        mutex_finishExecution.release()
-        skip=False
-        wait_containers=True
-        while (wait_containers):
-            with cv_update:
-                # Esperar a que el hilo attentionRequest ejecute alguna instancia
-                value=cv_update.wait()
-                #print('Wake up - Thread:', threading.current_thread().getName())
-            if value:
-                wait_containers=False
+    
+def read_requests(thread_id):
+    
+    with open('./Scheduler-host/requests_file.txt') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        cant_request = 0
+        for row in csv_reader:
+            cant_request+=1
+            if (row[0]=='execution'):
+                request_exec = Start("", row[2],int(row[3]),int(row[4]))
+                scheduler_container.add_new_request(request_exec)   
+                mutex_eventlogs.acquire()
+                event_logs.save_event(events.GENERATE_REQUEST_EXE, thread_id, request_exec.get_inter_parallelism()+request_exec.get_intra_parallelism())
+                event_logs.init_container_event(-1, int(row[3])+int(row[4]))
+                time.sleep(1)
+                event_logs.finish_container_event(-1)
+                mutex_eventlogs.release()   
             else:
-                print('Wait Timeout', threading.current_thread().getName())
-        # Tiempo de espera para la próxima petición
-        # Se utiliza distribución normal de tiempo con medio en 80 segundos y desviación estándar de 20 segundos
-        normal_time = np.random.normal(loc=80, scale=20, size=1)
-        time_wait= int(normal_time[0])
-        print("Time Wait in Update Request: ",  time_wait)
-        # Esperar un tiempo para realizar la siguiente petición
-        time.sleep(time_wait) 
-        # Preparar petición de actualización con los datos necesarios:
-        # -Nombre del contenedor a actualizar
-        # -Paralelismo inter
-        # -Paralelismo intra
-        mutex_containerList.acquire()
-        try:
-            container_name = random.choice(containerName_list)
-        except: 
-            print("Container not exist in List")
-            skip=True
-        mutex_containerList.release()
-        if not skip:
-            inter_parallelism = random.randint(1, 6)
-            intra_parallelism = random.randint(1, 12)
-            #Crear peticion de actualización 
-            request_up= Update(container_name, inter_parallelism, intra_parallelism)
-            scheduler_container.add_new_request(request_up)
-            mutex_eventlogs.acquire()
-            event_logs.save_event(events.GENERATE_REQUEST_UP, thread_id, int(container_name[8]), request_up.get_inter_parallelism()+request_up.get_intra_parallelism())
-            mutex_eventlogs.release()
-        mutex_finishExecution.acquire()
-    mutex_finishExecution.release()
-    print("Finish update request thread")
+                request_up= Update(row[1], int(row[3]), int(row[4]))
+                scheduler_container.add_new_request(request_up)
+                mutex_eventlogs.acquire()
+                event_logs.save_event(events.GENERATE_REQUEST_EXE, thread_id, request_exec.get_inter_parallelism()+request_exec.get_intra_parallelism())
+                event_logs.init_container_event(-2, int(row[3])+int(row[4]))
+                time.sleep(1)
+                event_logs.finish_container_event(-2)
+                mutex_eventlogs.release()  
+                pass
+            with cv_attention:
+                cv_attention.notify()
+            time.sleep(int(row[5]))
+    
+    print("Finish read request thread, request count= ", cant_request)
 
 def container_client(clientsocket,addr,container_name, instance_number, interExec_parallelism, intraExec_parallelism, thread_id):
     container_eliminated= False
@@ -666,8 +609,6 @@ def attentionRequest(socket_schedule, thread_id):
                     if isinstance(request_, Start):
                         instance_number=instance_number+1
                         port_host= port_host+1   
-                        with cv_update:
-                            cv_update.notify()
                 resources_availables= system_info.check_resources()
                 print("Resources availables after schedule: " + str(resources_availables))
             request_ = scheduler_container.get_pending_request()
@@ -708,12 +649,9 @@ def attentionRequest(socket_schedule, thread_id):
                             scheduler_container.add_pending_request(request_)
                     system_info.free_resources(requested_resources)
                 else: 
-                    # Avisar al hilo generador de peticiones de actualización cuando se crea una instancia Docker
                     if isinstance(request_, Start):
                         instance_number=instance_number+1
                         port_host= port_host+1   
-                        with cv_update:
-                            cv_update.notify()
             else:
                 if not isinstance(request_, Pause):
                     print("Discard this request") 
@@ -797,33 +735,17 @@ if __name__ == "__main__":
     number_thread= number_thread+1
 
     # Crear hilo para la generacion de peticiones de ejecución
-    request_thread = threading.Thread(target=generateExecutionRequest, args=(number_thread,))
-    event_logs.add_thread()
-    number_thread=number_thread+1
-
-    # Crear hilo para la generacion de peticiones de actualización de paralelismo de contenedores
-    update_thread = threading.Thread(target=generateUpdateRequest, args=(number_thread,))
-    event_logs.add_thread()
-    number_thread=number_thread+1
-    
-    # Crear hilo para la generacion de peticiones de pausa y reanudacion de contenedor
-    pause_resume_thread = threading.Thread(target=generatePauseResumeRequest, args=(number_thread,))
+    request_thread = threading.Thread(target=read_requests, args=(number_thread,))
     event_logs.add_thread()
     number_thread=number_thread+1
     
     # Iniciar todos los hilos
     attention_thread.start()
     request_thread.start()
-    update_thread.start()
-    pause_resume_thread.start()
-
+    
     # Esperar la terminación de los hilos
     attention_thread.join()
     request_thread.join()
-    with cv_update:
-        cv_update.notify()
-    update_thread.join()
-    pause_resume_thread.join()
 
     # Esperar la terminacion de los hilos clientes
     print("Join client threads...")
