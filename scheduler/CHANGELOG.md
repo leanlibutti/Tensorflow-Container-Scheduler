@@ -1,3 +1,7 @@
+## Release 0.6.2 (2021-04-28)
+
+- Added reassignment types "max_prop" and "always_attend" to FCFS policy.
+
 ## Release 0.6.1 (2021-03-26)
 
 - Added thread that reads request file.

@@ -1,0 +1,139 @@
+20:08:01,968 root INFO Client for Instance TF
+20:08:01,968 root INFO Connecting Network...
+20:08:01,969 root INFO Algorithm recieved for parameter: keras_example_resnet
+20:08:01,969 root INFO Wait data...
+20:08:01,969 root INFO Client ID recieved: 99
+20:08:01,969 root INFO TF Use: maleable
+20:08:01,969 root INFO Inter parallelism recieved: 1
+20:08:01,969 root INFO Intra parallelism recieved: 1
+20:08:01,969 root INFO Execute TF algrithm in background...
+20:08:01,975 root INFO Send TF init message...
+20:08:03,988 root INFO Salida de popen:    7
+   29
+
+20:08:03,988 root INFO TF PID: 29
+20:08:03,988 root INFO Add signal handle...
+20:08:03,988 root INFO Creating update attention thread...
+20:08:03,988 root INFO Creating socket attention thread...
+20:08:03,988 root INFO Creating live thread...
+20:08:03,990 root INFO Wait message from scheduler...
+20:08:03,994 root INFO Join Threads...
+20:08:13,997 root INFO Entry Progressive Update Thread
+20:08:13,998 root INFO Change Intra Parallelism: 14
+20:08:15,5 root INFO Change Intra Parallelism: 13
+20:08:16,18 root INFO Change Intra Parallelism: 12
+20:08:17,62 root INFO Change Intra Parallelism: 11
+20:08:18,69 root INFO Change Intra Parallelism: 10
+20:08:19,77 root INFO Change Intra Parallelism: 9
+20:08:20,89 root INFO Change Intra Parallelism: 8
+20:08:21,97 root INFO Change Intra Parallelism: 7
+20:08:22,110 root INFO Change Intra Parallelism: 6
+20:08:23,117 root INFO Change Intra Parallelism: 5
+20:08:24,166 root INFO Change Intra Parallelism: 4
+20:08:25,173 root INFO Change Intra Parallelism: 3
+20:08:26,182 root INFO Change Intra Parallelism: 2
+20:08:27,189 root INFO Change Intra Parallelism: 1
+20:08:28,196 root INFO Finish Progressive Update Thread
+20:09:02,77 root INFO Intra and inter recieved:-2 - -2
+20:09:02,78 root INFO Wake up live control...
+20:09:02,78 root INFO Wait message from scheduler...
+20:09:02,78 root INFO Live control wake up:False
+20:09:02,78 root INFO Path file TF: /home/Scheduler/models/output_99_maleable.txt
+20:09:02,79 root INFO Diff time: 0.010936975479125977
+20:09:02,79 root INFO Container is live!
+20:10:02,181 root INFO Intra and inter recieved:-2 - -2
+20:10:02,182 root INFO Wake up live control...
+20:10:02,182 root INFO Wait message from scheduler...
+20:10:02,182 root INFO Live control wake up:False
+20:10:02,182 root INFO Path file TF: /home/Scheduler/models/output_99_maleable.txt
+20:10:02,183 root INFO Diff time: 0.011494636535644531
+20:10:02,183 root INFO Container is live!
+20:11:02,285 root INFO Intra and inter recieved:-2 - -2
+20:11:02,286 root INFO Wake up live control...
+20:11:02,286 root INFO Wait message from scheduler...
+20:11:02,286 root INFO Live control wake up:False
+20:11:02,286 root INFO Path file TF: /home/Scheduler/models/output_99_maleable.txt
+20:11:02,287 root INFO Diff time: 0.012134790420532227
+20:11:02,287 root INFO Container is live!
+20:12:02,389 root INFO Intra and inter recieved:-2 - -2
+20:12:02,390 root INFO Wake up live control...
+20:12:02,390 root INFO Wait message from scheduler...
+20:12:02,390 root INFO Live control wake up:False
+20:12:02,390 root INFO Path file TF: /home/Scheduler/models/output_99_maleable.txt
+20:12:02,391 root INFO Diff time: 0.012677907943725586
+20:12:02,391 root INFO Container is live!
+20:13:02,493 root INFO Intra and inter recieved:-2 - -2
+20:13:02,494 root INFO Wake up live control...
+20:13:02,494 root INFO Wait message from scheduler...
+20:13:02,494 root INFO Live control wake up:False
+20:13:02,494 root INFO Path file TF: /home/Scheduler/models/output_99_maleable.txt
+20:13:02,495 root INFO Diff time: 0.009205818176269531
+20:13:02,495 root INFO Container is live!
+20:14:02,597 root INFO Intra and inter recieved:-2 - -2
+20:14:02,598 root INFO Wake up live control...
+20:14:02,598 root INFO Wait message from scheduler...
+20:14:02,598 root INFO Live control wake up:False
+20:14:02,598 root INFO Path file TF: /home/Scheduler/models/output_99_maleable.txt
+20:14:02,599 root INFO Diff time: 0.010117530822753906
+20:14:02,599 root INFO Container is live!
+20:15:02,701 root INFO Intra and inter recieved:-2 - -2
+20:15:02,702 root INFO Wake up live control...
+20:15:02,702 root INFO Wait message from scheduler...
+20:15:02,702 root INFO Live control wake up:False
+20:15:02,702 root INFO Path file TF: /home/Scheduler/models/output_99_maleable.txt
+20:15:02,703 root INFO Diff time: 0.010529518127441406
+20:15:02,703 root INFO Container is live!
+20:16:02,805 root INFO Intra and inter recieved:-2 - -2
+20:16:02,806 root INFO Wake up live control...
+20:16:02,806 root INFO Wait message from scheduler...
+20:16:02,806 root INFO Live control wake up:False
+20:16:02,806 root INFO Path file TF: /home/Scheduler/models/output_99_maleable.txt
+20:16:02,807 root INFO Diff time: 0.01124715805053711
+20:16:02,807 root INFO Container is live!
+20:17:02,909 root INFO Intra and inter recieved:-2 - -2
+20:17:02,910 root INFO Wake up live control...
+20:17:02,910 root INFO Wait message from scheduler...
+20:17:02,910 root INFO Live control wake up:False
+20:17:02,910 root INFO Path file TF: /home/Scheduler/models/output_99_maleable.txt
+20:17:02,913 root INFO Diff time: 0.013474702835083008
+20:17:02,913 root INFO Container is live!
+20:18:03,21 root INFO Intra and inter recieved:-2 - -2
+20:18:03,22 root INFO Wake up live control...
+20:18:03,22 root INFO Wait message from scheduler...
+20:18:03,22 root INFO Live control wake up:False
+20:18:03,22 root INFO Path file TF: /home/Scheduler/models/output_99_maleable.txt
+20:18:03,23 root INFO Diff time: 0.012414932250976562
+20:18:03,23 root INFO Container is live!
+20:19:03,129 root INFO Intra and inter recieved:-2 - -2
+20:19:03,130 root INFO Wake up live control...
+20:19:03,130 root INFO Wait message from scheduler...
+20:19:03,130 root INFO Live control wake up:False
+20:19:03,130 root INFO Path file TF: /home/Scheduler/models/output_99_maleable.txt
+20:19:03,131 root INFO Diff time: 0.009149551391601562
+20:19:03,131 root INFO Container is live!
+20:20:03,233 root INFO Intra and inter recieved:-2 - -2
+20:20:03,234 root INFO Wake up live control...
+20:20:03,234 root INFO Wait message from scheduler...
+20:20:03,234 root INFO Live control wake up:False
+20:20:03,234 root INFO Path file TF: /home/Scheduler/models/output_99_maleable.txt
+20:20:03,235 root INFO Diff time: 0.009819269180297852
+20:20:03,235 root INFO Container is live!
+20:21:03,337 root INFO Intra and inter recieved:-2 - -2
+20:21:03,338 root INFO Wake up live control...
+20:21:03,338 root INFO Wait message from scheduler...
+20:21:03,338 root INFO Live control wake up:False
+20:21:03,338 root INFO Path file TF: /home/Scheduler/models/output_99_maleable.txt
+20:21:03,339 root INFO Diff time: 0.01059412956237793
+20:21:03,339 root INFO Container is live!
+20:21:07,626 root INFO Recieve signal finalize
+20:21:07,627 root INFO Send finalize message
+20:21:07,677 root INFO Intra and inter recieved:-1 - -1
+20:21:07,677 root INFO ACK from scheduler
+20:21:07,678 root INFO Finish attention socket thread
+20:21:07,678 root INFO Intra parallelism before progressive update:0
+20:21:07,678 root INFO Finish update thread
+20:21:07,678 root INFO Live control wake up:True
+20:21:07,678 root INFO Finish live control thread
+20:21:07,678 root INFO Save log in CSV format...
+20:21:07,680 root INFO Close client socket
+20:21:07,680 root INFO Finish program :)

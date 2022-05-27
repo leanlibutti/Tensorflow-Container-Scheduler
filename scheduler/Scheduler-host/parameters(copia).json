@@ -1,0 +1,8 @@
+{"tf_version": "maleable",
+"tf_model": "keras_example_resnet",
+"tf_dockerimage": "tf_scheduler_test",
+"number_containers": 1,
+"time_distribution": "static",
+"time_gap": [45,0],
+"resources_distribution": "static",
+"resources_per_container": [2,0]}

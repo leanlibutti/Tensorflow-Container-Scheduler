@@ -1,0 +1,1 @@
+{"tf_version": "original", "tf_model": "keras_example_resnet", "tf_dockerimage": "tf_scheduler", "number_containers": 128, "time_distribution": "normal", "time_gap": [40, 5], "resources_distribution": "static", "resources_per_container": [8, 0], "get_requests": "file"}

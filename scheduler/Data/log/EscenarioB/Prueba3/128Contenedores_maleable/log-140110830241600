@@ -1,0 +1,81 @@
+03:06:17,543 root INFO Client for Instance TF
+03:06:17,543 root INFO Connecting Network...
+03:06:17,544 root INFO Algorithm recieved for parameter: keras_example_resnet
+03:06:17,544 root INFO Wait data...
+03:06:17,544 root INFO Client ID recieved: 124
+03:06:17,544 root INFO TF Use: maleable
+03:06:17,545 root INFO Inter parallelism recieved: 1
+03:06:17,545 root INFO Intra parallelism recieved: 3
+03:06:17,545 root INFO Execute TF algrithm in background...
+03:06:17,549 root INFO Send TF init message...
+03:06:19,559 root INFO Salida de popen:    8
+   30
+
+03:06:19,559 root INFO TF PID: 30
+03:06:19,559 root INFO Add signal handle...
+03:06:19,560 root INFO Creating update attention thread...
+03:06:19,560 root INFO Creating socket attention thread...
+03:06:19,560 root INFO Creating live thread...
+03:06:19,560 root INFO Wait message from scheduler...
+03:06:19,561 root INFO Join Threads...
+03:06:29,569 root INFO Entry Progressive Update Thread
+03:06:29,570 root INFO Change Intra Parallelism: 14
+03:06:30,580 root INFO Change Intra Parallelism: 13
+03:06:31,588 root INFO Change Intra Parallelism: 12
+03:06:32,598 root INFO Change Intra Parallelism: 11
+03:06:33,608 root INFO Change Intra Parallelism: 10
+03:06:34,620 root INFO Change Intra Parallelism: 9
+03:06:35,633 root INFO Change Intra Parallelism: 8
+03:06:36,644 root INFO Change Intra Parallelism: 7
+03:06:37,655 root INFO Change Intra Parallelism: 6
+03:06:38,662 root INFO Change Intra Parallelism: 5
+03:06:39,669 root INFO Change Intra Parallelism: 4
+03:06:40,677 root INFO Change Intra Parallelism: 3
+03:06:41,687 root INFO Finish Progressive Update Thread
+03:07:17,653 root INFO Intra and inter recieved:-2 - -2
+03:07:17,654 root INFO Wake up live control...
+03:07:17,654 root INFO Wait message from scheduler...
+03:07:17,654 root INFO Live control wake up:False
+03:07:17,654 root INFO Path file TF: /home/Scheduler/models/output_124_maleable.txt
+03:07:17,655 root INFO Diff time: 0.012740135192871094
+03:07:17,655 root INFO Container is live!
+03:08:17,761 root INFO Intra and inter recieved:-2 - -2
+03:08:17,762 root INFO Wake up live control...
+03:08:17,762 root INFO Wait message from scheduler...
+03:08:17,762 root INFO Live control wake up:False
+03:08:17,762 root INFO Path file TF: /home/Scheduler/models/output_124_maleable.txt
+03:08:17,763 root INFO Diff time: 0.01302957534790039
+03:08:17,763 root INFO Container is live!
+03:09:17,866 root INFO Intra and inter recieved:-2 - -2
+03:09:17,866 root INFO Wake up live control...
+03:09:17,867 root INFO Wait message from scheduler...
+03:09:17,867 root INFO Live control wake up:False
+03:09:17,867 root INFO Path file TF: /home/Scheduler/models/output_124_maleable.txt
+03:09:17,868 root INFO Diff time: 0.010208368301391602
+03:09:17,868 root INFO Container is live!
+03:10:17,969 root INFO Intra and inter recieved:-2 - -2
+03:10:17,970 root INFO Wake up live control...
+03:10:17,970 root INFO Wait message from scheduler...
+03:10:17,970 root INFO Live control wake up:False
+03:10:17,970 root INFO Path file TF: /home/Scheduler/models/output_124_maleable.txt
+03:10:17,971 root INFO Diff time: 0.010337352752685547
+03:10:17,971 root INFO Container is live!
+03:11:18,73 root INFO Intra and inter recieved:-2 - -2
+03:11:18,76 root INFO Wake up live control...
+03:11:18,76 root INFO Wait message from scheduler...
+03:11:18,76 root INFO Live control wake up:False
+03:11:18,76 root INFO Path file TF: /home/Scheduler/models/output_124_maleable.txt
+03:11:18,77 root INFO Diff time: 0.012720346450805664
+03:11:18,77 root INFO Container is live!
+03:11:45,398 root INFO Recieve signal finalize
+03:11:45,399 root INFO Send finalize message
+03:11:45,445 root INFO Intra and inter recieved:-1 - -1
+03:11:45,446 root INFO ACK from scheduler
+03:11:45,446 root INFO Finish attention socket thread
+03:11:45,446 root INFO Intra parallelism before progressive update:0
+03:11:45,446 root INFO Finish update thread
+03:11:45,446 root INFO Live control wake up:True
+03:11:45,446 root INFO Finish live control thread
+03:11:45,446 root INFO Save log in CSV format...
+03:11:45,448 root INFO Close client socket
+03:11:45,449 root INFO Finish program :)

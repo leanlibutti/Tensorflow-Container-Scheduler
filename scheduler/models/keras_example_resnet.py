@@ -343,17 +343,19 @@ tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram
 
 
 model.fit(train_data,
-          steps_per_epoch=20,
-          epochs=1, 
-          callbacks=[tensorboard_callback])
+          steps_per_epoch=100,
+          epochs=1) 
+          #callbacks=[tensorboard_callback])
 
+print("Finish TF program")
 
 ## Agregado para el scheduler ##
 
 command = "kill -10 " + str(pid_client)
 
 # Avisar al cliente del contenedor que se termina la ejecución del programa TF
-process_command = Popen([command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
-stdout, stderr = process_command.communicate()
-
+#process_command = Popen([command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
+#stdout, stderr = process_command.communicate()
+tf_execute = Popen(command, shell=True)
+print("Send Signal")
 #################################

@@ -14,15 +14,30 @@ from matplotlib.image import imread
 from tensorflow.keras.preprocessing import image
 
 from datetime import datetime
+
+## Agregado para el scheduler ##
+
+from subprocess import Popen, PIPE, STDOUT
+
+#################################
  
 #tf.enable_eager_execution()
  
-if(len(sys.argv)!= 3):
+if(len(sys.argv)!= 4):
 	print("cantidad de argumentos incorrecto")
 	sys.exit(2)
 
 inter= int(sys.argv[1])
 intra= int(sys.argv[2])
+
+## Agregado para el scheduler ##
+
+pid_client=int(sys.argv[3])
+
+#################################
+
+print("TF inter: ", tf.config.threading.get_inter_op_parallelism_threads())
+print("TF intra: ", tf.config.threading.get_inter_op_parallelism_threads())
 
 tf.config.threading.set_inter_op_parallelism_threads(inter)
 tf.config.threading.set_intra_op_parallelism_threads(intra)
@@ -100,13 +115,24 @@ model.compile(optimizer=tf.optimizers.Adam(),
               loss=tf.keras.losses.sparse_categorical_crossentropy,
               metrics=["accuracy"])
 
-log_dir="logs/profile/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+log_dir="logs/profile/" + datetime.now().strftime("%Y%m%d-%H%M%S")+ "-VGG"
 
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1, profile_batch = 3)
 
 history = model.fit(train_ds,
                     epochs=1, 
-                    steps_per_epoch=2,
-                    validation_steps=2,
-                    validation_data=validation_ds,
-                    callbacks=[tensorboard_callback])
+                    steps_per_epoch=100)
+                    #callbacks=[tensorboard_callback])
+
+print("Finish TF program")
+
+## Agregado para el scheduler ##
+
+command = "kill -10 " + str(pid_client)
+
+# Avisar al cliente del contenedor que se termina la ejecución del programa TF
+#process_command = Popen([command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
+#stdout, stderr = process_command.communicate()
+tf_execute = Popen(command, shell=True)
+print("Send Signal")
+#################################

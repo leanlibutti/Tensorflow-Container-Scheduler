@@ -1,0 +1,1343 @@
+Deleted Containers:
+eb5eca66a8f0e2fa3a93e4a829d0af0a9199408d63db6efe74bc4f1d3b625c03
+
+Total reclaimed space: 29.37kB
+Deleted Containers:
+42b3201c273a48a2bba846745e8cf91853b4042a9409bd2104c19b00bfb8ecb4
+031f4a675399ea2b743cee2444a42faafecd03dde68b90de37fc5ff2047cc920
+
+Total reclaimed space: 58.74kB
+Deleted Containers:
+7bec5ed761b1207a6c3c5dd369c804de026174a7428e56ed074c55afcd07bb14
+80841c89cc3af48565dceb119b63792e1286e4000596dd1d2ebb42810e3bba3c
+
+Total reclaimed space: 58.74kB
+Total reclaimed space: 0B
+Total reclaimed space: 0B
+Deleted Containers:
+c5237337722005e3b6bf04bf234f04851ab7344dfda0c7eee39fedfd2b5c262c
+
+Total reclaimed space: 29.37kB
+Deleted Containers:
+e5df8bd324b43dff13a71436dd5b56ace5022820e320e132afec87cd1c03c276
+a1d973d1632508ead7b5b7e7300c7545186ff724e2e0c221af9f7bfb27273295
+
+Total reclaimed space: 58.74kB
+Deleted Containers:
+a46a346677ac18f521e832e7f0da9f783f0c7791dc2c36839e88e46ddb3cbc20
+
+Total reclaimed space: 29.37kB
+Deleted Containers:
+9cbaf99ca26bc1ee922dc6a3319eee72a069a11e1871c399a48a7a1e05150e88
+
+Total reclaimed space: 29.37kB
+Total reclaimed space: 0B
+Deleted Containers:
+e4189f0f6f1e5e63668fa20dccb922ad9c6850ce740dc9f8ce1efbeaf8f825ab
+a16d9cefdfb8b035e949a1128eb2f3b577c65ed9e6f890ce9ec906bd87d8370e
+
+Total reclaimed space: 58.74kB
+Total reclaimed space: 0B
+Deleted Containers:
+2f5fbdbbcd1c18f9bc3dbc4ed9af8236f48bbe3aed492447e6ab30d85018138d
+fcbbd0e52b41d802b9eda3ab402c43cb31689f549335f6e77243cce4dfcfaab2
+c24b566725f1dc59a7280886662f977f73342a9d7f013c95a47e151e90df95a5
+
+Total reclaimed space: 88.1kB
+Total reclaimed space: 0B
+Deleted Containers:
+62bf0f304724007ac0f2ff43e3ca767dc2fe820c421fc056a18a7a10c1cb7b5a
+
+Total reclaimed space: 29.37kB
+Connecting Network...
+Add ctl+z signal handler...
+Creating threads...
+AttentionRequest Thread: Thread-1
+System Control Thread: Thread-3  - ID: 140080116143872
+New factor prop =  0.5
+Attention act/exe request pending:  Thread-1
+Not request in pending queue
+Attention new act/exe request:  Thread-1
+Execution container request:  0
+Requested_resources:  16
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  16
+Inter P in scheduleparallelism: 2  - Intra P in scheduleparallelism: 14
+Paralelismo devuelto por politica de planificacion:  [1, 15]
+Creating Docker Container for  instance0
+eb5eca66a8f0e2fa3a93e4a829d0af0a9199408d63db6efe74bc4f1d3b625c03
+
+Wait message:  instance0
+Name of request:  instance0  - Container ID:  eb5eca66a8f0 Container Process ID:  2131
+Resources availables after schedule: 0
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Didn't receive data! [Timeout] - Container: instance0
+Send live message...instance0
+Wait live response of container:  instance0
+Message Recieved:  live  -  instance0
+Container is live:  instance0
+Check if container has paused:  instance0
+Wait message:  instance0
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Container:  instance0  - Recieve msg:  exit
+Epochs in container: instance0
+Time epochs: [26, 20, 18, 18, 18]
+Remove Container:  instance0
+Send ACK to client: instance0
+Attention finish request:  Thread-1
+Free resources of container:  16
+Join Client Thread:  instance0
+Finish Client Thread - Container:  instance0
+Finish client thread: instance0
+Reassigment Containers with oldest policy
+New factor prop =  2.5
+Attention act/exe request pending:  Thread-1
+Not request in pending queue
+Attention new act/exe request:  Thread-1
+Execution container request:  1
+Requested_resources:  16
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  16
+Inter P in scheduleparallelism: 0  - Intra P in scheduleparallelism: 2
+Paralelismo devuelto por politica de planificacion:  [1, 2]
+Creating Docker Container for  instance1
+80841c89cc3af48565dceb119b63792e1286e4000596dd1d2ebb42810e3bba3c
+
+Wait message:  instance1
+Name of request:  instance1  - Container ID:  80841c89cc3a Container Process ID:  2169
+Free excedded resources:  13
+Resources availables after schedule: 13
+Execution container request:  2
+Requested_resources:  13
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  13
+Inter P in scheduleparallelism: 0  - Intra P in scheduleparallelism: 2
+Paralelismo devuelto por politica de planificacion:  [1, 2]
+Creating Docker Container for  instance2
+7bec5ed761b1207a6c3c5dd369c804de026174a7428e56ed074c55afcd07bb14
+
+Wait message:  instance2
+Name of request:  instance2  - Container ID:  7bec5ed761b1 Container Process ID:  2192
+Free excedded resources:  10
+Resources availables after schedule: 10
+Execution container request:  3
+Requested_resources:  10
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  10
+Inter P in scheduleparallelism: 0  - Intra P in scheduleparallelism: 2
+Paralelismo devuelto por politica de planificacion:  [1, 2]
+Creating Docker Container for  instance3
+031f4a675399ea2b743cee2444a42faafecd03dde68b90de37fc5ff2047cc920
+
+Wait message:  instance3
+Name of request:  instance3  - Container ID:  031f4a675399 Container Process ID:  2215
+Free excedded resources:  7
+Resources availables after schedule: 7
+Execution container request:  4
+Requested_resources:  7
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  7
+Inter P in scheduleparallelism: 0  - Intra P in scheduleparallelism: 2
+Paralelismo devuelto por politica de planificacion:  [1, 2]
+Creating Docker Container for  instance4
+42b3201c273a48a2bba846745e8cf91853b4042a9409bd2104c19b00bfb8ecb4
+
+Wait message:  instance4
+Name of request:  instance4  - Container ID:  42b3201c273a Container Process ID:  2238
+Free excedded resources:  4
+Resources availables after schedule: 4
+Execution container request:  5
+Requested_resources:  4
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  4
+Inter P in scheduleparallelism: 0  - Intra P in scheduleparallelism: 2
+Paralelismo devuelto por politica de planificacion:  [1, 2]
+Creating Docker Container for  instance5
+c5237337722005e3b6bf04bf234f04851ab7344dfda0c7eee39fedfd2b5c262c
+
+Wait message:  instance5
+Name of request:  instance5  - Container ID:  c52373377220 Container Process ID:  2268
+Free excedded resources:  1
+Resources availables after schedule: 1
+Wait for reassigment...
+Reasigment Resources...
+Reassigment Containers with oldest policy
+Update intra parallelism in container:  instance1 to:  3
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Didn't receive data! [Timeout] - Container: instance1
+Send live message...instance1
+Wait live response of container:  instance1
+Message Recieved:  live  -  instance1
+Container is live:  instance1
+Check if container has paused:  instance1
+Wait message:  instance1
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Didn't receive data! [Timeout] - Container: instance2
+Send live message...instance2
+Wait live response of container:  instance2
+Message Recieved:  live  -  instance2
+Container is live:  instance2
+Check if container has paused:  instance2
+Wait message:  instance2
+Didn't receive data! [Timeout] - Container: instance3
+Send live message...instance3
+Wait live response of container:  instance3
+Message Recieved:  live  -  instance3
+Container is live:  instance3
+Check if container has paused:  instance3
+Wait message:  instance3
+Didn't receive data! [Timeout] - Container: instance4
+Send live message...instance4
+Wait live response of container:  instance4
+Message Recieved:  live  -  instance4
+Container is live:  instance4
+Check if container has paused:  instance4
+Wait message:  instance4
+Didn't receive data! [Timeout] - Container: instance5
+Send live message...instance5
+Wait live response of container:  instance5
+Message Recieved:  live  -  instance5
+Container is live:  instance5
+Check if container has paused:  instance5
+Wait message:  instance5
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Didn't receive data! [Timeout] - Container: instance1
+Send live message...instance1
+Wait live response of container:  instance1
+Message Recieved:  live  -  instance1
+Container is live:  instance1
+Check if container has paused:  instance1
+Wait message:  instance1
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Didn't receive data! [Timeout] - Container: instance2
+Send live message...instance2
+Wait live response of container:  instance2
+Message Recieved:  live  -  instance2
+Container is live:  instance2
+Check if container has paused:  instance2
+Wait message:  instance2
+Didn't receive data! [Timeout] - Container: instance3
+Send live message...instance3
+Wait live response of container:  instance3
+Message Recieved:  live  -  instance3
+Container is live:  instance3
+Check if container has paused:  instance3
+Wait message:  instance3
+Didn't receive data! [Timeout] - Container: instance4
+Send live message...instance4
+Wait live response of container:  instance4
+Message Recieved:  live  -  instance4
+Container is live:  instance4
+Check if container has paused:  instance4
+Wait message:  instance4
+Didn't receive data! [Timeout] - Container: instance5
+Send live message...instance5
+Wait live response of container:  instance5
+Message Recieved:  live  -  instance5
+Container is live:  instance5
+Check if container has paused:  instance5
+Wait message:  instance5
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Didn't receive data! [Timeout] - Container: instance1
+Send live message...instance1
+Wait live response of container:  instance1
+Message Recieved:  live  -  instance1
+Container is live:  instance1
+Check if container has paused:  instance1
+Wait message:  instance1
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Didn't receive data! [Timeout] - Container: instance2
+Send live message...instance2
+Wait live response of container:  instance2
+Message Recieved:  live  -  instance2
+Container is live:  instance2
+Check if container has paused:  instance2
+Wait message:  instance2
+Didn't receive data! [Timeout] - Container: instance3
+Send live message...instance3
+Wait live response of container:  instance3
+Message Recieved:  live  -  instance3
+Container is live:  instance3
+Check if container has paused:  instance3
+Wait message:  instance3
+Didn't receive data! [Timeout] - Container: instance4
+Send live message...instance4
+Wait live response of container:  instance4
+Message Recieved:  live  -  instance4
+Container is live:  instance4
+Check if container has paused:  instance4
+Wait message:  instance4
+Didn't receive data! [Timeout] - Container: instance5
+Send live message...instance5
+Wait live response of container:  instance5
+Message Recieved:  live  -  instance5
+Container is live:  instance5
+Check if container has paused:  instance5
+Wait message:  instance5
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Finish read request thread
+Didn't receive data! [Timeout] - Container: instance1
+Send live message...instance1
+Wait live response of container:  instance1
+Message Recieved:  live  -  instance1
+Container is live:  instance1
+Check if container has paused:  instance1
+Wait message:  instance1
+Didn't receive data! [Timeout] - Container: instance2
+Send live message...instance2
+Wait live response of container:  instance2
+Message Recieved:  live  -  instance2
+Container is live:  instance2
+Check if container has paused:  instance2
+Wait message:  instance2
+Didn't receive data! [Timeout] - Container: instance3
+Send live message...instance3
+Wait live response of container:  instance3
+Message Recieved:  live  -  instance3
+Container is live:  instance3
+Check if container has paused:  instance3
+Wait message:  instance3
+Didn't receive data! [Timeout] - Container: instance4
+Send live message...instance4
+Wait live response of container:  instance4
+Message Recieved:  live  -  instance4
+Container is live:  instance4
+Check if container has paused:  instance4
+Wait message:  instance4
+Didn't receive data! [Timeout] - Container: instance5
+Send live message...instance5
+Wait live response of container:  instance5
+Message Recieved:  live  -  instance5
+Container is live:  instance5
+Check if container has paused:  instance5
+Wait message:  instance5
+Didn't receive data! [Timeout] - Container: instance1
+Send live message...instance1
+Wait live response of container:  instance1
+Message Recieved:  live  -  instance1
+Container is live:  instance1
+Check if container has paused:  instance1
+Wait message:  instance1
+Didn't receive data! [Timeout] - Container: instance2
+Send live message...instance2
+Wait live response of container:  instance2
+Message Recieved:  live  -  instance2
+Container is live:  instance2
+Check if container has paused:  instance2
+Wait message:  instance2
+Didn't receive data! [Timeout] - Container: instance3
+Send live message...instance3
+Wait live response of container:  instance3
+Message Recieved:  live  -  instance3
+Container is live:  instance3
+Check if container has paused:  instance3
+Wait message:  instance3
+Didn't receive data! [Timeout] - Container: instance4
+Send live message...instance4
+Wait live response of container:  instance4
+Message Recieved:  live  -  instance4
+Container is live:  instance4
+Check if container has paused:  instance4
+Wait message:  instance4
+Didn't receive data! [Timeout] - Container: instance5
+Send live message...instance5
+Wait live response of container:  instance5
+Message Recieved:  live  -  instance5
+Container is live:  instance5
+Check if container has paused:  instance5
+Wait message:  instance5
+Didn't receive data! [Timeout] - Container: instance1
+Send live message...instance1
+Wait live response of container:  instance1
+Message Recieved:  live  -  instance1
+Container is live:  instance1
+Check if container has paused:  instance1
+Wait message:  instance1
+Didn't receive data! [Timeout] - Container: instance2
+Send live message...instance2
+Wait live response of container:  instance2
+Message Recieved:  live  -  instance2
+Container is live:  instance2
+Check if container has paused:  instance2
+Wait message:  instance2
+Didn't receive data! [Timeout] - Container: instance3
+Send live message...instance3
+Wait live response of container:  instance3
+Message Recieved:  live  -  instance3
+Container is live:  instance3
+Check if container has paused:  instance3
+Wait message:  instance3
+Didn't receive data! [Timeout] - Container: instance4
+Send live message...instance4
+Wait live response of container:  instance4
+Message Recieved:  live  -  instance4
+Container is live:  instance4
+Check if container has paused:  instance4
+Wait message:  instance4
+Didn't receive data! [Timeout] - Container: instance5
+Send live message...instance5
+Wait live response of container:  instance5
+Message Recieved:  live  -  instance5
+Container is live:  instance5
+Check if container has paused:  instance5
+Wait message:  instance5
+Didn't receive data! [Timeout] - Container: instance1
+Send live message...instance1
+Wait live response of container:  instance1
+Message Recieved:  live  -  instance1
+Container is live:  instance1
+Check if container has paused:  instance1
+Wait message:  instance1
+Didn't receive data! [Timeout] - Container: instance2
+Send live message...instance2
+Wait live response of container:  instance2
+Message Recieved:  live  -  instance2
+Container is live:  instance2
+Check if container has paused:  instance2
+Wait message:  instance2
+Didn't receive data! [Timeout] - Container: instance3
+Send live message...instance3
+Wait live response of container:  instance3
+Message Recieved:  live  -  instance3
+Container is live:  instance3
+Check if container has paused:  instance3
+Wait message:  instance3
+Didn't receive data! [Timeout] - Container: instance4
+Send live message...instance4
+Wait live response of container:  instance4
+Message Recieved:  live  -  instance4
+Container is live:  instance4
+Check if container has paused:  instance4
+Wait message:  instance4
+Didn't receive data! [Timeout] - Container: instance5
+Send live message...instance5
+Wait live response of container:  instance5
+Message Recieved:  live  -  instance5
+Container is live:  instance5
+Check if container has paused:  instance5
+Wait message:  instance5
+Container:  instance3  - Recieve msg:  exit
+Epochs in container: instance3
+Time epochs: [98, 88, 86, 86, 86]
+Remove Container:  instance3
+Send ACK to client: instance3
+Attention finish request:  Thread-1
+Free resources of container:  3
+Join Client Thread:  instance3
+Container:  instance4  - Recieve msg:  exit
+Epochs in container: instance4
+Time epochs: [100, 92, 86, 86, 86]
+Remove Container:  instance4
+Send ACK to client: instance4
+Finish Client Thread - Container:  instance3
+Finish client thread: instance3
+Free resources of container:  3
+Join Client Thread:  instance4
+Container:  instance2  - Recieve msg:  exit
+Epochs in container: instance2
+Time epochs: [100, 91, 91, 90, 89]
+Remove Container:  instance2
+Send ACK to client: instance2
+Container:  instance1  - Recieve msg:  exit
+Epochs in container: instance1
+Time epochs: [102, 95, 92, 90, 90]
+Remove Container:  instance1
+Send ACK to client: instance1
+Finish Client Thread - Container:  instance4
+Finish client thread: instance4
+Free resources of container:  3
+Join Client Thread:  instance2
+Finish Client Thread - Container:  instance2
+Finish client thread: instance2
+Free resources of container:  4
+Join Client Thread:  instance1
+Finish Client Thread - Container:  instance1
+Finish client thread: instance1
+Reassigment Containers with oldest policy
+Update total intra parallelism in container:  instance5  to:  7
+New factor prop =  10.0
+Attention act/exe request pending:  Thread-1
+Not request in pending queue
+Attention new act/exe request:  Thread-1
+Execution container request:  6
+Requested_resources:  8
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  8
+Inter P in scheduleparallelism: 0  - Intra P in scheduleparallelism: 0
+Paralelismo devuelto por politica de planificacion:  [1, 1]
+Creating Docker Container for  instance6
+a1d973d1632508ead7b5b7e7300c7545186ff724e2e0c221af9f7bfb27273295
+
+Container:  instance5  - Recieve msg:  exit
+Epochs in container: instance5
+Time epochs: [102, 90, 91, 92, 92]
+Remove Container:  instance5
+Send ACK to client: instance5
+Wait message:  instance6
+Name of request:  instance6  - Container ID:  a1d973d16325 Container Process ID:  2352
+Free excedded resources:  6
+Resources availables after schedule: 6
+Execution container request:  7
+Requested_resources:  6
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  6
+Inter P in scheduleparallelism: 0  - Intra P in scheduleparallelism: 0
+Paralelismo devuelto por politica de planificacion:  [1, 1]
+Creating Docker Container for  instance7
+e5df8bd324b43dff13a71436dd5b56ace5022820e320e132afec87cd1c03c276
+
+Wait message:  instance7
+Name of request:  instance7  - Container ID:  e5df8bd324b4 Container Process ID:  2379
+Free excedded resources:  4
+Resources availables after schedule: 4
+Execution container request:  8
+Requested_resources:  4
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  4
+Inter P in scheduleparallelism: 0  - Intra P in scheduleparallelism: 0
+Paralelismo devuelto por politica de planificacion:  [1, 1]
+Creating Docker Container for  instance8
+a46a346677ac18f521e832e7f0da9f783f0c7791dc2c36839e88e46ddb3cbc20
+
+Wait message:  instance8
+Name of request:  instance8  - Container ID:  a46a346677ac Container Process ID:  2400
+Free excedded resources:  2
+Resources availables after schedule: 2
+Execution container request:  9
+Requested_resources:  2
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  2
+Inter P in scheduleparallelism: 0  - Intra P in scheduleparallelism: 0
+Paralelismo devuelto por politica de planificacion:  [1, 1]
+Creating Docker Container for  instance9
+9cbaf99ca26bc1ee922dc6a3319eee72a069a11e1871c399a48a7a1e05150e88
+
+Finish Client Thread - Container:  instance5
+Wait message:  instance9
+Name of request:  instance9  - Container ID:  9cbaf99ca26b Container Process ID:  2423
+Resources availables after schedule: 0
+Didn't receive data! [Timeout] - Container: instance6
+Send live message...instance6
+Wait live response of container:  instance6
+Message Recieved:  live  -  instance6
+Container is live:  instance6
+Check if container has paused:  instance6
+Wait message:  instance6
+Didn't receive data! [Timeout] - Container: instance7
+Send live message...instance7
+Wait live response of container:  instance7
+Message Recieved:  live  -  instance7
+Container is live:  instance7
+Check if container has paused:  instance7
+Wait message:  instance7
+Didn't receive data! [Timeout] - Container: instance8
+Send live message...instance8
+Wait live response of container:  instance8
+Message Recieved:  live  -  instance8
+Container is live:  instance8
+Check if container has paused:  instance8
+Wait message:  instance8
+Didn't receive data! [Timeout] - Container: instance9
+Send live message...instance9
+Wait live response of container:  instance9
+Message Recieved:  live  -  instance9
+Container is live:  instance9
+Check if container has paused:  instance9
+Wait message:  instance9
+Didn't receive data! [Timeout] - Container: instance6
+Send live message...instance6
+Wait live response of container:  instance6
+Message Recieved:  live  -  instance6
+Container is live:  instance6
+Check if container has paused:  instance6
+Wait message:  instance6
+Didn't receive data! [Timeout] - Container: instance7
+Send live message...instance7
+Wait live response of container:  instance7
+Message Recieved:  live  -  instance7
+Container is live:  instance7
+Check if container has paused:  instance7
+Wait message:  instance7
+Didn't receive data! [Timeout] - Container: instance8
+Send live message...instance8
+Wait live response of container:  instance8
+Message Recieved:  live  -  instance8
+Container is live:  instance8
+Check if container has paused:  instance8
+Wait message:  instance8
+Didn't receive data! [Timeout] - Container: instance9
+Send live message...instance9
+Wait live response of container:  instance9
+Message Recieved:  live  -  instance9
+Container is live:  instance9
+Check if container has paused:  instance9
+Wait message:  instance9
+Didn't receive data! [Timeout] - Container: instance6
+Send live message...instance6
+Wait live response of container:  instance6
+Message Recieved:  live  -  instance6
+Container is live:  instance6
+Check if container has paused:  instance6
+Wait message:  instance6
+Didn't receive data! [Timeout] - Container: instance7
+Send live message...instance7
+Wait live response of container:  instance7
+Message Recieved:  live  -  instance7
+Container is live:  instance7
+Check if container has paused:  instance7
+Wait message:  instance7
+Didn't receive data! [Timeout] - Container: instance8
+Send live message...instance8
+Wait live response of container:  instance8
+Message Recieved:  live  -  instance8
+Container is live:  instance8
+Check if container has paused:  instance8
+Wait message:  instance8
+Didn't receive data! [Timeout] - Container: instance9
+Send live message...instance9
+Wait live response of container:  instance9
+Message Recieved:  live  -  instance9
+Container is live:  instance9
+Check if container has paused:  instance9
+Wait message:  instance9
+Didn't receive data! [Timeout] - Container: instance6
+Send live message...instance6
+Wait live response of container:  instance6
+Message Recieved:  live  -  instance6
+Container is live:  instance6
+Check if container has paused:  instance6
+Wait message:  instance6
+Didn't receive data! [Timeout] - Container: instance7
+Send live message...instance7
+Wait live response of container:  instance7
+Message Recieved:  live  -  instance7
+Container is live:  instance7
+Check if container has paused:  instance7
+Wait message:  instance7
+Didn't receive data! [Timeout] - Container: instance8
+Send live message...instance8
+Wait live response of container:  instance8
+Message Recieved:  live  -  instance8
+Container is live:  instance8
+Check if container has paused:  instance8
+Wait message:  instance8
+Didn't receive data! [Timeout] - Container: instance9
+Send live message...instance9
+Wait live response of container:  instance9
+Message Recieved:  live  -  instance9
+Container is live:  instance9
+Check if container has paused:  instance9
+Wait message:  instance9
+Didn't receive data! [Timeout] - Container: instance6
+Send live message...instance6
+Wait live response of container:  instance6
+Message Recieved:  live  -  instance6
+Container is live:  instance6
+Check if container has paused:  instance6
+Wait message:  instance6
+Didn't receive data! [Timeout] - Container: instance7
+Send live message...instance7
+Wait live response of container:  instance7
+Message Recieved:  live  -  instance7
+Container is live:  instance7
+Check if container has paused:  instance7
+Wait message:  instance7
+Didn't receive data! [Timeout] - Container: instance8
+Send live message...instance8
+Wait live response of container:  instance8
+Message Recieved:  live  -  instance8
+Container is live:  instance8
+Check if container has paused:  instance8
+Wait message:  instance8
+Didn't receive data! [Timeout] - Container: instance9
+Send live message...instance9
+Wait live response of container:  instance9
+Message Recieved:  live  -  instance9
+Container is live:  instance9
+Check if container has paused:  instance9
+Wait message:  instance9
+Didn't receive data! [Timeout] - Container: instance6
+Send live message...instance6
+Wait live response of container:  instance6
+Message Recieved:  live  -  instance6
+Container is live:  instance6
+Check if container has paused:  instance6
+Wait message:  instance6
+Didn't receive data! [Timeout] - Container: instance7
+Send live message...instance7
+Wait live response of container:  instance7
+Message Recieved:  live  -  instance7
+Container is live:  instance7
+Check if container has paused:  instance7
+Wait message:  instance7
+Didn't receive data! [Timeout] - Container: instance8
+Send live message...instance8
+Wait live response of container:  instance8
+Message Recieved:  live  -  instance8
+Container is live:  instance8
+Check if container has paused:  instance8
+Wait message:  instance8
+Didn't receive data! [Timeout] - Container: instance9
+Send live message...instance9
+Wait live response of container:  instance9
+Message Recieved:  live  -  instance9
+Container is live:  instance9
+Check if container has paused:  instance9
+Wait message:  instance9
+Didn't receive data! [Timeout] - Container: instance6
+Send live message...instance6
+Wait live response of container:  instance6
+Message Recieved:  live  -  instance6
+Container is live:  instance6
+Check if container has paused:  instance6
+Wait message:  instance6
+Didn't receive data! [Timeout] - Container: instance7
+Send live message...instance7
+Wait live response of container:  instance7
+Message Recieved:  live  -  instance7
+Container is live:  instance7
+Check if container has paused:  instance7
+Wait message:  instance7
+Didn't receive data! [Timeout] - Container: instance8
+Send live message...instance8
+Wait live response of container:  instance8
+Message Recieved:  live  -  instance8
+Container is live:  instance8
+Check if container has paused:  instance8
+Wait message:  instance8
+Didn't receive data! [Timeout] - Container: instance9
+Send live message...instance9
+Wait live response of container:  instance9
+Message Recieved:  live  -  instance9
+Container is live:  instance9
+Check if container has paused:  instance9
+Wait message:  instance9
+Didn't receive data! [Timeout] - Container: instance6
+Send live message...instance6
+Wait live response of container:  instance6
+Message Recieved:  live  -  instance6
+Container is live:  instance6
+Check if container has paused:  instance6
+Wait message:  instance6
+Didn't receive data! [Timeout] - Container: instance7
+Send live message...instance7
+Wait live response of container:  instance7
+Message Recieved:  live  -  instance7
+Container is live:  instance7
+Check if container has paused:  instance7
+Wait message:  instance7
+Didn't receive data! [Timeout] - Container: instance8
+Send live message...instance8
+Wait live response of container:  instance8
+Message Recieved:  live  -  instance8
+Container is live:  instance8
+Check if container has paused:  instance8
+Wait message:  instance8
+Didn't receive data! [Timeout] - Container: instance9
+Send live message...instance9
+Wait live response of container:  instance9
+Message Recieved:  live  -  instance9
+Container is live:  instance9
+Check if container has paused:  instance9
+Wait message:  instance9
+Didn't receive data! [Timeout] - Container: instance6
+Send live message...instance6
+Wait live response of container:  instance6
+Message Recieved:  live  -  instance6
+Container is live:  instance6
+Check if container has paused:  instance6
+Wait message:  instance6
+Didn't receive data! [Timeout] - Container: instance7
+Send live message...instance7
+Wait live response of container:  instance7
+Message Recieved:  live  -  instance7
+Container is live:  instance7
+Check if container has paused:  instance7
+Wait message:  instance7
+Didn't receive data! [Timeout] - Container: instance8
+Send live message...instance8
+Wait live response of container:  instance8
+Message Recieved:  live  -  instance8
+Container is live:  instance8
+Check if container has paused:  instance8
+Wait message:  instance8
+Didn't receive data! [Timeout] - Container: instance9
+Send live message...instance9
+Wait live response of container:  instance9
+Message Recieved:  live  -  instance9
+Container is live:  instance9
+Check if container has paused:  instance9
+Wait message:  instance9
+Didn't receive data! [Timeout] - Container: instance6
+Send live message...instance6
+Wait live response of container:  instance6
+Message Recieved:  live  -  instance6
+Container is live:  instance6
+Check if container has paused:  instance6
+Wait message:  instance6
+Didn't receive data! [Timeout] - Container: instance7
+Send live message...instance7
+Wait live response of container:  instance7
+Message Recieved:  live  -  instance7
+Container is live:  instance7
+Check if container has paused:  instance7
+Wait message:  instance7
+Didn't receive data! [Timeout] - Container: instance8
+Send live message...instance8
+Wait live response of container:  instance8
+Message Recieved:  live  -  instance8
+Container is live:  instance8
+Check if container has paused:  instance8
+Wait message:  instance8
+Didn't receive data! [Timeout] - Container: instance9
+Send live message...instance9
+Wait live response of container:  instance9
+Message Recieved:  live  -  instance9
+Container is live:  instance9
+Check if container has paused:  instance9
+Wait message:  instance9
+Didn't receive data! [Timeout] - Container: instance6
+Send live message...instance6
+Wait live response of container:  instance6
+Message Recieved:  live  -  instance6
+Container is live:  instance6
+Check if container has paused:  instance6
+Wait message:  instance6
+Didn't receive data! [Timeout] - Container: instance7
+Send live message...instance7
+Wait live response of container:  instance7
+Message Recieved:  live  -  instance7
+Container is live:  instance7
+Check if container has paused:  instance7
+Wait message:  instance7
+Didn't receive data! [Timeout] - Container: instance8
+Send live message...instance8
+Wait live response of container:  instance8
+Message Recieved:  live  -  instance8
+Container is live:  instance8
+Check if container has paused:  instance8
+Wait message:  instance8
+Didn't receive data! [Timeout] - Container: instance9
+Send live message...instance9
+Wait live response of container:  instance9
+Message Recieved:  live  -  instance9
+Container is live:  instance9
+Check if container has paused:  instance9
+Wait message:  instance9
+Didn't receive data! [Timeout] - Container: instance6
+Send live message...instance6
+Wait live response of container:  instance6
+Message Recieved:  live  -  instance6
+Container is live:  instance6
+Check if container has paused:  instance6
+Wait message:  instance6
+Didn't receive data! [Timeout] - Container: instance7
+Send live message...instance7
+Wait live response of container:  instance7
+Message Recieved:  live  -  instance7
+Container is live:  instance7
+Check if container has paused:  instance7
+Wait message:  instance7
+Didn't receive data! [Timeout] - Container: instance8
+Send live message...instance8
+Wait live response of container:  instance8
+Message Recieved:  live  -  instance8
+Container is live:  instance8
+Check if container has paused:  instance8
+Wait message:  instance8
+Didn't receive data! [Timeout] - Container: instance9
+Send live message...instance9
+Wait live response of container:  instance9
+Message Recieved:  live  -  instance9
+Container is live:  instance9
+Check if container has paused:  instance9
+Wait message:  instance9
+Container:  instance7  - Recieve msg:  exit
+Epochs in container: instance7
+Time epochs: [154, 145, 144, 144, 145]
+Remove Container:  instance7
+Send ACK to client: instance7
+Attention finish request:  Thread-1
+Free resources of container:  8
+Join Client Thread:  instance5
+Finish client thread: instance5
+Free resources of container:  2
+Join Client Thread:  instance7
+Container:  instance6  - Recieve msg:  exit
+Epochs in container: instance6
+Time epochs: [154, 145, 146, 146, 147]
+Remove Container:  instance6
+Send ACK to client: instance6
+Finish Client Thread - Container:  instance7
+Finish client thread: instance7
+Free resources of container:  2
+Join Client Thread:  instance6
+Container:  instance8  - Recieve msg:  exit
+Epochs in container: instance8
+Time epochs: [157, 148, 145, 145, 146]
+Remove Container:  instance8
+Send ACK to client: instance8
+Container:  instance9  - Recieve msg:  exit
+Epochs in container: instance9
+Time epochs: [154, 145, 146, 146, 146]
+Remove Container:  instance9
+Send ACK to client: instance9
+Finish Client Thread - Container:  instance6
+Finish client thread: instance6
+Free resources of container:  2
+Join Client Thread:  instance8
+Finish Client Thread - Container:  instance8
+Finish client thread: instance8
+Free resources of container:  2
+Join Client Thread:  instance9
+Finish Client Thread - Container:  instance9
+Finish client thread: instance9
+Reassigment Containers with oldest policy
+New factor prop =  3.0
+Attention act/exe request pending:  Thread-1
+Not request in pending queue
+Attention new act/exe request:  Thread-1
+Execution container request:  10
+Requested_resources:  16
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  16
+Inter P in scheduleparallelism: 0  - Intra P in scheduleparallelism: 2
+Paralelismo devuelto por politica de planificacion:  [1, 2]
+Creating Docker Container for  instance10
+a16d9cefdfb8b035e949a1128eb2f3b577c65ed9e6f890ce9ec906bd87d8370e
+
+Wait message:  instance10
+Name of request:  instance10  - Container ID:  a16d9cefdfb8 Container Process ID:  2519
+Free excedded resources:  13
+Resources availables after schedule: 13
+Execution container request:  11
+Requested_resources:  13
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  13
+Inter P in scheduleparallelism: 0  - Intra P in scheduleparallelism: 2
+Paralelismo devuelto por politica de planificacion:  [1, 2]
+Creating Docker Container for  instance11
+e4189f0f6f1e5e63668fa20dccb922ad9c6850ce740dc9f8ce1efbeaf8f825ab
+
+Wait message:  instance11
+Name of request:  instance11  - Container ID:  e4189f0f6f1e Container Process ID:  2540
+Free excedded resources:  10
+Resources availables after schedule: 10
+Execution container request:  12
+Requested_resources:  10
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  10
+Inter P in scheduleparallelism: 0  - Intra P in scheduleparallelism: 2
+Paralelismo devuelto por politica de planificacion:  [1, 2]
+Creating Docker Container for  instance12
+c24b566725f1dc59a7280886662f977f73342a9d7f013c95a47e151e90df95a5
+
+Wait message:  instance12
+Name of request:  instance12  - Container ID:  c24b566725f1 Container Process ID:  2564
+Free excedded resources:  7
+Resources availables after schedule: 7
+Execution container request:  13
+Requested_resources:  7
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  7
+Inter P in scheduleparallelism: 0  - Intra P in scheduleparallelism: 2
+Paralelismo devuelto por politica de planificacion:  [1, 2]
+Creating Docker Container for  instance13
+fcbbd0e52b41d802b9eda3ab402c43cb31689f549335f6e77243cce4dfcfaab2
+
+Wait message:  instance13
+Name of request:  instance13  - Container ID:  fcbbd0e52b41 Container Process ID:  2587
+Free excedded resources:  4
+Resources availables after schedule: 4
+Execution container request:  14
+Requested_resources:  4
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  4
+Inter P in scheduleparallelism: 0  - Intra P in scheduleparallelism: 2
+Paralelismo devuelto por politica de planificacion:  [1, 2]
+Creating Docker Container for  instance14
+2f5fbdbbcd1c18f9bc3dbc4ed9af8236f48bbe3aed492447e6ab30d85018138d
+
+Wait message:  instance14
+Name of request:  instance14  - Container ID:  2f5fbdbbcd1c Container Process ID:  2617
+Free excedded resources:  1
+Resources availables after schedule: 1
+Execution container request:  15
+Requested_resources:  1
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  1
+Paralelismo devuelto por politica de planificacion:  []
+New request pending
+Resources availables after schedule: 1
+Didn't receive data! [Timeout] - Container: instance10
+Send live message...instance10
+Wait live response of container:  instance10
+Message Recieved:  live  -  instance10
+Container is live:  instance10
+Check if container has paused:  instance10
+Wait message:  instance10
+Didn't receive data! [Timeout] - Container: instance11
+Send live message...instance11
+Wait live response of container:  instance11
+Message Recieved:  live  -  instance11
+Container is live:  instance11
+Check if container has paused:  instance11
+Wait message:  instance11
+Didn't receive data! [Timeout] - Container: instance12
+Send live message...instance12
+Wait live response of container:  instance12
+Message Recieved:  live  -  instance12
+Container is live:  instance12
+Check if container has paused:  instance12
+Wait message:  instance12
+Didn't receive data! [Timeout] - Container: instance13
+Send live message...instance13
+Wait live response of container:  instance13
+Message Recieved:  live  -  instance13
+Container is live:  instance13
+Check if container has paused:  instance13
+Wait message:  instance13
+Didn't receive data! [Timeout] - Container: instance14
+Send live message...instance14
+Wait live response of container:  instance14
+Message Recieved:  live  -  instance14
+Container is live:  instance14
+Check if container has paused:  instance14
+Wait message:  instance14
+Didn't receive data! [Timeout] - Container: instance10
+Send live message...instance10
+Wait live response of container:  instance10
+Message Recieved:  live  -  instance10
+Container is live:  instance10
+Check if container has paused:  instance10
+Wait message:  instance10
+Didn't receive data! [Timeout] - Container: instance11
+Send live message...instance11
+Wait live response of container:  instance11
+Message Recieved:  live  -  instance11
+Container is live:  instance11
+Check if container has paused:  instance11
+Wait message:  instance11
+Didn't receive data! [Timeout] - Container: instance12
+Send live message...instance12
+Wait live response of container:  instance12
+Message Recieved:  live  -  instance12
+Container is live:  instance12
+Check if container has paused:  instance12
+Wait message:  instance12
+Didn't receive data! [Timeout] - Container: instance13
+Send live message...instance13
+Wait live response of container:  instance13
+Message Recieved:  live  -  instance13
+Container is live:  instance13
+Check if container has paused:  instance13
+Wait message:  instance13
+Didn't receive data! [Timeout] - Container: instance14
+Send live message...instance14
+Wait live response of container:  instance14
+Message Recieved:  live  -  instance14
+Container is live:  instance14
+Check if container has paused:  instance14
+Wait message:  instance14
+Didn't receive data! [Timeout] - Container: instance10
+Send live message...instance10
+Wait live response of container:  instance10
+Message Recieved:  live  -  instance10
+Container is live:  instance10
+Check if container has paused:  instance10
+Wait message:  instance10
+Didn't receive data! [Timeout] - Container: instance11
+Send live message...instance11
+Wait live response of container:  instance11
+Message Recieved:  live  -  instance11
+Container is live:  instance11
+Check if container has paused:  instance11
+Wait message:  instance11
+Didn't receive data! [Timeout] - Container: instance12
+Send live message...instance12
+Wait live response of container:  instance12
+Message Recieved:  live  -  instance12
+Container is live:  instance12
+Check if container has paused:  instance12
+Wait message:  instance12
+Didn't receive data! [Timeout] - Container: instance13
+Send live message...instance13
+Wait live response of container:  instance13
+Message Recieved:  live  -  instance13
+Container is live:  instance13
+Check if container has paused:  instance13
+Wait message:  instance13
+Didn't receive data! [Timeout] - Container: instance14
+Send live message...instance14
+Wait live response of container:  instance14
+Message Recieved:  live  -  instance14
+Container is live:  instance14
+Check if container has paused:  instance14
+Wait message:  instance14
+Didn't receive data! [Timeout] - Container: instance10
+Send live message...instance10
+Wait live response of container:  instance10
+Message Recieved:  live  -  instance10
+Container is live:  instance10
+Check if container has paused:  instance10
+Wait message:  instance10
+Didn't receive data! [Timeout] - Container: instance11
+Send live message...instance11
+Wait live response of container:  instance11
+Message Recieved:  live  -  instance11
+Container is live:  instance11
+Check if container has paused:  instance11
+Wait message:  instance11
+Didn't receive data! [Timeout] - Container: instance12
+Send live message...instance12
+Wait live response of container:  instance12
+Message Recieved:  live  -  instance12
+Container is live:  instance12
+Check if container has paused:  instance12
+Wait message:  instance12
+Didn't receive data! [Timeout] - Container: instance13
+Send live message...instance13
+Wait live response of container:  instance13
+Message Recieved:  live  -  instance13
+Container is live:  instance13
+Check if container has paused:  instance13
+Wait message:  instance13
+Didn't receive data! [Timeout] - Container: instance14
+Send live message...instance14
+Wait live response of container:  instance14
+Message Recieved:  live  -  instance14
+Container is live:  instance14
+Check if container has paused:  instance14
+Wait message:  instance14
+Didn't receive data! [Timeout] - Container: instance10
+Send live message...instance10
+Wait live response of container:  instance10
+Message Recieved:  live  -  instance10
+Container is live:  instance10
+Check if container has paused:  instance10
+Wait message:  instance10
+Didn't receive data! [Timeout] - Container: instance11
+Send live message...instance11
+Wait live response of container:  instance11
+Message Recieved:  live  -  instance11
+Container is live:  instance11
+Check if container has paused:  instance11
+Wait message:  instance11
+Didn't receive data! [Timeout] - Container: instance12
+Send live message...instance12
+Wait live response of container:  instance12
+Message Recieved:  live  -  instance12
+Container is live:  instance12
+Check if container has paused:  instance12
+Wait message:  instance12
+Didn't receive data! [Timeout] - Container: instance13
+Send live message...instance13
+Wait live response of container:  instance13
+Message Recieved:  live  -  instance13
+Container is live:  instance13
+Check if container has paused:  instance13
+Wait message:  instance13
+Didn't receive data! [Timeout] - Container: instance14
+Send live message...instance14
+Wait live response of container:  instance14
+Message Recieved:  live  -  instance14
+Container is live:  instance14
+Check if container has paused:  instance14
+Wait message:  instance14
+Didn't receive data! [Timeout] - Container: instance10
+Send live message...instance10
+Wait live response of container:  instance10
+Message Recieved:  live  -  instance10
+Container is live:  instance10
+Check if container has paused:  instance10
+Wait message:  instance10
+Didn't receive data! [Timeout] - Container: instance11
+Send live message...instance11
+Wait live response of container:  instance11
+Message Recieved:  live  -  instance11
+Container is live:  instance11
+Check if container has paused:  instance11
+Wait message:  instance11
+Didn't receive data! [Timeout] - Container: instance12
+Send live message...instance12
+Wait live response of container:  instance12
+Message Recieved:  live  -  instance12
+Container is live:  instance12
+Check if container has paused:  instance12
+Wait message:  instance12
+Didn't receive data! [Timeout] - Container: instance13
+Send live message...instance13
+Wait live response of container:  instance13
+Message Recieved:  live  -  instance13
+Container is live:  instance13
+Check if container has paused:  instance13
+Wait message:  instance13
+Didn't receive data! [Timeout] - Container: instance14
+Send live message...instance14
+Wait live response of container:  instance14
+Message Recieved:  live  -  instance14
+Container is live:  instance14
+Check if container has paused:  instance14
+Wait message:  instance14
+Didn't receive data! [Timeout] - Container: instance10
+Send live message...instance10
+Wait live response of container:  instance10
+Message Recieved:  live  -  instance10
+Container is live:  instance10
+Check if container has paused:  instance10
+Wait message:  instance10
+Didn't receive data! [Timeout] - Container: instance11
+Send live message...instance11
+Wait live response of container:  instance11
+Message Recieved:  live  -  instance11
+Container is live:  instance11
+Check if container has paused:  instance11
+Wait message:  instance11
+Didn't receive data! [Timeout] - Container: instance12
+Send live message...instance12
+Wait live response of container:  instance12
+Message Recieved:  live  -  instance12
+Container is live:  instance12
+Check if container has paused:  instance12
+Wait message:  instance12
+Didn't receive data! [Timeout] - Container: instance13
+Send live message...instance13
+Wait live response of container:  instance13
+Message Recieved:  live  -  instance13
+Container is live:  instance13
+Check if container has paused:  instance13
+Wait message:  instance13
+Didn't receive data! [Timeout] - Container: instance14
+Send live message...instance14
+Wait live response of container:  instance14
+Message Recieved:  live  -  instance14
+Container is live:  instance14
+Check if container has paused:  instance14
+Wait message:  instance14
+Container:  instance10  - Recieve msg:  exit
+Epochs in container: instance10
+Time epochs: [95, 88, 86, 86, 86]
+Remove Container:  instance10
+Send ACK to client: instance10
+Attention finish request:  Thread-1
+Free resources of container:  3
+Join Client Thread:  instance10
+Container:  instance11  - Recieve msg:  exit
+Epochs in container: instance11
+Time epochs: [94, 86, 86, 86, 87]
+Remove Container:  instance11
+Send ACK to client: instance11
+Finish Client Thread - Container:  instance10
+Finish client thread: instance10
+Free resources of container:  3
+Join Client Thread:  instance11
+Finish Client Thread - Container:  instance11
+Finish client thread: instance11
+Reassigment Containers with oldest policy
+Update total intra parallelism in container:  instance12  to:  7
+Update intra parallelism in container:  instance13 to:  4
+Attention act/exe request pending:  Thread-1
+Attention new act/exe request:  Thread-1
+Container:  instance13  - Recieve msg:  exit
+Epochs in container: instance13
+Time epochs: [100, 91, 90, 90, 90]
+Remove Container:  instance13
+Send ACK to client: instance13
+Attention finish request:  Thread-1
+Free resources of container:  5
+Join Client Thread:  instance13
+Container:  instance12  - Recieve msg:  exit
+Epochs in container: instance12
+Time epochs: [101, 94, 91, 89, 89]
+Remove Container:  instance12
+Send ACK to client: instance12
+Container:  instance14  - Recieve msg:  exit
+Epochs in container: instance14
+Time epochs: [99, 91, 92, 92, 91]
+Remove Container:  instance14
+Send ACK to client: instance14
+Finish Client Thread - Container:  instance13
+Finish client thread: instance13
+Free resources of container:  8
+Join Client Thread:  instance12
+Finish Client Thread - Container:  instance12
+Finish client thread: instance12
+Free resources of container:  3
+Join Client Thread:  instance14
+Finish Client Thread - Container:  instance14
+Finish client thread: instance14
+Reassigment Containers with oldest policy
+New factor prop =  0.5
+Queue is empty
+Attention act/exe request pending:  Thread-1
+Execution container request:  15
+Request inter parallelism:  1  - Request intra parallelism:  7
+Paralelismo requerido:  8  - Paralelismo libre:  16
+Inter P in scheduleparallelism: 2  - Intra P in scheduleparallelism: 14
+Paralelismo devuelto por politica de planificacion:  [1, 15]
+Creating Docker Container for  instance15
+62bf0f304724007ac0f2ff43e3ca767dc2fe820c421fc056a18a7a10c1cb7b5a
+
+Wait message:  instance15
+Name of request:  instance15  - Container ID:  62bf0f304724 Container Process ID:  2702
+Resources availables after schedule: 0
+Attention new act/exe request:  Thread-1
+Didn't receive data! [Timeout] - Container: instance15
+Send live message...instance15
+Wait live response of container:  instance15
+Message Recieved:  live  -  instance15
+Container is live:  instance15
+Check if container has paused:  instance15
+Wait message:  instance15
+Container:  instance15  - Recieve msg:  exit
+Epochs in container: instance15
+Time epochs: [25, 19, 20, 19, 18]
+Remove Container:  instance15
+Send ACK to client: instance15
+Attention finish request:  Thread-1
+Free resources of container:  16
+Join Client Thread:  instance15
+Finish Client Thread - Container:  instance15
+Finish client thread: instance15
+Reassigment Containers with oldest policy
+New factor prop = 1
+Queue is empty
+Attention act/exe request pending:  Thread-1
+Not request in pending queue
+Attention new act/exe request:  Thread-1
+Wait for reassigment...
+Reasigment Resources...
+Reassigment Containers with oldest policy
+ Attention pending resumes...
+Correct total resources availables before finish
+Finish attention thread
+Save data log...
+Save Gantt events...
+Calculate Metrics...
+Finish Scheduler :)
+Execute scheduler...
+(None, 'Error response from daemon: a prune operation is already running\n')
+Move results...
+
+Wait 2 minutes...
