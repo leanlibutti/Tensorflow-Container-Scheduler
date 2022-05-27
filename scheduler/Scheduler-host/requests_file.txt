@@ -1,7 +1,2 @@
-execution, null, tf_test, 3, 3, 30
-execution, null, tf_test, 2, 2, 50
-update, instance0, null, 2, 4, 20
-execution, null, tf_test, 1, 1, 40
-execution, null, tf_test, 4,2, 60
-update, instance2, null, 2,2, 60
-execution, null, tf_test, 4,4, 50
+execution,0,tf_scheduler,2,60
+update,0,tf_scheduler,12,90

@@ -1,0 +1,1 @@
+{"tf_version": "maleable", "tf_model": "keras_example_VGG", "tf_dockerimage": "tf_scheduler", "number_containers": 1, "time_distribution": "static", "time_gap": [20, 0], "resources_distribution": "static", "resources_per_container": [6, 0], "get_requests": "file"}

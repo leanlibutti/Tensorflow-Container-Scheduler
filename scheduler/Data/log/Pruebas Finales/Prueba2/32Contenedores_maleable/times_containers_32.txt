@@ -1,0 +1,3 @@
+Meantime, 645.875 
+Min time, 101.0 
+Max time, 1105.0 
