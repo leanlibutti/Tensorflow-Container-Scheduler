@@ -11,12 +11,8 @@ class SchedulingPolicy(metaclass=ABCMeta):
         self.__feedback= feedback
         self.__preemptive= preemptive
         self.__factor_prop=factor_prop
-        # self.__count_queues=0
-        # self.__count_pending_queues=0
         self.__queue_array=[]
-        # self.__queue_count=[]
         self.__queue_pending_array= []
-        # self.__queue_pending_count=[]
 
     def set_factor_prop(self, fp):
         self.__factor_prop=fp
@@ -33,18 +29,11 @@ class SchedulingPolicy(metaclass=ABCMeta):
     def get_queue(self, index):
         return self.__queue_array[index]
 
-    # def get_queue_count(self, index):
-    #     return self.__queue_count[index]
-
     def get_pending_queue(self, index):
             return self.__queue_pending_array[index]
 
-    # def get_queue_pending_count(self, index):
-    #     return self.__queue_pending_count[index]
-
     def get_queue_request(self, id_queue):
         if not self.__queue_array[id_queue].empty():
-            #self.decrement_queue_count(id_queue)
             return self.__queue_array[id_queue].get()
 
         else:
@@ -52,7 +41,6 @@ class SchedulingPolicy(metaclass=ABCMeta):
 
     def get_pending_queue_request(self, id_queue):
         if not self.__queue_pending_array[id_queue].empty():
-            #self.decrement_queue_pending_count(id_queue)
             return self.__queue_pending_array[id_queue].get()
         else:
             return []
@@ -60,44 +48,20 @@ class SchedulingPolicy(metaclass=ABCMeta):
     def set_queue(self, id_queue, q_aux):
         self.__queue_array[id_queue] = q_aux
 
-    # def set_queue_count(self, id_queue, count):
-    #     self.__queue_count[id_queue] = count
-
-    # def increment_queue_count(self, id_queue):
-    #     self.__queue_count[id_queue] +=1
-
-    # def decrement_queue_count(self, id_queue):
-    #     self.__queue_count[id_queue] -=1
-
     def set_pending_queue(self, id_queue, q_aux):
             self.__queue_pending_array[id_queue] = q_aux
 
-    # def set_queue_pending_count(self, id_queue, count):
-    #     self.__queue_pending_count[id_queue] = count
-
-    # def increment_queue_pending_count(self, id_queue):
-    #     self.__queue_pending_count[id_queue] +=1
-
-    # def decrement_queue_pending_count(self, id_queue):
-    #     self.__queue_pending_count[id_queue] -=1
-
     def add_queue(self):
         self.__queue_array.append(queue.Queue())
-        # self.__queue_count.append(0)
-        # self.__count_queues +=1
 
     def add_pending_queue(self):
         self.__queue_pending_array.append(queue.Queue())
-        # self.__queue_pending_count.append(0)
-        # self.__count_pending_queues +=1
 
     def add_queue_request(self,id_queue, data):
         self.__queue_array[id_queue].put(data)
-        # self.increment_queue_count(id_queue)
 
     def add_pending_queue_request(self,id_queue, data):
         self.__queue_pending_array[id_queue].put(data)
-        # self.increment_queue_pending_count(id_queue)
 
     @abc.abstractmethod
     def get_new_request(self):
@@ -131,14 +95,6 @@ class SchedulingPolicy(metaclass=ABCMeta):
     def calculate_factor_prop(self, resources_availables, execInfo_list):
         """Definir el factor de proporcion cuando se utiliza la reasignacion max_prop"""
 
-    # @abc.abstractmethod
-    # def new_request_count(self):
-    #     """Devuelve la cantidad de peticiones nuevas que hay en espera"""
-
-    # @abc.abstractmethod
-    # def pending_request_count(self):
-    #     """Devuelve la cantidad de peticiones pendientes que hay en espera"""
-
 class FCFS(SchedulingPolicy):
 
     def __init__(self, assigment_type):
@@ -163,12 +119,6 @@ class FCFS(SchedulingPolicy):
 
     def queue_empty(self):
         return super().get_queue(0).empty()
-
-    # def new_request_count(self):
-    #     return self.get_queue_count(0)
-
-    # def pending_request_count(self):
-    #     return self.get_queue_pending_count(0)
 
     def calculate_factor_prop(self, resources_availables, execInfo_list):
         total_resources=0
@@ -242,15 +192,11 @@ class FCFS(SchedulingPolicy):
                     factor_prop= super().get_factor_prop()
                     # Calcular la proporcion de inter e intra paralelismo para el contenedor
                     # El round a veces asigna mas recursos que el total disponible. Por lo tanto, directamente truncar el valor flotante de la division
-                    #inter_p= int(round(inter_parallelism/factor_prop))
-                    #intra_p= int(round(intra_parallelism/factor_prop))
                     inter_p= int(inter_parallelism/factor_prop)
                     intra_p= int(intra_parallelism/factor_prop)
-                    #inter_p=1 # debido a que al aumentar el paralelismo inter no vemos mejoras lo ponemos siempre en uno. La asignacion de interparalelismo con factor prop lo comentamos por el momento.
                     print("Inter P in scheduleparallelism:", inter_p, " - Intra P in scheduleparallelism:", intra_p)
                     if intra_p > resources_availables - inter_p:
                         intra_p = resources_availables - inter_p
-
                     #Agregado para asignar solamente un hilo inter ya que no produce mejoras el aumento de este paralelismo por el momento
                     if inter_p > 1:
                         intra_p+= inter_p-1
