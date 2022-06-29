@@ -2,7 +2,7 @@ import abc
 from abc import ABCMeta
 from system import systemInfo
 import queue
-from request import Start, Pause, Update, Resume, Finish
+from request import Start, Restart, Pause, Update, Resume, Finish
 
 class SchedulingPolicy(metaclass=ABCMeta):
 
@@ -131,7 +131,10 @@ class FCFS(SchedulingPolicy):
             else:
                 for x in execInfo_list:
                     if x.get_request_id() == request_.get_request_id():
-                        total_resources+= request_.get_inter_parallelism()+request_.get_inter_parallelism()-x.get_inter_exec_parallelism()-x.get_intra_exec_parallelism()
+                        parallelism_request= request_.get_inter_parallelism()+request_.get_intra_parallelism()
+                        parallelism_container= x.get_inter_exec_parallelism()+x.get_intra_exec_parallelism()
+                        if(parallelism_request > parallelism_container):
+                            total_resources+= parallelism_request - parallelism_container
             q_aux.put(request_)
         while not q_aux.empty():
             self.add_pending_request(q_aux.get())
@@ -139,15 +142,15 @@ class FCFS(SchedulingPolicy):
         q_= super().get_queue(0)
         while (not q_.empty()):
             request_=q_.get()
-            if isinstance(request_, Start) or isinstance(request_, Resume):
+            if isinstance(request_, Start) or isinstance(request_, Resume) or isinstance(request_, Restart):
                 total_resources+= request_.get_inter_parallelism()+request_.get_intra_parallelism()
             else:
-                if isinstance(request_, Update):
-                    for x in execInfo_list:
-                        if x.get_request_id() == request_.get_request_id():
-                            total_resources+= request_.get_inter_parallelism()+request_.get_inter_parallelism()-x.get_inter_exec_parallelism()-x.get_intra_exec_parallelism()
-                else:
-                    total_resources-= request_.get_inter_parallelism()+request_.get_intra_parallelism()
+                for x in execInfo_list:
+                    if x.get_request_id() == request_.get_request_id():
+                        parallelism_request= request_.get_inter_parallelism()+request_.get_intra_parallelism()
+                        parallelism_container= x.get_inter_exec_parallelism()+x.get_intra_exec_parallelism()
+                        if(parallelism_request > parallelism_container):
+                            total_resources+= parallelism_request - parallelism_container
             q_aux.put(request_)
         while not q_aux.empty():
             self.add_new_request(q_aux.get())
@@ -187,7 +190,7 @@ class FCFS(SchedulingPolicy):
         else:
             if (reassigment == "max_prop"):
                 # Como minimo le doy un hilo a cada paralelismo
-                if (resources_availables >= 2):
+                if (resources_availables > 2):
                     # Obtener el factor de proporcion
                     factor_prop= super().get_factor_prop()
                     # Calcular la proporcion de inter e intra paralelismo para el contenedor
@@ -195,6 +198,9 @@ class FCFS(SchedulingPolicy):
                     inter_p= int(inter_parallelism/factor_prop)
                     intra_p= int(intra_parallelism/factor_prop)
                     print("Inter P in scheduleparallelism:", inter_p, " - Intra P in scheduleparallelism:", intra_p)
+                    if(inter_p == 0): inter_p=1
+                    if(intra_p == 0): intra_p=1
+                    #inter_p=1 # debido a que al aumentar el paralelismo inter no vemos mejoras lo ponemos siempre en uno. La asignacion de interparalelismo con factor prop lo comentamos por el momento.
                     if intra_p > resources_availables - inter_p:
                         intra_p = resources_availables - inter_p
                     #Agregado para asignar solamente un hilo inter ya que no produce mejoras el aumento de este paralelismo por el momento
@@ -203,12 +209,12 @@ class FCFS(SchedulingPolicy):
                         inter_p=1
                     while(inter_p+intra_p > resources_availables):
                         intra_p-=1
-                    if (inter_p < 1):
-                        inter_p=1
-                    if (intra_p < 1):
-                        intra_p=1
                     parameters_list.append(inter_p)
                     parameters_list.append(intra_p)
+                else:
+                    if(resources_availables == 2): 
+                        parameters_list.append(1)
+                        parameters_list.append(1)
             else:
                 #Is always attend
                 if (resources_availables >= 2): # cambiado a 2 para que asigne como mínimo 1 hilo inter y 1 hilo intra
