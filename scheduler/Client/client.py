@@ -145,7 +145,7 @@ def live_control(socket_scheduler, number_thread, path_file):
 
                 logging.info("Diff time: " + str(diff_time))
 
-                if int(diff_time) < 120:
+                if int(diff_time) < 10:
                     logging.info("Container is live!")
                     data= {
                         "status": 'live'
