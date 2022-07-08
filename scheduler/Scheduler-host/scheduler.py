@@ -1,4 +1,5 @@
 import os
+from sqlite3 import Time
 import sys
 import threading 
 import random
@@ -33,14 +34,15 @@ mutex_systemInfo = threading.Lock()
 system_info = systemInfo()
 
 # Política de asignación de recursos a los contenedores (puede modificarse)
-#scheduler_container= FCFS("strict")
-#scheduler_container= FCFS("always_attend")
-scheduler_container= FCFS("max_prop")
+scheduler_container= ''
+# scheduler_container= FCFS("strict")
+# scheduler_container= FCFS("always_attend")
+# scheduler_container= FCFS("max_prop")
 
 #Mutex para acceder al trace log
 mutex_eventlogs= threading.Lock()
 # Almacena la informacion de los eventos en el planificador
-event_logs= TraceLog(scheduler_container.get_reassigment_type())
+event_logs= ""
 
 # Cola para almacenar peticiones de finalización de contenedor (almacena el paralelismo total liberado)
 q_finish_container= queue.Queue()
@@ -89,6 +91,8 @@ reassigment=True
 
 # Enable when resources are released if first reallocate or Disable if use them for new containers
 priority_reassigment=True
+
+global_resources_ok= True
 
 # Metodos para manejo de señales #
 
@@ -151,7 +155,6 @@ def schedule_resources(request_, resources_availables):
             print("Update container request: ", request_.get_request_id()) if log_file else None 
             for x in execInfo_list:
                 name_request= 'instance'+str(request_.get_request_id())
-                print("X=", x.get_container_name(), " Request=", name_request)
                 if x.get_request_id() == name_request:
                     if x.get_state() == "start":
                         requested_resources= (request_.get_inter_parallelism()+request_.get_intra_parallelism()) - (x.get_inter_exec_parallelism()+x.get_intra_exec_parallelism())      
@@ -328,7 +331,7 @@ def schedule_request(request_, socket_schedule, instance_number=0, port_host=0, 
                     mutex_eventlogs.acquire()
                     event_logs.save_event(events.ATTENTION_REQUEST_UP, request_.get_request_id(), intra_exec=request_.get_intra_parallelism(), inter_exec=request_.get_inter_parallelism())
                     event_logs.finish_container_event(container_number, [])
-                    event_logs.init_container_event(container_number,(parallelism_apply+container_inter_parallelism +container_intra_parallelism), instance_number)
+                    event_logs.init_container_event(container_number,(parallelism_apply+container_inter_parallelism+container_intra_parallelism), instance_number)
                     mutex_eventlogs.release()
                     state=1  
                 else:
@@ -381,7 +384,7 @@ def updateExecutionInstance(container_name, new_inter_parallelism, new_intra_par
                 # Si es menor a cero quiere decir que vamos a decrementar el paralelismo total del contenedor
                 if resources_availables<0:
                     ok = x.update_parallelism(new_inter_parallelism, new_intra_parallelism)
-                    parallelism_apply= (old_interParallelism+old_intraParallelism) - (new_inter_parallelism+new_intra_parallelism)
+                    parallelism_apply= (new_inter_parallelism+new_intra_parallelism) - (old_interParallelism+old_intraParallelism)
                     print("Free resources in container reassigment") if log_file else None 
                     ok=True
                 else:
@@ -586,17 +589,17 @@ def generatePauseResumeRequest(thread_id):
     print("Finish Pause-Resume request thread") if log_file else None
 
 # Crear contenedores indicando la imagen de docker utilizada y los valores y distribuciones de la cantidad de contenedores, tiempo y recursos por contenedor.
-def creation_requests(docker_container, number_containers=1, time_distribution="static", time_gap=[1,0], resources_distribution="static", resources_per_container=[1,2]):
+def creation_requests(docker_container, number_containers=1, time_distribution="static", time_gap=[1,0], resources_distribution="static", resources_per_container=[1,2], filename= ''):
     log_file=False
     try:
-        request_file = open('Scheduler-host/requests_file.txt', 'w')
+        request_file = open(filename, 'w')
         global creation_requests_terminate
         instance_container=0
         while number_containers !=0:
             if time_distribution == "normal":
                 mean= time_gap[0]
                 desviation= time_gap[1]
-                time_sleep = np.random.normal(mean, desviation, 1)
+                time_sleep = np.random.normal(mean, desviation, 1)[0]
             else:
                 time_sleep= time_gap[0]
             if resources_distribution == "random":
@@ -608,8 +611,6 @@ def creation_requests(docker_container, number_containers=1, time_distribution="
                 resources_container= resources_per_container[0]
             line ='execution,' + str(instance_container) + ',' + docker_container + ',' + str(resources_container) + ',' + str(time_sleep) + '\n'
             request_file.write(line)
-            if time_sleep < 0:
-                time_sleep = time_sleep * (-1)
             time.sleep(int(time_sleep))
             print("Create request...") if log_file else None
             request_exec = Start(str(instance_container), docker_container,1,resources_container-1)
@@ -643,13 +644,13 @@ def creation_requests(docker_container, number_containers=1, time_distribution="
 
 
 # Leer la planificacion de los contenedores desde un fichero donde cada fila indica [tipo de peticion, instancia, imagen de docker, inter paralelismo, intra paralelismo]  
-def read_requests(thread_id, number_containers):
+def read_requests(thread_id, number_containers, filename):
     log_file=False
     number_line=0
     try:
         global creation_requests_terminate
         print('Read requests...') if log_file else None
-        with open('Scheduler-host/requests_file.txt') as csv_file:
+        with open(filename) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
             for row in csv_reader:
                 time_csv= row[4].replace('[', '')
@@ -682,8 +683,6 @@ def read_requests(thread_id, number_containers):
                     pass
                 with cv_attention:
                     cv_attention.notify()
-                if(number_containers == number_line):
-                    break
         creation_requests_terminate=True
         print("Finish read request thread")
     except BaseException as e:
@@ -770,7 +769,7 @@ def container_failed_attention(instance_number, container_name, request_):
 
 def container_client(clientsocket,addr,container_name, instance_number, interExec_parallelism, intraExec_parallelism, thread_id, request_, restart=False):
     global tf_version
-    log_file=True
+    log_file=False
     container_eliminated= False
     msg=''
     ok=False
@@ -927,6 +926,7 @@ def attentionRequest(socket_schedule, thread_id):
         global reassigment
         global priority_reassigment
         global not_control
+        global global_resources_ok
         #mutex_finishExecution.acquire()
         while not is_finish_attention(): # esto tenerlo en cuenta para vaciar colas de peticiones pero no como condicion de corte
             #mutex_finishExecution.release()
@@ -950,11 +950,9 @@ def attentionRequest(socket_schedule, thread_id):
                     mutex_dict_client_threads.release()
                     print("Finish client thread:", data[1]) if log_file else None
 
-                #print('Reassigment free parallelism: ',threading.current_thread().getName())
                 # reasigno contenedores con prioridad de los contenedores mas viejos (indicando que se aumenten sus recursos asignados)
                 mutex_systemInfo.acquire()
                 resources_availables= system_info.check_resources()
-                #print("Free Resources for Reassigment: ", resources_availables)    
                 if resources_availables>0 and reassigment and priority_reassigment: 
                     system_info.apply_resources(resources_availables, not_control)
                     mutex_systemInfo.release()
@@ -1018,14 +1016,15 @@ def attentionRequest(socket_schedule, thread_id):
             mutex_systemInfo.acquire()
             resources_availables= system_info.check_resources()
             finish_schedule_queue=False
-            if ((resources_availables >0) or (not_control)):
-                request_= scheduler_container.get_new_request()
-            while (((resources_availables > 0) or (not_control)) and (request_)):
+            request_= scheduler_container.get_new_request()
+            while ((request_)):
                 requested_resources = schedule_resources(request_, resources_availables)            
                 mutex_systemInfo.release()
                 print("Requested_resources: ", requested_resources) if log_file else None
-                if (((not isinstance(request_, Pause)) and (requested_resources!=0)) or (not_control)):
-                    state= schedule_request(request_, socket_schedule, instance_number, port_host, requested_resources, thread_id)  
+                if ((not isinstance(request_, Pause)) or (not_control)):
+                    state=0
+                    if(requested_resources !=0):
+                        state= schedule_request(request_, socket_schedule, instance_number, port_host, requested_resources, thread_id)  
                     # Verificar si no se pudo atender la peticion
                     if (state==0):
                         if isinstance(request_, Resume):
@@ -1052,8 +1051,7 @@ def attentionRequest(socket_schedule, thread_id):
                 mutex_systemInfo.acquire()
                 resources_availables= system_info.check_resources()
                 print("Resources availables after schedule: " + str(resources_availables)) if log_file else None
-                if ((resources_availables >0) or (not_control)):
-                    request_= scheduler_container.get_new_request()  
+                request_= scheduler_container.get_new_request()  
             # Reassigment resources if its enable and have free resources and enable for reassigment
             enable_to_reassigment= False
             if scheduler_container.pending_queue_empty():
@@ -1071,7 +1069,11 @@ def attentionRequest(socket_schedule, thread_id):
                     mutex_systemInfo.release()
             else:
                 mutex_systemInfo.release()
-
+            mutex_systemInfo.acquire()
+            if(system_info.system_occupation() > 100) and (not not_control):
+                global_resources_ok= False
+                raise Exception("Resources used is more than system resources :(")
+            mutex_systemInfo.release()
             if(scheduler_container.get_reassigment_type()=="max_prop"):
                 scheduling_requests.release()
 
@@ -1111,7 +1113,7 @@ def attentionRequest(socket_schedule, thread_id):
                 mutex_execInfo.acquire()           
         mutex_execInfo.release()
         if (resources_availables == system_info.total_cores()):
-             print("Correct total resources availables before finish")
+            print("Correct total resources availables before finish")
     except BaseException as e:
         print(repr(e))
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1157,6 +1159,7 @@ if __name__ == "__main__":
         with open('Scheduler-host/parameters.json') as f:
             variables = json.load(f)
 
+        policy= variables["policy"]
         tf_version= variables["tf_version"]
         tf_model= variables["tf_model"]
         tf_dockerimage= variables["tf_dockerimage"]
@@ -1166,8 +1169,12 @@ if __name__ == "__main__":
         resources_distribution= variables["resources_distribution"]
         resources_per_container= variables["resources_per_container"]
         get_requests= variables["get_requests"]
+        filename_requests= variables["requests_file"]
+        scheduler_container= FCFS(policy)
+        event_logs= TraceLog(scheduler_container.get_reassigment_type())
         event_logs.set_tf_model(tf_model)
         event_logs.set_tf_version(tf_version)
+
 
         # Definir time out de espera a que le responda el cliente
         socket.setdefaulttimeout(60)
@@ -1188,9 +1195,9 @@ if __name__ == "__main__":
 
         # Crear hilo para la generacion de peticiones de ejecución
         if get_requests == "file":
-            request_thread = threading.Thread(target=read_requests, args=(number_thread, number_containers,))
+            request_thread = threading.Thread(target=read_requests, args=(number_thread, number_containers, filename_requests,))
         else:
-            request_thread = threading.Thread(target=creation_requests, args=(tf_dockerimage, number_containers, time_distribution, time_gap, resources_distribution, resources_per_container,))
+            request_thread = threading.Thread(target=creation_requests, args=(tf_dockerimage, number_containers, time_distribution, time_gap, resources_distribution, resources_per_container,filename_requests,))
         event_logs.add_thread()
         number_thread=number_thread+1
 
@@ -1206,31 +1213,35 @@ if __name__ == "__main__":
         
         # Esperar la terminación de los hilos
         attention_thread.join()
-        request_thread.join()
-        control_thread.join()
+        if(global_resources_ok):
+            request_thread.join()
+            control_thread.join()
 
-        '''
-        # Esperar la terminacion de los hilos clientes
-        print("Join client threads...")
-        while not q_client_threads.empty():
-            client= q_client_threads.get()
-            client.join()
-        '''
-        socket_schedule.close()
+            '''
+            # Esperar la terminacion de los hilos clientes
+            print("Join client threads...")
+            while not q_client_threads.empty():
+                client= q_client_threads.get()
+                client.join()
+            '''
+            socket_schedule.close()
 
-        # Almacenar en un archivo la cantidad de contenedores que fallaron
-        with open('./Data/log/containers_failed.txt', mode='w') as f:
-            f.write(str(containers_failed))
-        print("Save data log...")
-        event_logs.save_CSV('./Data/log/', 'scheduler_events.txt')
-        print("Save Gantt events...")
-        event_logs.save_gantt('./Data/log/', 'gantt_events.txt')
-        print("Calculate Metrics...")
-        event_logs.calculate_throughput('./Data/log/')
-        event_logs.calculate_meantime_container(number_containers, './Data/log/', 'gantt_events.txt')
-        #print("Plot Gantt diagram...")
-        #event_logs.plot_gantt()
-        print("Finish Scheduler :)")
+            # Almacenar en un archivo la cantidad de contenedores que fallaron
+            with open('./Data/log/containers_failed.txt', mode='w') as f:
+                f.write(str(containers_failed))
+            print("Save data log...")
+            event_logs.save_CSV('./Data/log/', 'scheduler_events.txt')
+            print("Save Gantt events...")
+            event_logs.save_gantt('./Data/log/', 'gantt_events.txt')
+            print("Calculate Metrics...")
+            # event_logs.calculate_throughput('./Data/log/')
+            event_logs.calculate_meantime_container(number_containers, './Data/log/', 'gantt_events.txt')
+            #print("Plot Gantt diagram...")
+            #event_logs.plot_gantt()
+            print("Finish Scheduler :)")
+        else:
+            print("resources used is more than global resources in system :(")
+            sys.exit(1)
     
     except BaseException as e:
         print(repr(e))

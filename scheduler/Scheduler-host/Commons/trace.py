@@ -140,24 +140,6 @@ class TraceLog:
                                                 container["Execution_Finish"] = datetime.datetime.now()
                                                 self.__events_list.append(container)
                                                 break
-    
-    def calculate_throughput(self, directory):
-        csv_file= directory + "throughput_" + str(len(self.__events_list)) + ".txt"
-        container_time_min= datetime.datetime(2022, 5, 13, 22, 50, 55) 
-        container_time_max=datetime.datetime(1980, 5, 13, 22, 50, 55) 
-        for container in self.__events_list:
-            if container["Start_Request"] < container_time_min:
-                container_time_min= container["Start_Request"]
-            if container["Execution_Finish"] > container_time_max:
-                container_time_max= container["Execution_Finish"]
-            container["Execution_Time"]= (container["Execution_Finish"] - container["Execution_Start"]).total_seconds()
-            container["First_Execution_Time"] = (container["Execution_Start"] - container["Start_Request"]).total_seconds()
-            container["Wait_Time"]= (container["Execution_Start"] - container["Start_Request"]).total_seconds()
-            for i in range(container["Pause_Count"]-1):
-                 container["Wait_Time"]+= (container["Pause_Finish_"+str(i+1)] - container["Pause_Start_"+str(i+1)]).total_seconds()
-        throughput = len(self.__events_list)/(container_time_max - container_time_min).total_seconds()
-        with open(csv_file, mode='w') as f:
-            f.write(str(throughput)) 
 
     def calculate_meantime_container(self, number_containers, directory, filename="output.txt"):
         csv_file= directory + "times_containers_" + str(len(self.__events_list)) + ".txt"
@@ -212,10 +194,11 @@ class TraceLog:
     def finish_container_event(self, container_number, time_steps):
         container_number = int(container_number)
         try: 
-            start_datetime_step=datetime.datetime.now()
+            start_datetime_step=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            start_datetime_step= datetime.datetime.strptime(start_datetime_step, '%Y-%m-%d %H:%M:%S')
             if time_steps:
                 for container in self.__df_events:
-                    if ((int(container["Task"]) == container_number) and (not isinstance(container["Finish"], datetime.datetime))):
+                    if ((int(container["Task"]) == container_number) and (start_datetime_step > container["Start"])):
                         start_datetime_step= container["Start"] 
                 n_container= container_number + 0.5
                 colour=1
@@ -242,8 +225,6 @@ class TraceLog:
             print("Base error") if log_file else None
                 
     def plot_gantt(self, day):
-        #for container in self.df_events:
-        #    print("Task = ", container["Task"], " Start= ", container["Start"], " Finish= ", container["Finish"], " Cores= ", container["Cores"])
         fig = px.timeline(self.__df_events, x_start="Start", x_end="Finish", y="Task", color="Cores")
         fig.update_yaxes(autorange="reversed")
         time_start= day + '00:00'
@@ -264,24 +245,40 @@ class TraceLog:
         start_scheduler = datetime.datetime.now()+datetime.timedelta(hours=5) 
         start_scheduler = start_scheduler.strftime('%Y-%m-%d %H:%M:%S')
         start_scheduler= datetime.datetime.strptime(start_scheduler, '%Y-%m-%d %H:%M:%S')
+        finish_scheduler= datetime.datetime(1980, 5, 13, 22, 50, 55) 
         for line in csv.DictReader(data):
             if (line['Task'] == '-1'):
-                time= datetime.datetime.strptime(line['Start'][:18], '%Y-%m-%d %H:%M:%S')
-                if ( time < start_scheduler):
-                    start_scheduler= time  
+                time_start= datetime.datetime.strptime(line['Start'][:18], '%Y-%m-%d %H:%M:%S')
+                if ( time_start < start_scheduler):
+                    start_scheduler= time_start
+                    continue
+            time_finish= datetime.datetime.strptime(line['Finish'][:18], '%Y-%m-%d %H:%M:%S')
+            if (time_finish > finish_scheduler):
+                finish_scheduler= time_finish
         print(start_scheduler)
+        print(finish_scheduler)
+        timedelta=0
+        if (start_scheduler.day != finish_scheduler.day):
+            start_scheduler+=datetime.timedelta(hours=12) 
+            timedelta=12
+            print('Change timedelta')
+            print('New start scheduler: ' , start_scheduler)
+        day= str(finish_scheduler.strftime('%Y-%m-%d '))
         data.close()
         data = open(directory+filename, 'r')   
         for line in csv.DictReader(data):
-            day= line['Start'][:11]
-            time_start= datetime.datetime.strptime(line['Start'][:19], '%Y-%m-%d %H:%M:%S')
-            time_finish= datetime.datetime.strptime(line['Finish'][:19], '%Y-%m-%d %H:%M:%S')
+            time_start= datetime.datetime.strptime(line['Start'][:19], '%Y-%m-%d %H:%M:%S')+datetime.timedelta(hours=timedelta) 
+            time_finish= datetime.datetime.strptime(line['Finish'][:19], '%Y-%m-%d %H:%M:%S')+datetime.timedelta(hours=timedelta) 
             time_start_delta= str (time_start - start_scheduler)
+            # print(time_start)
+            # print(start_scheduler)
+            # print(time_start_delta)
             time_start_delta= day + time_start_delta
             time_finish_delta= str (time_finish - start_scheduler)
             time_finish_delta= day + time_finish_delta
             line['Start'] = time_start_delta
             line['Finish'] = time_finish_delta
+            # print( line['Start'], ' -- ',  line['Finish'])
             self.__df_events.append(line)
         data.close()
     
@@ -300,6 +297,32 @@ class TraceLog:
         return day
                 
     #### End Gantt Diagram #####
+
+    def calculate_throughput(self, number_containers, directory, data_filename, save_filename='throughput.txt'):
+        data = open(directory+data_filename, 'r')
+        start_scheduler = datetime.datetime.now()+datetime.timedelta(hours=5) 
+        start_scheduler = start_scheduler.strftime('%Y-%m-%d %H:%M:%S')
+        start_scheduler= datetime.datetime.strptime(start_scheduler, '%Y-%m-%d %H:%M:%S')
+        finish_scheduler= datetime.datetime(1980, 5, 13, 22, 50, 55) 
+        for line in csv.DictReader(data):
+            if (line['Task'] == '-1'):
+                time_start= datetime.datetime.strptime(line['Start'][:18], '%Y-%m-%d %H:%M:%S')
+                if ( time_start < start_scheduler):
+                    start_scheduler= time_start
+                    continue
+            time_finish= datetime.datetime.strptime(line['Finish'][:19], '%Y-%m-%d %H:%M:%S')
+            if (not '.' in line['Task']) and (time_finish > finish_scheduler):
+                finish_scheduler= time_finish
+        if (start_scheduler.day != finish_scheduler.day):
+                start_scheduler+= datetime.timedelta(hours=12)
+                finish_scheduler+= datetime.timedelta(hours=12) 
+        print('Init Scheduler: ', start_scheduler)
+        print('Finish Scheduler: ', finish_scheduler)
+        print('Total time of Scheduler: ', (finish_scheduler-start_scheduler).total_seconds() )
+        throughput= number_containers/(finish_scheduler-start_scheduler).total_seconds()
+        print('Throughput: ', throughput)
+        with open(directory+save_filename, mode='w') as f:
+            f.write(str(throughput)) 
 
     def calculate_responseMeantime_metric(self, directory, cant_containers, filename="output.txt"):
         data = open(directory+filename, 'r')
@@ -328,7 +351,7 @@ class TraceLog:
                                 #events_finish.append(data_container)
                             else:
                                 pass #same container but other request
-            if ((not found) and ( not '.5' in str(line['Task']))) : # container with change of parallelism
+            if ((not found) and ( not '.5' in str(line['Task'])) and (line['Task'] != '-2')) : # container with change of parallelism
                  events.append(dict(Container=line['Task'], TimeRecieve= time_start, TimeStart=time_start, TimeFinish=time_finish))
         data.close()
         response_time=0
@@ -358,4 +381,5 @@ if __name__ == "__main__":
     day= trace.load_gantt(directory, cant_containers, filename)
     trace.calculate_meantime_container(cant_containers, directory, filename)
     trace.calculate_responseMeantime_metric(directory, cant_containers, filename)
+    trace.calculate_throughput(cant_containers, directory, filename)
     trace.plot_gantt(day)
