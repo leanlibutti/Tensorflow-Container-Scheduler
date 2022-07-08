@@ -22,7 +22,7 @@ class systemInfo:
             return True
 
     def free_resources(self, parallelism):
-        self. cores_used= self.cores_used - parallelism
+        self.cores_used= self.cores_used - parallelism
 
     def system_occupation(self):
         return (self.cores_used/self.cores)*100

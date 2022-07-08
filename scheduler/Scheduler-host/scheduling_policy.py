@@ -198,7 +198,7 @@ class FCFS(SchedulingPolicy):
                     inter_p= int(inter_parallelism/factor_prop)
                     intra_p= int(intra_parallelism/factor_prop)
                     print("Inter P in scheduleparallelism:", inter_p, " - Intra P in scheduleparallelism:", intra_p)
-                    if(inter_p == 0): inter_p=1
+                    if(inter_p == 0) and (inter_parallelism > 0): inter_p=1
                     if(intra_p == 0): intra_p=1
                     #inter_p=1 # debido a que al aumentar el paralelismo inter no vemos mejoras lo ponemos siempre en uno. La asignacion de interparalelismo con factor prop lo comentamos por el momento.
                     if intra_p > resources_availables - inter_p:
@@ -227,20 +227,18 @@ class FCFS(SchedulingPolicy):
                         parameters_list.append(intra_parallelism)
                     else:
                         if (inter_parallelism>0) and (intra_parallelism >0):
+                            # Peticion con asignacion de ambos paralelismos
                             inter_fraction= inter_parallelism/(inter_parallelism+intra_parallelism)
                             intra_fraction= intra_parallelism/(inter_parallelism+intra_parallelism)
-                            if (inter_fraction==intra_fraction):
-                                inter_p= int(resources_availables/2)
-                                intra_p= int(resources_availables/2)
-                            else:
-                                inter_p= int(round(inter_fraction*resources_availables))
-                                intra_p= int(round(intra_fraction*resources_availables))
+                            inter_p= int(round(inter_fraction*resources_availables))
+                            intra_p= int(round(intra_fraction*resources_availables))
                         else:
+                            # Peticion de actualizacion de un solo tipo de paralelismo
                             if(inter_parallelism>0):
                                 inter_p=resources_availables
-                                intra_p=intra_parallelism
+                                intra_p=0
                             else:
-                                inter_p=inter_parallelism
+                                inter_p=0
                                 intra_p=resources_availables
                         if inter_p == 0:
                             inter_p= inter_p+1

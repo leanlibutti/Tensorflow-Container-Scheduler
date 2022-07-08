@@ -89,13 +89,21 @@ class ExecutionInfo:
                     new_parallelism=inter_parallelism+self.intra_exec_parallelism
                 else:
                     new_parallelism=intra_parallelism+self.inter_exec_parallelism
+
+            print("Docker update in container ", self.container_number, ' with process id ', self.docker_ps, ' to ', new_parallelism)
             # Comando de actualización del paralelismo del contenedor
-            run_command= 'docker update ' + str(self.docker_ps) + ' --cpus ' + str(new_parallelism)    
+            run_command= 'docker update ' + str(self.container_name) + ' --cpus ' + str(new_parallelism) 
+            update_container = Popen(run_command, stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True) 
+            stdout, stderr = update_container.communicate()
+            if stdout:
+                print(stdout)
+            else:
+                print(stderr)  
             # Generar objeto JSON para enviar actualizacion
             data= {
-                "container": self.container_number,
-                "inter_parallelism": inter_parallelism,
-                "intra_parallelism": intra_parallelism
+                "container": int(self.container_number),
+                "inter_parallelism": int(inter_parallelism),
+                "intra_parallelism": int(intra_parallelism)
             }  
             # Enviar objeto JSON al cliente
             json_data_socket._send(self.clientsocket, data)  

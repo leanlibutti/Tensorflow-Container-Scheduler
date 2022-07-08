@@ -24,16 +24,16 @@ FROM ubuntu:${UBUNTU_VERSION}
 ADD . /scheduler_src
 ARG DEBIAN_FRONTEND=noninteractive    
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        curl \
-        git \
-        libcurl3-dev \
-        libfreetype6-dev \
-        libhdf5-serial-dev \
-        libzmq3-dev \
-        pkg-config \
-        rsync \
-        software-properties-common \
+    build-essential \
+    curl \
+    git \
+    libcurl3-dev \
+    libfreetype6-dev \
+    libhdf5-serial-dev \
+    libzmq3-dev \
+    pkg-config \
+    rsync \
+    software-properties-common \
 	sudo \
         unzip \
         zip \
