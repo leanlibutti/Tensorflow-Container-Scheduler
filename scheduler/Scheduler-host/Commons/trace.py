@@ -255,14 +255,14 @@ class TraceLog:
             time_finish= datetime.datetime.strptime(line['Finish'][:18], '%Y-%m-%d %H:%M:%S')
             if (time_finish > finish_scheduler):
                 finish_scheduler= time_finish
-        print(start_scheduler)
-        print(finish_scheduler)
+        # print(start_scheduler)
+        # print(finish_scheduler)
         timedelta=0
         if (start_scheduler.day != finish_scheduler.day):
             start_scheduler+=datetime.timedelta(hours=12) 
             timedelta=12
-            print('Change timedelta')
-            print('New start scheduler: ' , start_scheduler)
+            # print('Change timedelta')
+            # print('New start scheduler: ' , start_scheduler)
         day= str(finish_scheduler.strftime('%Y-%m-%d '))
         data.close()
         data = open(directory+filename, 'r')   
@@ -316,17 +316,17 @@ class TraceLog:
         if (start_scheduler.day != finish_scheduler.day):
                 start_scheduler+= datetime.timedelta(hours=12)
                 finish_scheduler+= datetime.timedelta(hours=12) 
-        print('Init Scheduler: ', start_scheduler)
-        print('Finish Scheduler: ', finish_scheduler)
-        print('Total time of Scheduler: ', (finish_scheduler-start_scheduler).total_seconds() )
+        # print('Init Scheduler: ', start_scheduler)
+        # print('Finish Scheduler: ', finish_scheduler)
+        # print('Total time of Scheduler: ', (finish_scheduler-start_scheduler).total_seconds() )
         throughput= number_containers/(finish_scheduler-start_scheduler).total_seconds()
-        print('Throughput: ', throughput)
+        # print('Throughput: ', throughput)
         with open(directory+save_filename, mode='w') as f:
             f.write(str(throughput)) 
+        return [throughput ,(finish_scheduler-start_scheduler).total_seconds()]
 
     def calculate_responseMeantime_metric(self, directory, cant_containers, filename="output.txt"):
         data = open(directory+filename, 'r')
-        number_container=0
         events=[]
         #events_finish=[]
         for line in csv.DictReader(data):
@@ -334,8 +334,7 @@ class TraceLog:
             time_start= datetime.datetime.strptime(line['Start'][:19], '%Y-%m-%d %H:%M:%S')
             time_finish= datetime.datetime.strptime(line['Finish'][:19], '%Y-%m-%d %H:%M:%S')
             if(line['Task'] == '-1'):
-                events.append(dict(Container=number_container, TimeRecieve= time_finish, TimeStart=-1, TimeFinish=-1))
-                number_container+=1
+                events.append(dict(Container=line['RequestId'], TimeRecieve= time_finish, TimeStart=-1, TimeFinish=-1))
                 found= True
             else:
                 if(line['Task'] == '-3'):
@@ -358,14 +357,15 @@ class TraceLog:
         return_time=0
         execution_time=0
         for container in events:
-            print("Container = ", container["Container"], " Recieve= ", container["TimeRecieve"], " Start= ", container["TimeStart"], " Finish= ", container["TimeFinish"])
+            # print("Container = ", container["Container"], " Recieve= ", container["TimeRecieve"], " Start= ", container["TimeStart"], " Finish= ", container["TimeFinish"])
             response_time+= (container["TimeStart"] -  container["TimeRecieve"]).total_seconds()
             return_time+=  (container["TimeFinish"] - container["TimeRecieve"]).total_seconds()
             execution_time+= (container["TimeFinish"] - container["TimeStart"]).total_seconds()
     
-        print('Meantime execution: ', execution_time/cant_containers) 
-        print('Meantime response: ', response_time/cant_containers)
-        print('Meantime real execution: ', return_time/cant_containers)
+        # print('Meantime execution: ', execution_time/cant_containers) 
+        # print('Meantime response: ', response_time/cant_containers)
+        # print('Meantime real execution: ', return_time/cant_containers)
+        return [execution_time/cant_containers, response_time/cant_containers, return_time/cant_containers]
 # Programa Principal #
 if __name__ == "__main__":
     
@@ -380,6 +380,7 @@ if __name__ == "__main__":
     trace= TraceLog()
     day= trace.load_gantt(directory, cant_containers, filename)
     trace.calculate_meantime_container(cant_containers, directory, filename)
-    trace.calculate_responseMeantime_metric(directory, cant_containers, filename)
-    trace.calculate_throughput(cant_containers, directory, filename)
+    times= trace.calculate_responseMeantime_metric(directory, cant_containers, filename)
+    data_t= trace.calculate_throughput(cant_containers, directory, filename)
     trace.plot_gantt(day)
+    print (times[0], ',', times[1], ',', times[2], ',', data_t[0], ',', data_t[1])
