@@ -1,3 +1,4 @@
+from email import policy
 import os
 from sqlite3 import Time
 import sys
@@ -12,7 +13,7 @@ import signal
 import socket
 from execution_info import ExecutionInfo
 from system import systemInfo
-from scheduling_policy import FCFS
+from scheduling_policy import FCFS, Priority
 import copy
 from Commons.trace import TraceLog
 from Commons.time_epochs import TimeEpochs
@@ -117,7 +118,7 @@ def is_finish_attention():
     # print("Creatrion request:", creation_requests_terminate)
     # print("Pending queue: ", scheduler_container.pending_queue_empty())
     # print("Queue: ",scheduler_container.queue_empty())
-    if scheduler_container.pending_queue_empty() and scheduler_container.queue_empty() and creation_requests_terminate==True and not containerName_list :
+    if (scheduler_container.pending_queue_empty() == -1) and (scheduler_container.queue_empty() == -1) and (creation_requests_terminate==True) and (not containerName_list) :
         mutex_finishExecution.acquire()
         finish_execution=True 
         mutex_finishExecution.release()
@@ -200,12 +201,13 @@ def schedule_resources(request_, resources_availables):
                 print("Free resources in parallelism reserve") if log_file else None 
     return requested_resources
 
-def schedule_request(request_, socket_schedule, instance_number=0, port_host=0, resources_availables=0, thread_id=0):
+def schedule_request(request_, socket_schedule, port_host=0, resources_availables=0, thread_id=0):
     log_file=True
     global number_thread   
     state=0
     parallelism_apply=0
     parallelism_container= [0,0]
+    instance_number= request_.get_request_id()
     if isinstance(request_, Start) or isinstance(request_, Restart):
         # Atender peticion de actualizacion      
         if not_control:
@@ -221,7 +223,6 @@ def schedule_request(request_, socket_schedule, instance_number=0, port_host=0, 
                 container_name= 'instance' + str(instance_number)
             else:
                 container_name= request_.get_container_name()
-                instance_number= request_.get_request_id()
             # Comando para iniciar contenedor con una imagen dada en la petición (opciones dit permiten dejar ejecutando el contenedor en background)
             print("Creating Docker Container for " , container_name) if log_file else None 
             ok_start= False
@@ -297,7 +298,7 @@ def schedule_request(request_, socket_schedule, instance_number=0, port_host=0, 
                            elem.update_info(process_id, parallelism_container[0], parallelism_container[1], port_host, c, 'start')
                 else:
                     # Crear un ExecutionInfo para almacenar la informacion de la instancia ejecutada
-                    exec_info = ExecutionInfo(request_.get_request_id(), container_name, instance_number, port_host, process_id, request_.get_inter_parallelism(), request_.get_intra_parallelism(), parallelism_container[0], parallelism_container[1], c, request_.get_image())
+                    exec_info = ExecutionInfo(container_name, instance_number, port_host, process_id, request_.get_inter_parallelism(), request_.get_intra_parallelism(), parallelism_container[0], parallelism_container[1], c, request_.get_image(), request_.get_priority())
                     # Almacenar instancia de execución en la lista de ejecuciones activas (es thread safe)
                     mutex_execInfo.acquire()
                     execInfo_list.append(exec_info)
@@ -312,7 +313,7 @@ def schedule_request(request_, socket_schedule, instance_number=0, port_host=0, 
         container_name=''
         for container_info in execInfo_list:
             instance_name= 'instance'+request_.get_request_id()
-            if (container_info.get_request_id() == instance_name):
+            if (container_info.container_name() == instance_name):
                 container_number= container_info.get_container_number()
                 container_name= container_info.get_container_name()
                 container_intra_parallelism= container_info.get_intra_exec_parallelism()
@@ -340,7 +341,7 @@ def schedule_request(request_, socket_schedule, instance_number=0, port_host=0, 
                 print("Schedule Resume Request: ", threading.current_thread().getName(), ' - Container: instance', container_number) if log_file else None 
                 mutex_execInfo.acquire()
                 for container_info in execInfo_list:
-                    if (container_info.get_request_id() == request_.get_request_id()):      
+                    if (container_info.get_container_number() == request_.get_request_id()):      
                         parallelism_container= scheduler_container.schedule_parallelism(resources_availables, container_info.get_inter_exec_parallelism(), container_info.get_intra_exec_parallelism())   
                         if parallelism_container:
                             parallelism_apply= parallelism_container[0]+parallelism_container[1]
@@ -412,13 +413,20 @@ def updateExecutionInstance(container_name, new_inter_parallelism, new_intra_par
 def oldest_reassigment(resources_availables, increase_or_reduce, increment_active_containers=False, amount_reduce=0):
     log_file=False
     try:
+        priority=-1
+        for c in execInfo_list:
+            if(priority <  c.get_priority()):
+                priority = c.get_priority()
         print("Reassigment Containers with oldest policy") if log_file else None 
         if increase_or_reduce:
             mutex_execInfo.acquire()
             for container in execInfo_list:
+                if(isinstance(scheduler_container,Priority)):
+                    if (c.get_priority() != priority):
+                        # Jump this container because have minor priority
+                        continue
                 if container.get_state() == 'start':
                     ok=False
-
                     if increment_active_containers:
                         interparallelism_required= 0
                         intraparallelism_required= resources_availables
@@ -568,7 +576,7 @@ def generatePauseResumeRequest(thread_id):
         mutex_containerList.release()     
         if not skip:       
             request_ = Pause(container_name)
-            scheduler_container.add_new_request(request_)
+            scheduler_container.add_new_request(request_, request_.get_priority())
             print("Schedule Pause request to container: ", container_name) if log_file else None
             # Avisar al hilo de atencion que se encoló una nueva petición.
             with cv_attention:
@@ -578,7 +586,7 @@ def generatePauseResumeRequest(thread_id):
             time_wait= int(normal_time[0])  
             time.sleep(time_wait)
             request_ = Resume(container_name)
-            scheduler_container.add_new_request(request_)   
+            scheduler_container.add_new_request(request_, request_.get_priority())   
             print("Schedule Resume request to container: ", container_name)  if log_file else None
             # Avisar al hilo de atencion que se encoló una nueva petición.
             with cv_attention:
@@ -609,13 +617,18 @@ def creation_requests(docker_container, number_containers=1, time_distribution="
                 resources_container+= min
             else:
                 resources_container= resources_per_container[0]
-            line ='execution,' + str(instance_container) + ',' + docker_container + ',' + str(resources_container) + ',' + str(time_sleep) + '\n'
+            priority= np.random.randint(5, size=1)[0]
+            line ='execution,' + str(instance_container) + ',' + docker_container + ',' + str(resources_container) + ',' + str(time_sleep) + ',' + str(priority) + '\n'
             request_file.write(line)
             time.sleep(int(time_sleep))
             print("Create request...") if log_file else None
-            request_exec = Start(str(instance_container), docker_container,1,resources_container-1)
             scheduling_requests.acquire()
-            scheduler_container.add_new_request(request_exec)
+            if(isinstance(scheduler_container, Priority)):
+                request_exec = Start(str(instance_container), docker_container,1,resources_container-1, priority)
+                scheduler_container.add_new_request(request_exec, priority)
+            else:
+                request_exec = Start(str(instance_container), docker_container,1,resources_container-1, 0)
+                scheduler_container.add_new_request(request_exec, 0)
             scheduling_requests.release()   
             mutex_eventlogs.acquire()
             event_logs.save_event(events.GENERATE_REQUEST_EXE, instance_container, inter_user=request_exec.get_inter_parallelism(), intra_user=request_exec.get_intra_parallelism())
@@ -653,13 +666,17 @@ def read_requests(thread_id, number_containers, filename):
         with open(filename) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
             for row in csv_reader:
+                priority= int(row[5])
                 time_csv= row[4].replace('[', '')
                 time_csv= time_csv.replace(']', '')
                 time.sleep(float(time_csv))
                 if (row[0]=='execution'):
-                    request_exec = Start(row[1], row[2],1,int(row[3])-1)
+                    request_exec = Start(row[1], row[2],1,int(row[3])-1, priority)
                     scheduling_requests.acquire()
-                    scheduler_container.add_new_request(request_exec)
+                    if(isinstance(scheduler_container, Priority)):
+                        scheduler_container.add_new_request(request_exec, priority)
+                    else:
+                        scheduler_container.add_new_request(request_exec, 0)
                     scheduling_requests.release()   
                     mutex_eventlogs.acquire()
                     event_logs.save_event(events.GENERATE_REQUEST_EXE, int(row[1]), inter_user=1, intra_user=int(row[3])-1)
@@ -669,9 +686,12 @@ def read_requests(thread_id, number_containers, filename):
                     print('Schedule execution request')
                     number_line+=1
                 else:
-                    request_up= Update(row[1], 1, int(row[3])-1)
+                    request_up= Update(row[1], 1, int(row[3])-1, priority)
                     scheduling_requests.acquire()
-                    scheduler_container.add_new_request(request_up)
+                    if(isinstance(scheduler_container, Priority)):
+                        scheduler_container.add_new_request(request_up, int(row[5]))
+                    else:
+                        scheduler_container.add_new_request(request_up, 0)
                     scheduling_requests.release()
                     mutex_eventlogs.acquire()
                     event_logs.save_event(events.GENERATE_REQUEST_UP, row[1])
@@ -751,9 +771,9 @@ def container_failed_attention(instance_number, container_name, request_):
     system_info.free_resources(resources_free)
     mutex_systemInfo.release()
     print("Generate new request for ", container_name) if log_file else None
-    request_restart = Restart(str(instance_number), container_name, inter_paralelism, intra_parallelism, image)
+    request_restart = Restart(str(instance_number), container_name, inter_paralelism, intra_parallelism, image, request_.get_priority())
     scheduling_requests.acquire()
-    scheduler_container.add_new_request(request_restart)
+    scheduler_container.add_new_request(request_restart, request_.get_priority())
     scheduling_requests.release() 
     mutex_eventlogs.acquire() 
     event_logs.init_container_event(-3, instance_number, instance_number)
@@ -775,10 +795,10 @@ def container_client(clientsocket,addr,container_name, instance_number, interExe
     ok=False
 
     data= {
-        "container": instance_number,
+        "container": int(instance_number),
         "tf_use": tf_version,
-        "inter_parallelism": interExec_parallelism,
-        "intra_parallelism": intraExec_parallelism
+        "inter_parallelism": int(interExec_parallelism),
+        "intra_parallelism": int(intraExec_parallelism)
     }
     json_data_socket._send(clientsocket, data)
     
@@ -836,7 +856,7 @@ def container_client(clientsocket,addr,container_name, instance_number, interExe
                     # Enviar ACK indicando finalizacion de la eliminacion del cliente
                     print("Send ACK to client: " + container_name) if log_file else None
                     data={
-                        "container": instance_number,
+                        "container": int(instance_number),
                         "inter_parallelism": -1,
                         "intra_parallelism": -1
                     }
@@ -919,7 +939,6 @@ def attentionRequest(socket_schedule, thread_id):
     log_file=True
     try:
         print('AttentionRequest Thread:', threading.current_thread().getName()) if log_file else None
-        instance_number=0
         request_pending=False
         port_host=8787
         global finish_execution
@@ -984,79 +1003,72 @@ def attentionRequest(socket_schedule, thread_id):
                 request_= scheduler_container.get_pending_request()
                 if not request_:
                     print("Not request in pending queue") if log_file else None
-            while (((resources_availables > 0) or (not_control)) and (request_)):
-                requested_resources = schedule_resources(request_, resources_availables)
-                if (requested_resources!=0):
-                    # Intentar planificar peticion pendiente    
-                    mutex_systemInfo.release()   
-                    state= schedule_request(request_, socket_schedule, instance_number, port_host, requested_resources, thread_id)
-                    mutex_systemInfo.acquire()  
+                while (request_):
+                    requested_resources = schedule_resources(request_, resources_availables)
+                    state=0
+                    if (requested_resources!=0):
+                        # Intentar planificar peticion pendiente    
+                        mutex_systemInfo.release()   
+                        state= schedule_request(request_, socket_schedule, port_host, requested_resources, thread_id)
+                        mutex_systemInfo.acquire()  
                     # Verificar estado de la planificacion de peticion        
                     if state==0:
                         print ("Pending petition could not be answered") if log_file else None
                         q_aux.put(request_)
                         system_info.free_resources(requested_resources)
                     else:
-                        if isinstance(request_, Start):
-                            instance_number=instance_number+1
+                        if isinstance(request_, Start) or isinstance(request_, Restart):
                             port_host= port_host+1 
-                        else:
-                            if isinstance(request_, Restart):
-                                port_host= port_host+1 
                     resources_availables= system_info.check_resources()
                     print("Resources availables after schedule: " + str(resources_availables)) if log_file else None
-                if ((resources_availables > 0) or (not_control)):
                     request_ = scheduler_container.get_pending_request()
-            mutex_systemInfo.release()
-            # Almacenar las peticiones antiguas pendientes en la cola nuevamente
-            while (not q_aux.empty()):
-                scheduler_container.add_pending_request(q_aux.get())
+                mutex_systemInfo.release()
+                # Almacenar las peticiones antiguas pendientes en la cola nuevamente
+                while (not q_aux.empty()):
+                    request_= q_aux.get()
+                    scheduler_container.add_pending_request(request_, request_.get_priority())
+            else:
+                mutex_systemInfo.release()
             print('Attention new act/exe request: ',threading.current_thread().getName()) if log_file else None
             # Intentar atender nuevas peticiones de ejecucion/actualizacion
             mutex_systemInfo.acquire()
             resources_availables= system_info.check_resources()
-            finish_schedule_queue=False
-            request_= scheduler_container.get_new_request()
-            while ((request_)):
-                requested_resources = schedule_resources(request_, resources_availables)            
-                mutex_systemInfo.release()
-                print("Requested_resources: ", requested_resources) if log_file else None
-                if ((not isinstance(request_, Pause)) or (not_control)):
-                    state=0
-                    if(requested_resources !=0):
-                        state= schedule_request(request_, socket_schedule, instance_number, port_host, requested_resources, thread_id)  
-                    # Verificar si no se pudo atender la peticion
-                    if (state==0):
-                        if isinstance(request_, Resume):
-                            print("Resume request pending") if log_file else None
-                            scheduler_container.add_pending_request(request_)
-                        else:
-                            # Verificar si la cantidad de paralelismo solicitada excede el máximo de la máquina
-                            if((request_.get_inter_parallelism()+request_.get_intra_parallelism())>system_info.total_cores()):
-                                print("Request discarded because the parallelism requested exceeds the maximum number of cores of the machine") if log_file else None
+            
+            if resources_availables > 0:
+                request_= scheduler_container.get_new_request()
+                while ((request_)):
+                    requested_resources = schedule_resources(request_, resources_availables)            
+                    mutex_systemInfo.release()
+                    print("Requested_resources: ", requested_resources) if log_file else None
+                    if ((not isinstance(request_, Pause)) or (not_control)):
+                        state=0
+                        if(requested_resources !=0):
+                            state= schedule_request(request_, socket_schedule, port_host, requested_resources, thread_id)  
+                        # Verificar si no se pudo atender la peticion
+                        if (state==0):
+                            if isinstance(request_, Resume):
+                                print("Resume request pending") if log_file else None
+                                scheduler_container.add_pending_request(request_, request_.get_priority())
                             else:
-                                print("New request pending") if log_file else None
-                                scheduler_container.add_pending_request(request_)
-                        system_info.free_resources(requested_resources)
-                    else: 
-                        if isinstance(request_, Start):
-                            instance_number=instance_number+1
-                            port_host= port_host+1   
-                        else:
-                            if isinstance(request_, Restart):
-                                port_host= port_host+1 
-                else:
-                    if not isinstance(request_, Pause):
-                        print("Discard this request") if log_file else None
-                mutex_systemInfo.acquire()
-                resources_availables= system_info.check_resources()
-                print("Resources availables after schedule: " + str(resources_availables)) if log_file else None
-                request_= scheduler_container.get_new_request()  
+                                # Verificar si la cantidad de paralelismo solicitada excede el máximo de la máquina
+                                if((request_.get_inter_parallelism()+request_.get_intra_parallelism())>system_info.total_cores()):
+                                    print("Request discarded because the parallelism requested exceeds the maximum number of cores of the machine") if log_file else None
+                                else:
+                                    print("New request pending") if log_file else None
+                                    scheduler_container.add_pending_request(request_, request_.get_priority())
+                            system_info.free_resources(requested_resources)
+                        else: 
+                            if isinstance(request_, Start) or isinstance(request_, Restart):
+                                port_host= port_host+1   
+                    else:
+                        if not isinstance(request_, Pause):
+                            print("Discard this request") if log_file else None
+                    mutex_systemInfo.acquire()
+                    resources_availables= system_info.check_resources()
+                    print("Resources availables after schedule: " + str(resources_availables)) if log_file else None
+                    request_= scheduler_container.get_new_request()  
             # Reassigment resources if its enable and have free resources and enable for reassigment
-            enable_to_reassigment= False
-            if scheduler_container.pending_queue_empty():
-                enable_to_reassigment= True
-            if resources_availables>0 and reassigment and enable_to_reassigment: 
+            if resources_availables>0 and reassigment: 
                 # print("Wait for reassigment...") if log_file else None
                 # time.sleep(30)
                 print("Reasigment Resources...") if log_file else None 
@@ -1103,7 +1115,7 @@ def attentionRequest(socket_schedule, thread_id):
                     requested_resources = schedule_resources(request_, resources_availables) 
                     mutex_systemInfo.release() 
                     if requested_resources >0:
-                        state= schedule_request(request_, socket_schedule, instance_number, port_host, requested_resources, thread_id)     
+                        state= schedule_request(request_, socket_schedule, port_host, requested_resources, thread_id)     
                         if state != 0:
                             complete=True
                         else: 
@@ -1159,7 +1171,8 @@ if __name__ == "__main__":
         with open('Scheduler-host/parameters.json') as f:
             variables = json.load(f)
 
-        policy= variables["policy"]
+        s_policy = variables["policy"]
+        assigment_policy= variables["assignment_policy"]
         tf_version= variables["tf_version"]
         tf_model= variables["tf_model"]
         tf_dockerimage= variables["tf_dockerimage"]
@@ -1170,7 +1183,10 @@ if __name__ == "__main__":
         resources_per_container= variables["resources_per_container"]
         get_requests= variables["get_requests"]
         filename_requests= variables["requests_file"]
-        scheduler_container= FCFS(policy)
+        if(s_policy == "fcfs"):
+            scheduler_container= FCFS(assigment_policy)
+        else:
+            scheduler_container= Priority(assigment_policy, 5)
         event_logs= TraceLog(scheduler_container.get_reassigment_type())
         event_logs.set_tf_model(tf_model)
         event_logs.set_tf_version(tf_version)
