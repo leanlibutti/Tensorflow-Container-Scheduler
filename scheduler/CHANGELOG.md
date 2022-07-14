@@ -1,3 +1,29 @@
+# Release 1.1.0-1 (2022-07-14)
+
+- Add Conv Net library for execute Tensorflow-Keras models
+- Add scripts for testing
+
+# Release 1.1.0 (2022-07-14)
+
+- Add priority policy
+- Fixed bugs in attention of pending requests
+- Structural changes in attention requests
+- Add new json paramater:
+    + assigment policy (strict, always_attend, max_prop)   
+- TraceLog class:
+    + Change stadistic format output (CSV)
+    + Delete prints 
+- Add analitycs script (run_trace.py)
+- Change run script for support priority policy
+
+# Release 1.0.0 (2022-06-24)
+
+- Stable version of scheduler with the following policies:
+    + FCFS strict
+    + FCFS always_attend
+    + FCFS max_prop
+- Add run script for scheduler (run_scheduler.py)
+
 ## Release 0.6.2 (2021-04-28)
 
 - Added reassignment types "max_prop" and "always_attend" to FCFS policy.
