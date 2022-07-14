@@ -1,9 +1,9 @@
-# Release 1.1.0-1 (2022-07-14)
+## Release 1.1.0-1 (2022-07-14)
 
 - Add Conv Net library for execute Tensorflow-Keras models
 - Add scripts for testing
 
-# Release 1.1.0 (2022-07-14)
+## Release 1.1.0 (2022-07-14)
 
 - Add priority policy
 - Fixed bugs in attention of pending requests
@@ -16,7 +16,7 @@
 - Add analitycs script (run_trace.py)
 - Change run script for support priority policy
 
-# Release 1.0.0 (2022-06-24)
+## Release 1.0.0 (2022-06-24)
 
 - Stable version of scheduler with the following policies:
     + FCFS strict
