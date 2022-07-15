@@ -1,3 +1,10 @@
+## Release 1.1.0-2 (2022-07-15)
+
+- Move calculation of container times from scheduler to traceLog
+- Add parser argument in run_scheduler_one.py and run_trace.py
+- Add run trace description in readme.
+- Add percent resources used calculation in tracelog
+
 ## Release 1.1.0-1 (2022-07-14)
 
 - Add Conv Net library for execute Tensorflow-Keras models

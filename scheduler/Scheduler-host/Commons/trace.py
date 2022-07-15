@@ -141,34 +141,6 @@ class TraceLog:
                                                 self.__events_list.append(container)
                                                 break
 
-    def calculate_meantime_container(self, number_containers, directory, filename="output.txt"):
-        csv_file= directory + "times_containers_" + str(len(self.__events_list)) + ".txt"
-        total_seconds=0
-        max_container_time=-1
-        min_container_time=9999
-        for number_c in range(number_containers):
-            total_container=0
-            data = open(directory+filename, 'r')
-            for container in csv.DictReader(data):
-                if (float(container["Task"]) == float(number_c)):
-                    time_start= datetime.datetime.strptime(container['Start'][:19], '%Y-%m-%d %H:%M:%S')
-                    time_finish= datetime.datetime.strptime(container['Finish'][:19], '%Y-%m-%d %H:%M:%S')
-                    time_delta= (time_finish-time_start).total_seconds()
-                    total_container= total_container + time_delta
-            data.close()
-            total_seconds= total_seconds + total_container
-            if (total_container > max_container_time):
-                max_container_time= total_container
-            if (total_container< min_container_time):
-                min_container_time= total_container
-        with open(csv_file, mode='w') as f:
-            f.write('Meantime, ')
-            f.write(str(total_seconds/number_containers) + ' \n')
-            f.write('Min time, ')
-            f.write(str(min_container_time) + ' \n')
-            f.write('Max time, ')
-            f.write(str(max_container_time) + ' \n')
-
     def save_CSV(self, directory, filename="output.txt"):
         ok=True
         csv_file= directory + filename
@@ -298,6 +270,32 @@ class TraceLog:
                 
     #### End Gantt Diagram #####
 
+
+    ### Calculation of metrics ####
+
+    def calculate_meantime_container(self, number_containers, directory, filename="output.txt"):
+        csv_file= directory + "times_containers_" + str(len(self.__events_list)) + ".txt"
+        total_seconds=0
+        max_container_time=-1
+        min_container_time=9999
+        for number_c in range(number_containers):
+            total_container=0
+            data = open(directory+filename, 'r')
+            for container in csv.DictReader(data):
+                if (float(container["Task"]) == float(number_c)):
+                    time_start= datetime.datetime.strptime(container['Start'][:19], '%Y-%m-%d %H:%M:%S')
+                    time_finish= datetime.datetime.strptime(container['Finish'][:19], '%Y-%m-%d %H:%M:%S')
+                    time_delta= (time_finish-time_start).total_seconds()
+                    total_container= total_container + time_delta
+            data.close()
+            total_seconds= total_seconds + total_container
+            if (total_container > max_container_time):
+                max_container= number_c
+                max_container_time= total_container
+            if (total_container< min_container_time):
+                min_container_time= total_container
+        return [max_container_time, min_container_time]
+
     def calculate_throughput(self, number_containers, directory, data_filename, save_filename='throughput.txt'):
         data = open(directory+data_filename, 'r')
         start_scheduler = datetime.datetime.now()+datetime.timedelta(hours=5) 
@@ -366,6 +364,16 @@ class TraceLog:
         # print('Meantime response: ', response_time/cant_containers)
         # print('Meantime real execution: ', return_time/cant_containers)
         return [execution_time/cant_containers, response_time/cant_containers, return_time/cant_containers]
+
+    def calculate_percentage_cores_used(self, directory, filename="output.txt"):
+        count_lines=0
+        percent_used_accum=0
+        with open(directory+filename, 'r') as f:
+            for line in f:
+                percent_used_accum+= float(line.split(',')[3])
+                count_lines+=1
+        return percent_used_accum/count_lines
+
 # Programa Principal #
 if __name__ == "__main__":
     
@@ -379,8 +387,9 @@ if __name__ == "__main__":
     
     trace= TraceLog()
     day= trace.load_gantt(directory, cant_containers, filename)
-    trace.calculate_meantime_container(cant_containers, directory, filename)
+    max_min_times= trace.calculate_meantime_container(cant_containers, directory, filename)
     times= trace.calculate_responseMeantime_metric(directory, cant_containers, filename)
     data_t= trace.calculate_throughput(cant_containers, directory, filename)
+    percent_cores= trace.calculate_percentage_cores_used(directory, 'occupation_timeline.csv')
     trace.plot_gantt(day)
-    print (times[0], ',', times[1], ',', times[2], ',', data_t[0], ',', data_t[1])
+    print (times[0], ',', times[1], ',', times[2], ',', data_t[0], ',', data_t[1], ',', max_min_times[0], ',', max_min_times[1], ',', percent_cores)

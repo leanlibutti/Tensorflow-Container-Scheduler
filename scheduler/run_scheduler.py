@@ -89,6 +89,7 @@ def main():
                         print("Wait 2 minutes...")
                         time.sleep(120)
                     n_containers*=2
+        if(n_containers == 128):
             folder_test=  "mv Data/log/" + policy_type + " Data/log/" + name_test
             process_command = Popen([folder_test], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
             stdout, stderr = process_command.communicate()

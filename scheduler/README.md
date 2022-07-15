@@ -48,11 +48,14 @@ Al finalizar la ejecución del planificador, se genera una carpeta en /Data/log 
 
 # Políticas de planificación y reasignación (a nivel de cores)
 
-|   | Planificación | Reasignación de recursos | Preemptive | Otros |
+|   | Planificación | Reasignación de recursos | Preemptive[1] | Otros[2] |
 |---|---------------|--------------------------|------------|-------|
 | 1 | FCFS          | STRICT, MAX_PROP, ALWAYS_ATTEND |    No      | - |
 | 2 | Priority      | STRICT, MAX_PROP, ALWAYS_ATTEND |    Yes/No  | Realimentación |
-| 3 | Round Robin   | STRICT, MAX_PROP, ALWAYS_ATTEND |    Yes     | - |
+| 3 | Round Robin [3]   | STRICT, MAX_PROP, ALWAYS_ATTEND |    Yes     | - |
+
+[1] en fase de desarrollo.
+[2] y [3] no implementadas por el momento. 
 
 1. Planificación
 
@@ -92,11 +95,18 @@ Al finalizar la ejecución del planificador, se genera una carpeta en /Data/log 
 
 # Métricas a reportar
 
-* Para cada container:
-    - Tiempo de espera (en versiones preemptive).
-    - Tiempo total de ejecución.
-    - Tiempo de servicio.
-    - Tiempo hasta primera ejecución.
+* Metricas de contenedores:
+    - Tiempo medio de espera (en versiones preemptive).
+    - Tiempo medio total de ejecución.
+    - Tiempo medio de servicio.
+    - Tiempo medio hasta primera ejecución o tiempo de respuesta.
 
-* Para cada ejecución completa:
-    - Productividad (containers finalizados por segundo).
+* Metricas del planificador:
+    - Productividad [Contenedores/Hora].
+    - Porcentaje medio de recursos utilizados 
+
+Para obtener las metricas en formato CSV se debe lanzar el siguiente comando:
+
+* python3 run_trace.py nombre_prueba
+
+Donde nombre_prueba es el directorio donde se encuentran las pruebas realizadas para evaluar el comportamiento del planificador con un distribucion de tiempo de llegada y recursos solicitados.

@@ -535,6 +535,7 @@ def SystemControl(thread_id):
         with open('Data/log/occupation_timeline.csv', "w") as file:
             gap_count=0
             i=0
+            file.write('time, cpu_system, memory_system, cores_used \n')
             for data in occupation_register:
                 file.write(str(gap_count))
                 file.write(',')
@@ -1251,7 +1252,7 @@ if __name__ == "__main__":
             event_logs.save_gantt('./Data/log/', 'gantt_events.txt')
             print("Calculate Metrics...")
             # event_logs.calculate_throughput('./Data/log/')
-            event_logs.calculate_meantime_container(number_containers, './Data/log/', 'gantt_events.txt')
+            # event_logs.calculate_meantime_container(number_containers, './Data/log/', 'gantt_events.txt')
             #print("Plot Gantt diagram...")
             #event_logs.plot_gantt()
             print("Finish Scheduler :)")
