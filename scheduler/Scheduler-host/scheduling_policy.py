@@ -32,7 +32,6 @@ class SchedulingPolicy(metaclass=ABCMeta):
     def get_queue_request(self, id_queue):
         if not self.__queue_array[id_queue].empty():
             return self.__queue_array[id_queue].get()
-
         else:
             return []
 
@@ -60,10 +59,16 @@ class SchedulingPolicy(metaclass=ABCMeta):
             self.__queue_pending_array.append(queue.Queue())
 
     def add_queue_request(self,id_queue, data):
-        self.__queue_array[id_queue].put(data)
+        if (len(self.__queue_array) > 1):
+            self.__queue_array[id_queue].put(data)
+        else:
+            self.__queue_array[0].put(data)
 
     def add_pending_queue_request(self,id_queue, data):
-        self.__queue_pending_array[id_queue].put(data)
+        if (len(self.__queue_pending_array) > 1):
+            self.__queue_pending_array[id_queue].put(data)
+        else:
+            self.__queue_pending_array[0].put(data)
 
     # Define la cantidad de nuevo paralelismo requerido por el contenedor
     # inter_parallelism e intra_parallelism puede ser negativos.
@@ -164,14 +169,6 @@ class SchedulingPolicy(metaclass=ABCMeta):
             """ Definir cómo retornar una peticion pendiente"""
 
     @abc.abstractmethod
-    def add_new_request(self, data, number_queue):
-        """ Definir cómo agregar una nueva peticion a alguna de las colas de la política de planificación"""
-
-    @abc.abstractmethod
-    def add_pending_request(self, number_queue):
-        """ Definir cómo agregar una nueva peticion a alguna de las colas de la política de planificación"""
-
-    @abc.abstractmethod
     def queue_empty(self):
         """ Debe devolver verdadero en caso de que todas las colas de nuevas peticiones estén vacías """
 
@@ -195,14 +192,6 @@ class FCFS(SchedulingPolicy):
 
     def get_pending_request(self):
         return super().get_pending_queue_request(0)
-
-    # Todo: eliminar metodo y directamente usar el definido en la super clase
-    def add_new_request(self, data, number_queue):
-        super().add_queue_request(number_queue, data)
-
-    # Todo: eliminar metodo y directamente usar el definido en la super clase
-    def add_pending_request(self,data, number_queue):
-        super().add_pending_queue_request(number_queue,data)
 
     def pending_queue_empty(self):
         if(super().get_pending_queue(0).empty()):
@@ -233,7 +222,7 @@ class FCFS(SchedulingPolicy):
                             total_resources+= parallelism_request - parallelism_container
             q_aux.put(request_)
         while not q_aux.empty():
-            self.add_pending_request(q_aux.get(), 0)
+            self.add_pending_queue_request(0,q_aux.get())
         # Recorrer la lista de peticiones pendientes (comienzo, act, resumen o pausa) y ver la cantidad total de recursos solicitados
         q_= super().get_queue(0)
         while (not q_.empty()):
@@ -249,7 +238,7 @@ class FCFS(SchedulingPolicy):
                             total_resources+= parallelism_request - parallelism_container
             q_aux.put(request_)
         while not q_aux.empty():
-            self.add_new_request(q_aux.get(), 0)
+            self.add_queue_request(0, q_aux.get())
         # Calcular factor de proporcion
         new_fp= total_resources/resources_availables
         if new_fp != 0:
@@ -282,14 +271,6 @@ class Priority(SchedulingPolicy):
             if request:
                 return request   
         return [] 
-
-    # Todo: eliminar metodo y directamente usar el definido en la super clase
-    def add_new_request(self, data, priority):
-        super().add_queue_request(priority, data)
-
-    # Todo: eliminar metodo y directamente usar el definido en la super clase
-    def add_pending_request(self,data, priority):
-        super().add_pending_queue_request(priority,data)
 
     def pending_queue_empty(self):
         for i in range(self.__priorities):
@@ -332,7 +313,7 @@ class Priority(SchedulingPolicy):
                 q_aux.put(request_)
                 request_= self.get_pending_queue_request(priority)
             while not q_aux.empty():
-                self.add_pending_request(q_aux.get(), priority)
+                self.add_pending_queue_request(priority,q_aux.get())
 
             # Recorrer la lista de peticiones pendientes (comienzo, act, resumen o pausa) y ver la cantidad total de recursos solicitados
             request_= self.get_queue_request(priority)
@@ -349,7 +330,7 @@ class Priority(SchedulingPolicy):
                 q_aux.put(request_)
                 request_= self.get_queue_request(priority)
             while not q_aux.empty():
-                self.add_new_request(q_aux.get(), priority)
+                self.add_queue_request(priority, q_aux.get())
         # Calcular factor de proporcion
         new_fp= total_resources/resources_availables
         if new_fp != 0:

@@ -1,3 +1,12 @@
+## Release 1.2.0 (2022-07-18)
+- Add max prop reassigment policy
+- Error in index paarameter: insert in new and pending queue with priority 
+- Function ordering in scheduling_policy
+- TraceLog:
+    + Delete max and min time container metrics
+    + Change format print of metrics in main trace
+    + Change throghput calculate
+
 ## Release 1.1.0-2 (2022-07-15)
 
 - Move calculation of container times from scheduler to traceLog

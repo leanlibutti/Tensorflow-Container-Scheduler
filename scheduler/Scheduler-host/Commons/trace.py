@@ -317,7 +317,7 @@ class TraceLog:
         # print('Init Scheduler: ', start_scheduler)
         # print('Finish Scheduler: ', finish_scheduler)
         # print('Total time of Scheduler: ', (finish_scheduler-start_scheduler).total_seconds() )
-        throughput= number_containers/(finish_scheduler-start_scheduler).total_seconds()
+        throughput= number_containers/((finish_scheduler-start_scheduler).total_seconds()/3600)
         # print('Throughput: ', throughput)
         with open(directory+save_filename, mode='w') as f:
             f.write(str(throughput)) 
@@ -387,9 +387,9 @@ if __name__ == "__main__":
     
     trace= TraceLog()
     day= trace.load_gantt(directory, cant_containers, filename)
-    max_min_times= trace.calculate_meantime_container(cant_containers, directory, filename)
+    # max_min_times= trace.calculate_meantime_container(cant_containers, directory, filename)
     times= trace.calculate_responseMeantime_metric(directory, cant_containers, filename)
     data_t= trace.calculate_throughput(cant_containers, directory, filename)
     percent_cores= trace.calculate_percentage_cores_used(directory, 'occupation_timeline.csv')
     trace.plot_gantt(day)
-    print (times[0], ',', times[1], ',', times[2], ',', data_t[0], ',', data_t[1], ',', max_min_times[0], ',', max_min_times[1], ',', percent_cores)
+    print (times[0], ',', times[1], ',', times[2], ',', percent_cores, ',' , data_t[0], ',', data_t[1])
