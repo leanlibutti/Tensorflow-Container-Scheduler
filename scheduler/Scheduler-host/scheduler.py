@@ -423,6 +423,61 @@ def strict_reassigment(resources_availables, increase_or_reduce, increment_activ
                     if (c.get_priority() != priority):
                         continue
                 if container.get_state() == 'start':
+                    if increment_active_containers:
+                        interparallelism_required= 0
+                        intraparallelism_required= resources_availables
+                        intraUser_parallelism= container.get_intra_user_parallelism() + intraparallelism_required
+                    else:
+                        interUser_parallelism= container.get_inter_user_parallelism()
+                        intraUser_parallelism= container.get_intra_user_parallelism()
+                        interExec_parallelism= container.get_inter_exec_parallelism()
+                        intraExec_parallelism= container.get_intra_exec_parallelism()
+                        interparallelism_required= interUser_parallelism -  interExec_parallelism
+                        intraparallelism_required= intraUser_parallelism -  intraExec_parallelism
+                    if resources_availables >0:
+                        # Aumentar todo el paralelismo al contenedor
+                        if (interparallelism_required>0 and intraparallelism_required>0):
+                            if resources_availables >= (interparallelism_required + intraparallelism_required):             
+                                container.update_parallelism(interUser_parallelism, intraUser_parallelism)
+                                print("Update total parallelism in container: ", container.get_container_name()) if log_file else None 
+                                resources_availables-=interparallelism_required-intraparallelism_required 
+                                mutex_eventlogs.acquire()
+                                event_logs.save_event(events.REASSIGMENT_RESOURCES, container_id=container.get_container_number(), inter_exec=container.get_inter_exec_parallelism(), intra_exec=container.get_intra_exec_parallelism())
+                                event_logs.finish_container_event(container.get_container_number(),  [])
+                                event_logs.init_container_event(container.get_container_number(), container.get_inter_exec_parallelism()+container.get_intra_exec_parallelism(), container.get_container_number())
+                                mutex_eventlogs.release()
+                    else:
+                        break
+        else:
+            # reducir el paralelismo de los contenedores mas viejo liberando la cantidad de recursos solicitados (amount_reduce)
+            pass    
+        mutex_execInfo.release()
+        return resources_availables
+    except BaseException as e:
+        print(repr(e))
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        print("Base error")
+        sys.exit(1)
+
+# System Info Safe
+def always_reassigment(resources_availables, increase_or_reduce, increment_active_containers=False, amount_reduce=0):
+    log_file=False
+    try:
+        mutex_execInfo.acquire()
+        priority=-1
+        for c in execInfo_list:
+            if(priority <  c.get_priority()):
+                priority = c.get_priority()
+        print("Reassigment Containers with oldest policy") if log_file else None 
+        if increase_or_reduce:
+            for container in execInfo_list:
+                if(isinstance(scheduler_container,Priority)):
+                    # Jump this container because have minor priority
+                    if (c.get_priority() != priority):
+                        continue
+                if container.get_state() == 'start':
                     ok=False
                     if increment_active_containers:
                         interparallelism_required= 0
@@ -1017,7 +1072,10 @@ def attentionRequest(socket_schedule, thread_id):
                     if (scheduler_container.get_reassigment_type() == 'max_prop'):
                         resources_availables= maxprop_reassigment(resources_availables)
                     else:
-                        resources_availables= strict_reassigment(resources_availables, True)
+                        if (scheduler_container.get_reassigment_type() == 'always_attend'):
+                            resources_availables= always_reassigment(resources_availables, True)
+                        else:
+                            resources_availables= strict_reassigment(resources_availables, True)
                     if resources_availables > 0:
                         mutex_systemInfo.acquire()
                         system_info.free_resources(resources_availables)
@@ -1119,7 +1177,10 @@ def attentionRequest(socket_schedule, thread_id):
                 if (scheduler_container.get_reassigment_type() == 'max_prop'):
                     resources_availables= maxprop_reassigment(resources_availables)
                 else:
-                    resources_availables= strict_reassigment(resources_availables, True)
+                    if (scheduler_container.get_reassigment_type() == 'always_attend'):
+                        resources_availables= always_reassigment(resources_availables, True)
+                    else:
+                        resources_availables= strict_reassigment(resources_availables, True)
                 if resources_availables > 0:
                     mutex_systemInfo.acquire()
                     system_info.free_resources(resources_availables)

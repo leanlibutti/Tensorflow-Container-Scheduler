@@ -1,3 +1,8 @@
+## Release 1.3.0 (2022-07-26)
+- Add always attend reassigment policy
+- Change strict reassigment policy (assign strict resources only)
+- Change run scheduler parameters.
+
 ## Release 1.2.0 (2022-07-18)
 - Add max prop reassigment policy
 - Error in index paarameter: insert in new and pending queue with priority 

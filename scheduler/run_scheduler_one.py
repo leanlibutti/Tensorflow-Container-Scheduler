@@ -7,6 +7,7 @@ import json
 import time
 from unicodedata import name
 import argparse
+
 def main():
     try:
         if len(sys.argv) != 6:
@@ -24,7 +25,7 @@ def main():
         policy_assignment= args.assigment_policy
         n_containers= args.containers
         tf_version= args.tf_version  
-        move_request= "mv Data/log/Pruebas_espana/" + name_test + "/request_file_" + name_test + "_" + str(n_containers) + ".txt ." 
+        move_request= "mv Data/log/" + name_test + "/request_file_" + name_test + "_" + str(n_containers) + ".txt ." 
         process_command = Popen([move_request], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
         stdout, stderr = process_command.communicate()
         with open('Scheduler-host/parameters.json', 'r+') as f:
@@ -66,7 +67,7 @@ def main():
         else:
             print(stdout)
 
-        move_request=  "mv request_file_" + name_test + "_" + str(n_containers) + ".txt " + "Data/log/Pruebas_espana/" + name_test
+        move_request=  "mv request_file_" + name_test + "_" + str(n_containers) + ".txt " + "Data/log/" + name_test
         process_command = Popen([move_request], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
         stdout, stderr = process_command.communicate()
     except BaseException as e:

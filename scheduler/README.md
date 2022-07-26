@@ -46,13 +46,13 @@ El primer parámetro indica la cantidad de veces que quiero ejecutar el planific
 
 Al finalizar la ejecución del planificador, se genera una carpeta en /Data/log con el nombre correspondiente a la cantidad de contenedores que se ejecutaron. Por ejemplo, si ejecutas un solo contenedor la carpeta se llama "1Contenedores". Dentro de esa carpeta podes ver el timeline del algoritmo TF en la carpeta "Outputs" y otros archivos que muestran métricas o eventos del planificador.
 
-# Políticas de planificación y reasignación (a nivel de cores)
+# Políticas de planificación, asignacion y reasignación (a nivel de cores)
 
-|   | Planificación | Reasignación de recursos | Preemptive[1] | Otros[2] |
-|---|---------------|--------------------------|------------|-------|
-| 1 | FCFS          | STRICT, MAX_PROP, ALWAYS_ATTEND |    No      | - |
-| 2 | Priority      | STRICT, MAX_PROP, ALWAYS_ATTEND |    Yes/No  | Realimentación |
-| 3 | Round Robin [3]   | STRICT, MAX_PROP, ALWAYS_ATTEND |    Yes     | - |
+|   | Planificación  | Asignación de recursos          | Reasignación de recursos        | Preemptive[1] | Otros[2]       |
+|---|--------------- |---------------------------------|---------------------------------|---------------|----------------|
+| 1 | FCFS           | STRICT, MAX_PROP, ALWAYS_ATTEND | STRICT, MAX_PROP, ALWAYS_ATTEND |     No        |        -       |
+| 2 | Priority       |                                 |                                 |    Yes/No     | Realimentación |
+| 3 | Round Robin [3]|                                 |                                 |     Yes       |        -       |
 
 [1] en fase de desarrollo.
 [2] y [3] no implementadas por el momento. 
@@ -63,20 +63,26 @@ Al finalizar la ejecución del planificador, se genera una carpeta en /Data/log 
     * PRIO: *Priority*.
     * Round Robin: *Round robin* con cuanto de tiempo especificado.
 
-2. Reasignación de recursos
+2. Asignación de recursos
 
     * STRICT: Recursos asignados estrictamente. Si no hay recursos suficientes, no se planifica y se espera en cola hasta ser planificado.
     * MAX_PROP: Maximizar recursos para adaptar a recursos disponibles. Reparto entre contenedores proporcional a recursos solicitados. 
     * ALWAYS_ATTEND: Siempre se atienden las peticiones si hay, al menos, un core disponible. 
 
-3. *Preemption* (expropiación)
+3. Reasignación de recursos
+    En todas las politicas se atienden por antiguedad del contenedor, excepto en la version priority que solo se tienen en cuenta los contenedores con mayor prioridad
+    * STRICT: Se intenta reasignar la cantidad total de recursos asignados estrictamente.
+    * ALWAYS_ATTEND: Siempre se intentará reasignar los recursos de los contenedores, si al menos hay un core disponible
+    * MAX_PROP: Maximizar recursos para adaptar a recursos disponibles. Reparto entre contenedores proporcional a recursos solicitados.
+
+4. *Preemption* (expropiación)
 
     * Preemption implementada en forma de *pause/unpause* sobre un contenedor. Si llega una petición más prioritaria, se "expulsa" (pausa) un container. 
     * Selección de candidato/s a ser pausados:
         * Mayor tiempo de ejecución acumulado.
         * Menor solicitud de recursos inicial.
 
-4. Otros:
+5. Otros:
 
     * Realimentación: modificación de prioridad en tiempo real (e.g. en función de tiempo de espera).
 

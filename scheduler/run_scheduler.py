@@ -7,16 +7,22 @@ from subprocess import Popen, PIPE, STDOUT
 import json
 import time
 from unicodedata import name
+import argparse
 
 def main():
     try:
         if len(sys.argv) != 4:
-            print("Invalid amount of arguments - Recieved: ", str(len(sys.argv)-1), " - Required: 3")
+            print("Invalid amount of arguments - Recieved: ", str(len(sys.argv)-1), " - Required: 3 (name test -n, initial containers -ic  and iterations -it)")
             raise NameError('Ingresar la cantidad de iteraciones')
 
-        iterations= int(sys.argv[1])
-        initial_containers=int(sys.argv[2])
-        name_test= str(sys.argv[3])
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-n', '--name_test', type=str, required=True, help='name of test (required)')
+        parser.add_argument('-ic','--initial_containers', type=int, required=True, help='initial number of containers (required)')
+        parser.add_argument('-it','--iterations', type=int, required=True, help= 'number of iterations from the initial number of containers (required)')
+        args = parser.parse_args()
+        name_test= args.name_test
+        initial_containers= args.initial_containers
+        iterations= args.iterations
 
         if(initial_containers == 8):
             folder_test=  "mkdir Data/log/" + name_test

@@ -370,6 +370,9 @@ class TraceLog:
         percent_used_accum=0
         with open(directory+filename, 'r') as f:
             for line in f:
+                if count_lines == 0:
+                    count_lines+=1
+                    continue
                 percent_used_accum+= float(line.split(',')[3])
                 count_lines+=1
         return percent_used_accum/count_lines
