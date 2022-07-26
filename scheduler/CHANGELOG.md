@@ -1,3 +1,7 @@
+## Release 1.3.0-1 (2022-07-26)
+- Minor change in run_scheduler_one.py parameters
+- Change organization of readme
+
 ## Release 1.3.0 (2022-07-26)
 - Add always attend reassigment policy
 - Change strict reassigment policy (assign strict resources only)

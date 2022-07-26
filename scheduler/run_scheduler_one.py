@@ -14,11 +14,11 @@ def main():
             print("Invalid amount of arguments - Recieved: ", str(len(sys.argv)-1), " - Required: 5 (name test, policy, assigment_policy, containers and tf version")
             raise NameError('Parameters count is wrong')
         parser = argparse.ArgumentParser()
-        parser.add_argument('--name_test', type=str, required=True, help='name of test (required)')
-        parser.add_argument('--policy', type=str, required=True, help='policy to be executed (fcfs or priority) (required)')
-        parser.add_argument('--assigment_policy', type=str, required=True, help= 'resource allocation strategies that were used (strict or always_attend or max_prop) (required)')
-        parser.add_argument('--containers', type=int, required=True, help='number of container to be executed (required)) (required)')
-        parser.add_argument('--tf_version', type=str, required=True, help= 'tensorflow versions used (malleable or original) (required)')
+        parser.add_argument('-n ', '--name_test', type=str, required=True, help='name of test (required)')
+        parser.add_argument('-p ', '--policy', type=str, required=True, help='policy to be executed (fcfs or priority) (required)')
+        parser.add_argument('-ap ','--assigment_policy', type=str, required=True, help= 'resource allocation strategies that were used (strict or always_attend or max_prop) (required)')
+        parser.add_argument('-c ','--containers', type=int, required=True, help='number of container to be executed (required)) (required)')
+        parser.add_argument('-tf ','--tf_version', type=str, required=True, help= 'tensorflow versions used (malleable or original) (required)')
         args = parser.parse_args()
         name_test= args.name_test
         policy= args.policy
