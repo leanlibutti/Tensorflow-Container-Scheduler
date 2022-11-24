@@ -72,7 +72,7 @@ class SchedulingPolicy(metaclass=ABCMeta):
 
     # Define la cantidad de nuevo paralelismo requerido por el contenedor
     # inter_parallelism e intra_parallelism puede ser negativos.
-    def schedule_parallelism(self, resources_availables, inter_parallelism, intra_parallelism):
+    def schedule_parallelism(self, resources_availables, inter_parallelism, intra_parallelism, max_resources_per_cont):
         # Lista que define los parámetros devueltos por la política de planificación (inter e intra paralelismo para un determinado contenedor)
         parameters_list= []
         print('Paralelismo requerido: ', inter_parallelism+intra_parallelism, ' - Paralelismo libre: ', resources_availables)
@@ -100,8 +100,9 @@ class SchedulingPolicy(metaclass=ABCMeta):
                     factor_prop= self.get_factor_prop()
                     # Calcular la proporcion de inter e intra paralelismo para el contenedor
                     # El round a veces asigna mas recursos que el total disponible. Por lo tanto, directamente truncar el valor flotante de la division
-                    inter_p= int(inter_parallelism/factor_prop)
-                    intra_p= int(intra_parallelism/factor_prop)
+                    # inter_p= max_resources_per_cont if int(inter_parallelism/factor_prop) >= max_resources_per_cont else int(inter_parallelism/factor_prop)
+                    inter_p = 1 # uncomment previous line and comment this if want to use factor prop in inter parallelism
+                    intra_p= max_resources_per_cont if int(intra_parallelism/factor_prop) >= max_resources_per_cont else int(intra_parallelism/factor_prop)
                     print("Inter P in scheduleparallelism:", inter_p, " - Intra P in scheduleparallelism:", intra_p)
                     if(inter_p == 0) and (inter_parallelism > 0): inter_p=1
                     if(intra_p == 0): intra_p=1

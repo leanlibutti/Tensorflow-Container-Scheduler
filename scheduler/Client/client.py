@@ -145,7 +145,7 @@ def live_control(socket_scheduler, number_thread, path_file):
 
                 logging.info("Diff time: " + str(diff_time))
 
-                if int(diff_time) < 10:
+                if int(diff_time) < 20:
                     logging.info("Container is live!")
                     data= {
                         "status": 'live'
@@ -352,7 +352,7 @@ if __name__ == "__main__":
         else:
             #tf_command = "cd /home/Scheduler/models/ && " + 'python3 ' + algorithm + '.py ' + str(2) + ' ' + str(cores_cpu)  + ' ' +  str(os.getpid()) + ' > /home/Scheduler/models/output_' + str(threading.current_thread().ident) + '.txt'
             # tf_command = "cd /home/Scheduler/models/ &&  logsave -a " + file_log_tf + ' python3 ' + algorithm + '.py ' + str(1) + ' ' + str(cores_cpu)  + ' ' +  str(os.getpid())
-            tf_command = "cd /home/Scheduler/models/ &&  logsave -a " + file_log_tf + ' python3 ' + algorithm + '.py ' + str(1) + ' ' + str(12)  + ' ' +  str(os.getpid())
+            tf_command = "cd /home/Scheduler/models/ &&  logsave -a " + file_log_tf + ' python3 ' + algorithm + '.py ' + str(1) + ' ' + str(8)  + ' ' +  str(os.getpid())
         #tf_command = "cd /home/Scheduler/models/ && " + 'python3 hello_world.py > /home/Scheduler/models/output_' + str(threading.current_thread().ident) + '.txt'
         event_logs.save_event(1, 0, data["inter_parallelism"], data["intra_parallelism"])
 
