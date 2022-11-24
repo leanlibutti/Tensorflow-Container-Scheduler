@@ -513,7 +513,7 @@ def strict_reassigment(resources_availables, increase_or_reduce, increment_activ
 # System Info Safe
 def maxprop_reassigment(resources_availables):
     global max_resources_per_cont
-    log_file=False
+    log_file=True
     try:
         print("Reassigment Containers with max prop policy") if log_file else None 
         if (len(execInfo_list) > 0):
@@ -537,9 +537,10 @@ def maxprop_reassigment(resources_availables):
                         # Aumentar el intra paralelismo del contenedor
                         intraExec_parallelism= container.get_intra_exec_parallelism()
                         print("container: ", container.get_container_number(), ' - state: ', container.get_state(), ' - intra before: ', intraExec_parallelism, ' - intra after:', intraExec_parallelism+maxprop_factor) if log_file else None 
-                        container.update_parallelism(intra_parallelism=intraExec_parallelism+maxprop_factor) if (intraExec_parallelism + maxprop_factor) <= max_resources_per_cont else container.update_parallelism(intra_parallelism=max_resources_per_cont)
-                        resources_availables-= maxprop_factor if (intraExec_parallelism + maxprop_factor) <= max_resources_per_cont else max_resources_per_cont
-                        ok=True
+                        if (intraExec_parallelism < max_resources_per_cont):
+                            container.update_parallelism(intra_parallelism=intraExec_parallelism+maxprop_factor) if (intraExec_parallelism + maxprop_factor) <= max_resources_per_cont else container.update_parallelism(intra_parallelism=max_resources_per_cont)
+                            resources_availables-= maxprop_factor if (intraExec_parallelism + maxprop_factor) <= max_resources_per_cont else max_resources_per_cont
+                            ok=True
                     if ok:
                         mutex_eventlogs.acquire()
                         event_logs.save_event(events.REASSIGMENT_RESOURCES, container_id=container.get_container_number(), inter_exec=container.get_inter_exec_parallelism(), intra_exec=container.get_intra_exec_parallelism())
