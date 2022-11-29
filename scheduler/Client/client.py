@@ -94,12 +94,13 @@ def progressive_update_threads(inter_or_intra, parallelism, pid_tf):
         if inter_or_intra==0:
             replace_line(filename, 0, str(parallelism_new) + " " + str(intra_parallelism) + "\n")
             kill_command= "kill -10 " + str(pid_tf)
-            logging.info('Change Inter Parallelism: ' + str(parallelism_old))
+            logging.info('Change Inter Parallelism: ' + str(parallelism_new))
         else:
             replace_line(filename, 0, str(inter_parallelism) + " " + str(parallelism_new)+ "\n")
             kill_command= "kill -12 " + str(pid_tf)
             logging.info('Change Intra Parallelism: ' + str(parallelism_new))
         process_command = Popen(kill_command, shell=True)
+        
         # En caso de que debe decrementarse el paralelismo, lo haremos progresivamente disminuyendo en la mitad en cada señal enviada a Tensorflow
         # while (parallelism_old != parallelism_new):
         #     #logging.info("Vuelta del while")
@@ -220,7 +221,7 @@ def attentionUpdate(pid_tf, number_thread, inter_parallelism, intra_parallelism)
     try:
         #Enviar Señal de Actualizacion de hilos intra si es la version maleable
         if (tf_use=='maleable'):
-            time.sleep(10)
+            time.sleep(20)
             logging.info("Entry Progressive Update Thread")
             progressive_update_threads(1, intra_parallelism, pid_tf)
 
@@ -314,13 +315,15 @@ if __name__ == "__main__":
         logging.info('Intra parallelism recieved: ' + str(data["intra_parallelism"]))
 
         # Get cpu cores
-        cores_cpu= multiprocessing.cpu_count()-1
-        #logging.info('Cores CPU: ' + str(cores_cpu))
+        # cores_cpu= multiprocessing.cpu_count()
+        cores_cpu=16
+        logging.info('Cores CPU: ' + str(cores_cpu))
         
         # Write parallelism in file so that Tensorflow can read it
         #f= open("/home/leandro/tf_parallelism.txt","w+") # Usado en Maquina local
         f= open("/root/tf_parallelism.txt","w+") # Usado en esfinge
         f.write(str(data["inter_parallelism"]) + " " + str(cores_cpu))
+        # f.write(str(data["inter_parallelism"]) + " 12")
         f.close()
         
         # Set tf version
@@ -351,8 +354,9 @@ if __name__ == "__main__":
             #tf_command = "cd /home/Scheduler/models/ && logsave -a " + file_log_tf + " python3 "  +  algorithm + '.py ' + str(6) + ' ' +str(1) + ' ' + str(os.getpid())
         else:
             #tf_command = "cd /home/Scheduler/models/ && " + 'python3 ' + algorithm + '.py ' + str(2) + ' ' + str(cores_cpu)  + ' ' +  str(os.getpid()) + ' > /home/Scheduler/models/output_' + str(threading.current_thread().ident) + '.txt'
-            # tf_command = "cd /home/Scheduler/models/ &&  logsave -a " + file_log_tf + ' python3 ' + algorithm + '.py ' + str(1) + ' ' + str(cores_cpu)  + ' ' +  str(os.getpid())
-            tf_command = "cd /home/Scheduler/models/ &&  logsave -a " + file_log_tf + ' python3 ' + algorithm + '.py ' + str(1) + ' ' + str(8)  + ' ' +  str(os.getpid())
+            tf_command = "cd /home/Scheduler/models/ &&  logsave -a " + file_log_tf + ' python3 ' + algorithm + '.py ' + str(1) + ' ' + str(cores_cpu)  + ' ' +  str(os.getpid())
+            # tf_command = "cd /home/Scheduler/models/ &&  logsave -a " + file_log_tf + ' python3 ' + algorithm + '.py ' + str(1) + ' ' + str(64)  + ' ' +  str(os.getpid())
+            # tf_command = 'cd /home/Scheduler/models/ && python3 ' + algorithm + '.py ' + str(1) + ' ' + str(22)  + ' ' +  str(os.getpid()) + ' >> ' + file_log_tf + ' 2>&1'
         #tf_command = "cd /home/Scheduler/models/ && " + 'python3 hello_world.py > /home/Scheduler/models/output_' + str(threading.current_thread().ident) + '.txt'
         event_logs.save_event(1, 0, data["inter_parallelism"], data["intra_parallelism"])
 

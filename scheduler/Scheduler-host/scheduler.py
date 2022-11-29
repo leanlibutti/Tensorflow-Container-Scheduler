@@ -883,13 +883,8 @@ def container_client(clientsocket,addr,container_name, instance_number, interExe
             print('Wait message: ', container_name) if log_file else None
             # Recibir mensaje de finalización o problema del contenedor
             msg= json_data_socket._recv(clientsocket)
-
             print('Container: ', container_name, ' - Recieve msg: ', msg["status"]) if log_file else None
-            # if loop==0:
-            #     print('Message recieved from Client ID: '+ str(instance_number)+" - Message: "+ msg["status"])
-            # loop=loop+1
-            # print (container_name, "send message: ", msg) (ver por qué recibe tantos mensajes vacios)
-            if (('exit' in msg["status"]) or (msg["status"] == 'exit')):
+            if ('exit' in msg["status"]):
                 filename_epochs= "models/output_" + str(instance_number) + "_" + tf_version + ".txt"
                 time_epochs= TimeEpochs().process_TF_file(filename_epochs)
                 mutex_eventlogs.acquire()
@@ -1253,7 +1248,7 @@ if __name__ == "__main__":
 
 
         # Definir time out de espera a que le responda el cliente
-        socket.setdefaulttimeout(60)
+        socket.setdefaulttimeout(20)
 
         # Definir socket servidor
         socket_schedule= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
