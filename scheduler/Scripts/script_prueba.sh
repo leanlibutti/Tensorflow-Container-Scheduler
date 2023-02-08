@@ -1,6 +1,6 @@
 #!/bin/bash
 threads=12
-python3 models/keras_example_resnet.py 1 12 20 &
+python3 ../models/keras_example_resnet.py 1 12 20 &
 sleep 30
 for i in {1..12}
 do

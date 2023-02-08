@@ -40,7 +40,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         zlib1g-dev \
         openjdk-8-jdk \
         openjdk-8-jre-headless \
-        iproute2 \
         && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -55,7 +54,7 @@ ARG CHECKOUT_TF_SRC=0
 RUN chmod a+w /etc/passwd /etc/group
 #RUN test "${CHECKOUT_TF_SRC}" -eq 1 && git clone https://github.com/tensorflow/tensorflow.git /tensorflow_src || true
 
-ADD . /tensorflow_src
+ADD ../ /tensorflow_src
 
 ARG USE_PYTHON_3_NOT_2=1
 ARG _PY_SUFFIX=${USE_PYTHON_3_NOT_2:+3}
@@ -111,21 +110,7 @@ RUN mkdir /bazel && \
     /bazel/installer.sh && \
     rm -f /bazel/installer.sh
 
-#RUN cd /tensorflow_src && \
-#    bazel build //tensorflow/tools/pip_package:build_pip_package && \
-#    rm tensorflow/core/common_runtime/executor.cc && \ 
-#    rm tensorflow/core/platform/threadpool.* && \
-#    cp Modify_Archives/core/common_runtime/executor.cc tensorflow/core/common_runtime && \
-#    cp Modify_Archives/core/platform/* tensorflow/core/platform && \
-#    cp Modify_Archives/NonBlockingThreadPool.h bazel-out/k8-opt/bin/tensorflow/tools/pip_package/build_pip_package.runfiles/eigen_archive/unsupported/Eigen/CXX11/src/ThreadPool/NonBlockingThreadPool.h && \
-#    cp Modify_Archives/ThreadPoolInterface.h bazel-out/k8-opt/bin/tensorflow/tools/pip_package/build_pip_package.runfiles/eigen_archive/unsupported/Eigen/CXX11/src/ThreadPool/ThreadPoolInterface.h && \
-#    bazel build //tensorflow/tools/pip_package:build_pip_package && \
-#    ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg && \
-#    pip install /tmp/tensorflow_pkg/tensorflow-2.0.0-cp36-cp36m-linux_x86_64.whl
-#    cd ..
-
-RUN cd /tensorflow_src && \
-    pip install tensorflow-2.0.0-cp36-cp36m-linux_x86_64.whl
+RUN pip3 install tensorflow
 
 RUN pip3 install packaging && \
     pip3 install tensorflow-datasets && \

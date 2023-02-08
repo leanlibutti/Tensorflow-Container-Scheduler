@@ -20,24 +20,20 @@
 # for more information.
 
 ARG UBUNTU_VERSION=20.04
-
 FROM ubuntu:${UBUNTU_VERSION}
-
-ADD . /scheduler_src
-
+ADD  ../ /scheduler_src
 ARG DEBIAN_FRONTEND=noninteractive    
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        curl \
-        git \
-        libcurl3-dev \
-        libfreetype6-dev \
-        libhdf5-serial-dev \
-        libzmq3-dev \
-        pkg-config \
-        rsync \
-        software-properties-common \
+    build-essential \
+    curl \
+    git \
+    libcurl3-dev \
+    libfreetype6-dev \
+    libhdf5-serial-dev \
+    libzmq3-dev \
+    pkg-config \
+    rsync \
+    software-properties-common \
 	sudo \
         unzip \
         zip \
@@ -64,21 +60,18 @@ ARG USE_PYTHON_3_NOT_2=1
 ARG _PY_SUFFIX=${USE_PYTHON_3_NOT_2:+3}
 ARG PYTHON=python3
 ARG PIP=pip${_PY_SUFFIX}
-
 # See http://bugs.python.org/issue19846
 ENV LANG C.UTF-8
-
 RUN apt-get update && apt-get install -y \
     ${PYTHON} \
     ${PYTHON}-pip
 
-RUN ${PIP} --no-cache-dir install --upgrade \
-    pip \
-    setuptools
+# RUN ${PIP} --no-cache-dir install --upgrade \
+#     pip \
+#     setuptools
 
 # Some TF tools expect a "python" binary
 RUN ln -s $(which ${PYTHON}) /usr/local/bin/python 
-
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
@@ -128,11 +121,9 @@ RUN mkdir /bazel && \
 #    cd ..
 
 RUN pip3 --version
-
 RUN cd /scheduler_src && \
-    pip3 install tensorflow-2.4.0-cp38-cp38-linux_x86_64.whl
-#RUN pip3 install tensorflow
-
+    # pip3 install tensorflow-2.4.0-cp38-cp38-linux_x86_64.whl
+    pip3 install tensorflow==2.4.0
 RUN pip3 install packaging && \
     pip3 install tensorflow-datasets && \
     pip3 install tensorboard && \
@@ -145,13 +136,10 @@ RUN pip3 install plotly && \
 RUN apt-get update 
 RUN apt install docker.io -y
 RUN docker --version
-
-#COPY bashrc /etc/bash.bashrc
-#RUN chmod a+rwx /etc/bash.bashrc
-
-#RUN mkdir -p /app
-#WORKDIR /tf_scheduler
-#COPY . /tf_scheduler
-
-# Container test
-ENTRYPOINT python3 /home/Scheduler/client_test.py keras_example_resnet
+#TF Warmup
+RUN echo '1 64' > /root/tf_parallelism.txt
+RUN python3 /scheduler_src/models/keras_example_resnet_warmup.py 1 1 1
+RUN python3 /scheduler_src/models/keras_example_VGG_warmup.py 1 1 1
+# Insert Tensorflow program and parameters
+# ENTRYPOINT python3 /home/Scheduler/Client/client.py keras_example_resnet
+ENTRYPOINT ["./scheduler_src/models/execution_script.sh"]

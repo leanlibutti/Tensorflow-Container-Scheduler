@@ -19,9 +19,13 @@
 # throughout. Please refer to the TensorFlow dockerfiles documentation
 # for more information.
 
-ARG UBUNTU_VERSION=18.04
+ARG UBUNTU_VERSION=20.04
 
-FROM ubuntu:${UBUNTU_VERSION} AS base
+FROM ubuntu:${UBUNTU_VERSION}
+
+ADD ../ /scheduler_src
+
+ARG DEBIAN_FRONTEND=noninteractive    
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
@@ -40,9 +44,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         zlib1g-dev \
         openjdk-8-jdk \
         openjdk-8-jre-headless \
+        iproute2 \
         && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
 
 ENV CI_BUILD_PYTHON python
 
@@ -54,11 +60,9 @@ ARG CHECKOUT_TF_SRC=0
 RUN chmod a+w /etc/passwd /etc/group
 #RUN test "${CHECKOUT_TF_SRC}" -eq 1 && git clone https://github.com/tensorflow/tensorflow.git /tensorflow_src || true
 
-ADD . /tensorflow_src
-
 ARG USE_PYTHON_3_NOT_2=1
 ARG _PY_SUFFIX=${USE_PYTHON_3_NOT_2:+3}
-ARG PYTHON=python${_PY_SUFFIX}
+ARG PYTHON=python3
 ARG PIP=pip${_PY_SUFFIX}
 
 # See http://bugs.python.org/issue19846
@@ -102,7 +106,7 @@ RUN ${PIP} --no-cache-dir install \
     enum34
 
 # Install bazel
-ARG BAZEL_VERSION=0.26.1
+ARG BAZEL_VERSION=3.7.0
 RUN mkdir /bazel && \
     wget -O /bazel/installer.sh "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh" && \
     wget -O /bazel/LICENSE.txt "https://raw.githubusercontent.com/bazelbuild/bazel/master/LICENSE" && \
@@ -110,7 +114,24 @@ RUN mkdir /bazel && \
     /bazel/installer.sh && \
     rm -f /bazel/installer.sh
 
-RUN pip3 install tensorflow
+#RUN cd /tensorflow_src && \
+#    bazel build //tensorflow/tools/pip_package:build_pip_package && \
+#    rm tensorflow/core/common_runtime/executor.cc && \ 
+#    rm tensorflow/core/platform/threadpool.* && \
+#    cp Modify_Archives/core/common_runtime/executor.cc tensorflow/core/common_runtime && \
+#    cp Modify_Archives/core/platform/* tensorflow/core/platform && \
+#    cp Modify_Archives/NonBlockingThreadPool.h bazel-out/k8-opt/bin/tensorflow/tools/pip_package/build_pip_package.runfiles/eigen_archive/unsupported/Eigen/CXX11/src/ThreadPool/NonBlockingThreadPool.h && \
+#    cp Modify_Archives/ThreadPoolInterface.h bazel-out/k8-opt/bin/tensorflow/tools/pip_package/build_pip_package.runfiles/eigen_archive/unsupported/Eigen/CXX11/src/ThreadPool/ThreadPoolInterface.h && \
+#    bazel build //tensorflow/tools/pip_package:build_pip_package && \
+#    ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg && \
+#    pip install /tmp/tensorflow_pkg/tensorflow-2.0.0-cp36-cp36m-linux_x86_64.whl
+#    cd ..
+
+RUN pip3 --version
+
+RUN cd /scheduler_src && \
+    pip3 install tensorflow-2.4.0-cp38-cp38-linux_x86_64.whl
+#RUN pip3 install tensorflow
 
 RUN pip3 install packaging && \
     pip3 install tensorflow-datasets && \
@@ -118,5 +139,19 @@ RUN pip3 install packaging && \
     apt-get install htop && \ 
     apt-get install nano
 
-COPY bashrc /etc/bash.bashrc
-RUN chmod a+rwx /etc/bash.bashrc
+RUN pip3 install plotly && \
+    pip3 install pandas
+
+RUN apt-get update 
+RUN apt install docker.io -y
+RUN docker --version
+
+#COPY bashrc /etc/bash.bashrc
+#RUN chmod a+rwx /etc/bash.bashrc
+
+#RUN mkdir -p /app
+#WORKDIR /tf_scheduler
+#COPY . /tf_scheduler
+
+# Container test
+ENTRYPOINT python3 /home/Scheduler/client_test.py keras_example_resnet

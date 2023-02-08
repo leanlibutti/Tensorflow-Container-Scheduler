@@ -1,6 +1,0 @@
-docker run -dit --cpus=1 --name cores_1_intra_16 --volume=$HOME/scheduler:/home/scheduler tf_oversubscription 1 16 /home/scheduler/models/keras_example_resnet.py /home/scheduler/logs_oversubscription/execution_1_16.txt
-0d5e819cf21e264261e735738180c069b80c90ade08b494a9fd9d2e4fc3d25c9
-
-0
-
-Finish Oversubscription testing
