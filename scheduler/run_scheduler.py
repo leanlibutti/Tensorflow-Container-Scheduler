@@ -1,5 +1,3 @@
-# Runs all the complete policies for a given test specified in the json parameters file.
-# In parameters file must specify the resource and the arrival time modes of the requests.
 from email import policy
 from statistics import stdev
 import sys
@@ -7,36 +5,31 @@ from subprocess import Popen, PIPE, STDOUT
 import json
 import time
 from unicodedata import name
-import argparse
+
 
 def main():
     try:
         if len(sys.argv) != 4:
-            print("Invalid amount of arguments - Recieved: ", str(len(sys.argv)-1), " - Required: 3 (name test -n, initial containers -ic  and iterations -it)")
+            print("Invalid amount of arguments - Recieved: ", str(len(sys.argv)-1), " - Required: 3")
             raise NameError('Ingresar la cantidad de iteraciones')
 
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-n', '--name_test', type=str, required=True, help='name of test (required)')
-        parser.add_argument('-ic','--initial_containers', type=int, required=True, help='initial number of containers (required)')
-        parser.add_argument('-it','--iterations', type=int, required=True, help= 'number of iterations from the initial number of containers (required)')
-        args = parser.parse_args()
-        name_test= args.name_test
-        initial_containers= args.initial_containers
-        iterations= args.iterations
+        iterations= int(sys.argv[1])
+        initial_containers=int(sys.argv[2])
+        name_test= str(sys.argv[3])
 
         if(initial_containers == 8):
             folder_test=  "mkdir Data/log/" + name_test
             process_command = Popen([folder_test], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
             stdout, stderr = process_command.communicate()
         
-        for policy_type in ["fcfs" , "priority"]:
+        for policy_type in ["fcfs", "priority"]:
             
             if(initial_containers == 8):
                 folder_policy_type= "mkdir Data/log/" + policy_type 
                 process_command = Popen([folder_policy_type], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
                 stdout, stderr = process_command.communicate()
 
-            for policy_assignment in ["strict", "always_attend", "max_prop"]:
+            for policy_assignment in ["strict","always_attend","max_prop"]:
 
                 n_containers= initial_containers
                 if(initial_containers == 8):
@@ -46,7 +39,7 @@ def main():
 
                 for i in range(iterations):
 
-                    for tf_version in ["maleable" , "original"]:
+                    for tf_version in ["maleable", "original"]:
                     
                         with open('Scheduler-host/parameters.json', 'r+') as f:
                             variables = json.load(f)
@@ -66,6 +59,7 @@ def main():
                             f.truncate()     # remove remaining part
 
                         print ("Execute scheduler...")
+                        # scheduler_command= 'python3 Scheduler-host/scheduler.py > execution_scheduler.txt'
                         scheduler_command= 'python3 Scheduler-host/scheduler.py'
                         process_command = Popen([scheduler_command], stderr=PIPE, universal_newlines=True, shell=True)
                         stderr = process_command.communicate()
@@ -95,13 +89,13 @@ def main():
                         print("Wait 2 minutes...")
                         time.sleep(120)
                     n_containers*=2
-        if(n_containers == 128):
-            folder_test=  "mv Data/log/" + policy_type + " Data/log/" + name_test
-            process_command = Popen([folder_test], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
-            stdout, stderr = process_command.communicate()
-            move_requests_files= "mv request_file_* Data/log/" + name_test
-            process_command = Popen([move_requests_files], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
-            stdout, stderr = process_command.communicate()
+            if(n_containers == 128):
+                folder_test=  "mv Data/log/" + policy_type + " Data/log/" + name_test
+                process_command = Popen([folder_test], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
+                stdout, stderr = process_command.communicate()
+                move_requests_files= "mv request_file_* Data/log/" + name_test
+                process_command = Popen([move_requests_files], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
+                stdout, stderr = process_command.communicate()
     except BaseException as e:
         print(repr(e))
         print("Base error")

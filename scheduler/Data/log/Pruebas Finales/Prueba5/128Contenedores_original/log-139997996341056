@@ -1,0 +1,116 @@
+01:44:42,71 root INFO Client for Instance TF
+01:44:42,71 root INFO Connecting Network...
+01:44:42,71 root INFO Algorithm recieved for parameter: keras_example_resnet
+01:44:42,71 root INFO Wait data...
+01:44:42,75 root INFO Client ID recieved: 99
+01:44:42,75 root INFO TF Use: original
+01:44:42,75 root INFO Inter parallelism recieved: 1
+01:44:42,76 root INFO Intra parallelism recieved: 1
+01:44:42,76 root INFO Execute TF algrithm in background...
+01:44:42,80 root INFO Send TF init message...
+01:44:44,88 root INFO Salida de popen:    7
+   29
+
+01:44:44,88 root INFO TF PID: 29
+01:44:44,88 root INFO Add signal handle...
+01:44:44,88 root INFO Creating update attention thread...
+01:44:44,88 root INFO Creating socket attention thread...
+01:44:44,88 root INFO Creating live thread...
+01:44:44,89 root INFO Wait message from scheduler...
+01:44:44,89 root INFO Join Threads...
+01:45:42,181 root INFO Intra and inter recieved:-2 - -2
+01:45:42,182 root INFO Wake up live control...
+01:45:42,182 root INFO Wait message from scheduler...
+01:45:42,182 root INFO Live control wake up:False
+01:45:42,182 root INFO Path file TF: /home/Scheduler/models/output_99_original.txt
+01:45:42,183 root INFO Diff time: 0.0066449642181396484
+01:45:42,183 root INFO Container is live!
+01:46:42,285 root INFO Intra and inter recieved:-2 - -2
+01:46:42,286 root INFO Wake up live control...
+01:46:42,286 root INFO Wait message from scheduler...
+01:46:42,286 root INFO Live control wake up:False
+01:46:42,286 root INFO Path file TF: /home/Scheduler/models/output_99_original.txt
+01:46:42,287 root INFO Diff time: 0.006975650787353516
+01:46:42,287 root INFO Container is live!
+01:47:42,389 root INFO Intra and inter recieved:-2 - -2
+01:47:42,390 root INFO Wake up live control...
+01:47:42,390 root INFO Wait message from scheduler...
+01:47:42,390 root INFO Live control wake up:False
+01:47:42,390 root INFO Path file TF: /home/Scheduler/models/output_99_original.txt
+01:47:42,391 root INFO Diff time: 0.007846355438232422
+01:47:42,391 root INFO Container is live!
+01:48:42,437 root INFO Intra and inter recieved:-2 - -2
+01:48:42,438 root INFO Wake up live control...
+01:48:42,438 root INFO Wait message from scheduler...
+01:48:42,438 root INFO Live control wake up:False
+01:48:42,438 root INFO Path file TF: /home/Scheduler/models/output_99_original.txt
+01:48:42,439 root INFO Diff time: 0.008290290832519531
+01:48:42,439 root INFO Container is live!
+01:49:42,489 root INFO Intra and inter recieved:-2 - -2
+01:49:42,490 root INFO Wake up live control...
+01:49:42,490 root INFO Wait message from scheduler...
+01:49:42,490 root INFO Live control wake up:False
+01:49:42,490 root INFO Path file TF: /home/Scheduler/models/output_99_original.txt
+01:49:42,491 root INFO Diff time: 0.0052301883697509766
+01:49:42,491 root INFO Container is live!
+01:50:42,589 root INFO Intra and inter recieved:-2 - -2
+01:50:42,590 root INFO Wake up live control...
+01:50:42,590 root INFO Wait message from scheduler...
+01:50:42,590 root INFO Live control wake up:False
+01:50:42,590 root INFO Path file TF: /home/Scheduler/models/output_99_original.txt
+01:50:42,591 root INFO Diff time: 0.005635738372802734
+01:50:42,591 root INFO Container is live!
+01:51:42,693 root INFO Intra and inter recieved:-2 - -2
+01:51:42,694 root INFO Wake up live control...
+01:51:42,694 root INFO Wait message from scheduler...
+01:51:42,694 root INFO Live control wake up:False
+01:51:42,694 root INFO Path file TF: /home/Scheduler/models/output_99_original.txt
+01:51:42,695 root INFO Diff time: 0.006373882293701172
+01:51:42,695 root INFO Container is live!
+01:52:42,797 root INFO Intra and inter recieved:-2 - -2
+01:52:42,798 root INFO Wake up live control...
+01:52:42,798 root INFO Wait message from scheduler...
+01:52:42,798 root INFO Live control wake up:False
+01:52:42,798 root INFO Path file TF: /home/Scheduler/models/output_99_original.txt
+01:52:42,799 root INFO Diff time: 0.00706934928894043
+01:52:42,799 root INFO Container is live!
+01:53:42,901 root INFO Intra and inter recieved:-2 - -2
+01:53:42,902 root INFO Wake up live control...
+01:53:42,902 root INFO Wait message from scheduler...
+01:53:42,902 root INFO Live control wake up:False
+01:53:42,902 root INFO Path file TF: /home/Scheduler/models/output_99_original.txt
+01:53:42,903 root INFO Diff time: 0.007820606231689453
+01:53:42,903 root INFO Container is live!
+01:54:42,981 root INFO Intra and inter recieved:-2 - -2
+01:54:42,982 root INFO Wake up live control...
+01:54:42,982 root INFO Wait message from scheduler...
+01:54:42,982 root INFO Live control wake up:False
+01:54:42,982 root INFO Path file TF: /home/Scheduler/models/output_99_original.txt
+01:54:42,983 root INFO Diff time: 0.008402347564697266
+01:54:42,983 root INFO Container is live!
+01:55:43,85 root INFO Intra and inter recieved:-2 - -2
+01:55:43,86 root INFO Wake up live control...
+01:55:43,86 root INFO Wait message from scheduler...
+01:55:43,86 root INFO Live control wake up:False
+01:55:43,86 root INFO Path file TF: /home/Scheduler/models/output_99_original.txt
+01:55:43,87 root INFO Diff time: 0.004962444305419922
+01:55:43,87 root INFO Container is live!
+01:56:43,189 root INFO Intra and inter recieved:-2 - -2
+01:56:43,190 root INFO Wake up live control...
+01:56:43,190 root INFO Wait message from scheduler...
+01:56:43,190 root INFO Live control wake up:False
+01:56:43,190 root INFO Path file TF: /home/Scheduler/models/output_99_original.txt
+01:56:43,191 root INFO Diff time: 0.005642414093017578
+01:56:43,191 root INFO Container is live!
+01:57:02,493 root INFO Recieve signal finalize
+01:57:02,494 root INFO Send finalize message
+01:57:02,537 root INFO Intra and inter recieved:-1 - -1
+01:57:02,537 root INFO ACK from scheduler
+01:57:02,537 root INFO Finish attention socket thread
+01:57:02,538 root INFO Not update because is original version of Tensorflow
+01:57:02,538 root INFO Finish update thread
+01:57:02,538 root INFO Live control wake up:True
+01:57:02,538 root INFO Finish live control thread
+01:57:02,538 root INFO Save log in CSV format...
+01:57:02,540 root INFO Close client socket
+01:57:02,540 root INFO Finish program :)

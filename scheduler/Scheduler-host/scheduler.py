@@ -542,6 +542,7 @@ def maxprop_reassigment(resources_availables):
                             resources_availables-= maxprop_factor if (intraExec_parallelism + maxprop_factor) <= max_resources_per_cont else max_resources_per_cont
                             ok=True
                     if ok:
+                        container.set_state('update')
                         mutex_eventlogs.acquire()
                         event_logs.save_event(events.REASSIGMENT_RESOURCES, container_id=container.get_container_number(), inter_exec=container.get_inter_exec_parallelism(), intra_exec=container.get_intra_exec_parallelism())
                         event_logs.finish_container_event(container.get_container_number(),  [])

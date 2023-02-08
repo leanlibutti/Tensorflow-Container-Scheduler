@@ -1,0 +1,340 @@
+21:40:14,320 root INFO Client for Instance TF
+21:40:14,320 root INFO Connecting Network...
+21:40:14,321 root INFO Algorithm recieved for parameter: keras_example_resnet
+21:40:14,326 root INFO Wait data...
+21:40:14,326 root INFO Client ID recieved: 81
+21:40:14,326 root INFO TF Use: original
+21:40:14,326 root INFO Inter parallelism recieved: 1
+21:40:14,326 root INFO Intra parallelism recieved: 7
+21:40:14,326 root INFO Execute TF algrithm in background...
+21:40:14,333 root INFO Send TF init message...
+21:40:16,364 root INFO Salida de popen:    7
+   29
+
+21:40:16,364 root INFO TF PID: 29
+21:40:16,364 root INFO Add signal handle...
+21:40:16,364 root INFO Creating update attention thread...
+21:40:16,364 root INFO Creating socket attention thread...
+21:40:16,364 root INFO Creating live thread...
+21:40:16,431 root INFO Wait message from scheduler...
+21:40:16,439 root INFO Join Threads...
+21:41:14,443 root INFO Intra and inter recieved:-2 - -2
+21:41:14,444 root INFO Wake up live control...
+21:41:14,444 root INFO Wait message from scheduler...
+21:41:14,444 root INFO Live control wake up:False
+21:41:14,444 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:41:14,445 root INFO Diff time: 0.009445428848266602
+21:41:14,445 root INFO Container is live!
+21:42:14,547 root INFO Intra and inter recieved:-2 - -2
+21:42:14,548 root INFO Wake up live control...
+21:42:14,548 root INFO Wait message from scheduler...
+21:42:14,548 root INFO Live control wake up:False
+21:42:14,548 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:42:14,548 root INFO Diff time: 5.553307056427002
+21:42:14,549 root INFO Container is live!
+21:43:14,651 root INFO Intra and inter recieved:-2 - -2
+21:43:14,652 root INFO Wake up live control...
+21:43:14,652 root INFO Wait message from scheduler...
+21:43:14,652 root INFO Live control wake up:False
+21:43:14,652 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:43:14,652 root INFO Diff time: 4.217774391174316
+21:43:14,652 root INFO Container is live!
+21:44:14,755 root INFO Intra and inter recieved:-2 - -2
+21:44:14,756 root INFO Wake up live control...
+21:44:14,756 root INFO Wait message from scheduler...
+21:44:14,756 root INFO Live control wake up:False
+21:44:14,756 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:44:14,757 root INFO Diff time: 0.006825447082519531
+21:44:14,757 root INFO Container is live!
+21:45:14,859 root INFO Intra and inter recieved:-2 - -2
+21:45:14,860 root INFO Wake up live control...
+21:45:14,860 root INFO Wait message from scheduler...
+21:45:14,860 root INFO Live control wake up:False
+21:45:14,860 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:45:14,860 root INFO Diff time: 5.894837141036987
+21:45:14,860 root INFO Container is live!
+21:46:14,963 root INFO Intra and inter recieved:-2 - -2
+21:46:14,964 root INFO Wake up live control...
+21:46:14,964 root INFO Wait message from scheduler...
+21:46:14,964 root INFO Live control wake up:False
+21:46:14,964 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:46:14,965 root INFO Diff time: 4.559467554092407
+21:46:14,965 root INFO Container is live!
+21:47:15,71 root INFO Intra and inter recieved:-2 - -2
+21:47:15,72 root INFO Wake up live control...
+21:47:15,72 root INFO Wait message from scheduler...
+21:47:15,72 root INFO Live control wake up:False
+21:47:15,72 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:47:15,74 root INFO Diff time: 3.229093313217163
+21:47:15,74 root INFO Container is live!
+21:48:15,183 root INFO Intra and inter recieved:-2 - -2
+21:48:15,184 root INFO Wake up live control...
+21:48:15,184 root INFO Wait message from scheduler...
+21:48:15,184 root INFO Live control wake up:False
+21:48:15,184 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:48:15,184 root INFO Diff time: 1.900498628616333
+21:48:15,185 root INFO Container is live!
+21:49:15,293 root INFO Intra and inter recieved:-2 - -2
+21:49:15,299 root INFO Wake up live control...
+21:49:15,299 root INFO Wait message from scheduler...
+21:49:15,299 root INFO Live control wake up:False
+21:49:15,300 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:49:15,300 root INFO Diff time: 0.5766561031341553
+21:49:15,300 root INFO Container is live!
+21:50:15,407 root INFO Intra and inter recieved:-2 - -2
+21:50:15,408 root INFO Wake up live control...
+21:50:15,408 root INFO Wait message from scheduler...
+21:50:15,408 root INFO Live control wake up:False
+21:50:15,408 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:50:15,409 root INFO Diff time: 0.010129213333129883
+21:50:15,409 root INFO Container is live!
+21:51:15,511 root INFO Intra and inter recieved:-2 - -2
+21:51:15,512 root INFO Wake up live control...
+21:51:15,512 root INFO Wait message from scheduler...
+21:51:15,512 root INFO Live control wake up:False
+21:51:15,512 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:51:15,512 root INFO Diff time: 18.38599705696106
+21:51:15,513 root INFO Container is live!
+21:52:15,615 root INFO Intra and inter recieved:-2 - -2
+21:52:15,616 root INFO Wake up live control...
+21:52:15,616 root INFO Wait message from scheduler...
+21:52:15,616 root INFO Live control wake up:False
+21:52:15,616 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:52:15,617 root INFO Diff time: 17.050612926483154
+21:52:15,617 root INFO Container is live!
+21:53:15,723 root INFO Intra and inter recieved:-2 - -2
+21:53:15,724 root INFO Wake up live control...
+21:53:15,724 root INFO Wait message from scheduler...
+21:53:15,724 root INFO Live control wake up:False
+21:53:15,724 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:53:15,725 root INFO Diff time: 15.719310283660889
+21:53:15,725 root INFO Container is live!
+21:54:15,827 root INFO Intra and inter recieved:-2 - -2
+21:54:15,828 root INFO Wake up live control...
+21:54:15,828 root INFO Wait message from scheduler...
+21:54:15,828 root INFO Live control wake up:False
+21:54:15,828 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:54:15,828 root INFO Diff time: 14.383444547653198
+21:54:15,828 root INFO Container is live!
+21:55:15,935 root INFO Intra and inter recieved:-2 - -2
+21:55:15,936 root INFO Wake up live control...
+21:55:15,936 root INFO Wait message from scheduler...
+21:55:15,936 root INFO Live control wake up:False
+21:55:15,936 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:55:15,936 root INFO Diff time: 13.052096843719482
+21:55:15,936 root INFO Container is live!
+21:56:16,47 root INFO Intra and inter recieved:-2 - -2
+21:56:16,48 root INFO Wake up live control...
+21:56:16,48 root INFO Wait message from scheduler...
+21:56:16,48 root INFO Live control wake up:False
+21:56:16,48 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:56:16,48 root INFO Diff time: 11.724529504776001
+21:56:16,48 root INFO Container is live!
+21:57:16,155 root INFO Intra and inter recieved:-2 - -2
+21:57:16,156 root INFO Wake up live control...
+21:57:16,156 root INFO Wait message from scheduler...
+21:57:16,156 root INFO Live control wake up:False
+21:57:16,156 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:57:16,156 root INFO Diff time: 10.393105268478394
+21:57:16,156 root INFO Container is live!
+21:58:16,263 root INFO Intra and inter recieved:-2 - -2
+21:58:16,267 root INFO Wake up live control...
+21:58:16,267 root INFO Wait message from scheduler...
+21:58:16,267 root INFO Live control wake up:False
+21:58:16,267 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:58:16,268 root INFO Diff time: 9.064925909042358
+21:58:16,268 root INFO Container is live!
+21:59:16,375 root INFO Intra and inter recieved:-2 - -2
+21:59:16,376 root INFO Wake up live control...
+21:59:16,376 root INFO Wait message from scheduler...
+21:59:16,376 root INFO Live control wake up:False
+21:59:16,376 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+21:59:16,376 root INFO Diff time: 7.730289697647095
+21:59:16,377 root INFO Container is live!
+22:00:16,479 root INFO Intra and inter recieved:-2 - -2
+22:00:16,480 root INFO Wake up live control...
+22:00:16,480 root INFO Wait message from scheduler...
+22:00:16,480 root INFO Live control wake up:False
+22:00:16,480 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:00:16,481 root INFO Diff time: 6.394969463348389
+22:00:16,481 root INFO Container is live!
+22:01:16,583 root INFO Intra and inter recieved:-2 - -2
+22:01:16,584 root INFO Wake up live control...
+22:01:16,584 root INFO Wait message from scheduler...
+22:01:16,584 root INFO Live control wake up:False
+22:01:16,584 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:01:16,584 root INFO Diff time: 5.059445381164551
+22:01:16,585 root INFO Container is live!
+22:02:16,695 root INFO Intra and inter recieved:-2 - -2
+22:02:16,696 root INFO Wake up live control...
+22:02:16,696 root INFO Wait message from scheduler...
+22:02:16,696 root INFO Live control wake up:False
+22:02:16,696 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:02:16,696 root INFO Diff time: 3.731797456741333
+22:02:16,696 root INFO Container is live!
+22:03:16,799 root INFO Intra and inter recieved:-2 - -2
+22:03:16,800 root INFO Wake up live control...
+22:03:16,800 root INFO Wait message from scheduler...
+22:03:16,800 root INFO Live control wake up:False
+22:03:16,800 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:03:16,800 root INFO Diff time: 2.396533489227295
+22:03:16,801 root INFO Container is live!
+22:04:16,907 root INFO Intra and inter recieved:-2 - -2
+22:04:16,908 root INFO Wake up live control...
+22:04:16,908 root INFO Wait message from scheduler...
+22:04:16,908 root INFO Live control wake up:False
+22:04:16,908 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:04:16,908 root INFO Diff time: 1.0649545192718506
+22:04:16,908 root INFO Container is live!
+22:05:17,11 root INFO Intra and inter recieved:-2 - -2
+22:05:17,12 root INFO Wake up live control...
+22:05:17,12 root INFO Wait message from scheduler...
+22:05:17,12 root INFO Live control wake up:False
+22:05:17,12 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:05:17,13 root INFO Diff time: 0.010101318359375
+22:05:17,13 root INFO Container is live!
+22:06:17,123 root INFO Intra and inter recieved:-2 - -2
+22:06:17,124 root INFO Wake up live control...
+22:06:17,124 root INFO Wait message from scheduler...
+22:06:17,124 root INFO Live control wake up:False
+22:06:17,124 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:06:17,124 root INFO Diff time: 18.877728700637817
+22:06:17,124 root INFO Container is live!
+22:07:17,230 root INFO Intra and inter recieved:-2 - -2
+22:07:17,230 root INFO Wake up live control...
+22:07:17,230 root INFO Wait message from scheduler...
+22:07:17,231 root INFO Live control wake up:False
+22:07:17,231 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:07:17,231 root INFO Diff time: 0.005659818649291992
+22:07:17,232 root INFO Container is live!
+22:08:17,335 root INFO Intra and inter recieved:-2 - -2
+22:08:17,336 root INFO Wake up live control...
+22:08:17,336 root INFO Wait message from scheduler...
+22:08:17,336 root INFO Live control wake up:False
+22:08:17,336 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:08:17,336 root INFO Diff time: 0.8512117862701416
+22:08:17,337 root INFO Container is live!
+22:09:17,439 root INFO Intra and inter recieved:-2 - -2
+22:09:17,440 root INFO Wake up live control...
+22:09:17,440 root INFO Wait message from scheduler...
+22:09:17,440 root INFO Live control wake up:False
+22:09:17,440 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:09:17,441 root INFO Diff time: 0.008184671401977539
+22:09:17,441 root INFO Container is live!
+22:10:17,543 root INFO Intra and inter recieved:-2 - -2
+22:10:17,544 root INFO Wake up live control...
+22:10:17,544 root INFO Wait message from scheduler...
+22:10:17,544 root INFO Live control wake up:False
+22:10:17,544 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:10:17,544 root INFO Diff time: 13.540094137191772
+22:10:17,544 root INFO Container is live!
+22:11:17,651 root INFO Intra and inter recieved:-2 - -2
+22:11:17,652 root INFO Wake up live control...
+22:11:17,652 root INFO Wait message from scheduler...
+22:11:17,652 root INFO Live control wake up:False
+22:11:17,652 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:11:17,652 root INFO Diff time: 12.208518505096436
+22:11:17,652 root INFO Container is live!
+22:12:17,759 root INFO Intra and inter recieved:-2 - -2
+22:12:17,760 root INFO Wake up live control...
+22:12:17,760 root INFO Wait message from scheduler...
+22:12:17,760 root INFO Live control wake up:False
+22:12:17,760 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:12:17,761 root INFO Diff time: 0.009689807891845703
+22:12:17,761 root INFO Container is live!
+22:13:17,867 root INFO Intra and inter recieved:-2 - -2
+22:13:17,868 root INFO Wake up live control...
+22:13:17,868 root INFO Wait message from scheduler...
+22:13:17,868 root INFO Live control wake up:False
+22:13:17,868 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:13:17,868 root INFO Diff time: 4.425704002380371
+22:13:17,868 root INFO Container is live!
+22:14:17,975 root INFO Intra and inter recieved:-2 - -2
+22:14:17,976 root INFO Wake up live control...
+22:14:17,976 root INFO Wait message from scheduler...
+22:14:17,976 root INFO Live control wake up:False
+22:14:17,976 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:14:17,976 root INFO Diff time: 3.090358257293701
+22:14:17,976 root INFO Container is live!
+22:15:18,79 root INFO Intra and inter recieved:-2 - -2
+22:15:18,80 root INFO Wake up live control...
+22:15:18,80 root INFO Wait message from scheduler...
+22:15:18,80 root INFO Live control wake up:False
+22:15:18,80 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:15:18,80 root INFO Diff time: 1.7548985481262207
+22:15:18,80 root INFO Container is live!
+22:16:18,183 root INFO Intra and inter recieved:-2 - -2
+22:16:18,184 root INFO Wake up live control...
+22:16:18,184 root INFO Wait message from scheduler...
+22:16:18,184 root INFO Live control wake up:False
+22:16:18,184 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:16:18,185 root INFO Diff time: 0.41957616806030273
+22:16:18,185 root INFO Container is live!
+22:17:18,287 root INFO Intra and inter recieved:-2 - -2
+22:17:18,288 root INFO Wake up live control...
+22:17:18,288 root INFO Wait message from scheduler...
+22:17:18,288 root INFO Live control wake up:False
+22:17:18,288 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:17:18,289 root INFO Diff time: 0.008618831634521484
+22:17:18,289 root INFO Container is live!
+22:18:18,394 root INFO Intra and inter recieved:-2 - -2
+22:18:18,395 root INFO Wake up live control...
+22:18:18,395 root INFO Wait message from scheduler...
+22:18:18,395 root INFO Live control wake up:False
+22:18:18,395 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:18:18,396 root INFO Diff time: 0.007786273956298828
+22:18:18,396 root INFO Container is live!
+22:19:18,503 root INFO Intra and inter recieved:-2 - -2
+22:19:18,504 root INFO Wake up live control...
+22:19:18,504 root INFO Wait message from scheduler...
+22:19:18,504 root INFO Live control wake up:False
+22:19:18,504 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:19:18,504 root INFO Diff time: 6.661005258560181
+22:19:18,504 root INFO Container is live!
+22:20:18,611 root INFO Intra and inter recieved:-2 - -2
+22:20:18,611 root INFO Wake up live control...
+22:20:18,612 root INFO Wait message from scheduler...
+22:20:18,612 root INFO Live control wake up:False
+22:20:18,612 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:20:18,612 root INFO Diff time: 5.329307556152344
+22:20:18,612 root INFO Container is live!
+22:21:18,723 root INFO Intra and inter recieved:-2 - -2
+22:21:18,724 root INFO Wake up live control...
+22:21:18,724 root INFO Wait message from scheduler...
+22:21:18,724 root INFO Live control wake up:False
+22:21:18,724 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:21:18,724 root INFO Diff time: 3.9980478286743164
+22:21:18,724 root INFO Container is live!
+22:22:18,827 root INFO Intra and inter recieved:-2 - -2
+22:22:18,828 root INFO Wake up live control...
+22:22:18,828 root INFO Wait message from scheduler...
+22:22:18,828 root INFO Live control wake up:False
+22:22:18,828 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:22:18,828 root INFO Diff time: 2.662637948989868
+22:22:18,828 root INFO Container is live!
+22:23:18,935 root INFO Intra and inter recieved:-2 - -2
+22:23:18,936 root INFO Wake up live control...
+22:23:18,936 root INFO Wait message from scheduler...
+22:23:18,936 root INFO Live control wake up:False
+22:23:18,936 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:23:18,936 root INFO Diff time: 1.3312137126922607
+22:23:18,936 root INFO Container is live!
+22:24:19,39 root INFO Intra and inter recieved:-2 - -2
+22:24:19,40 root INFO Wake up live control...
+22:24:19,40 root INFO Wait message from scheduler...
+22:24:19,40 root INFO Live control wake up:False
+22:24:19,40 root INFO Path file TF: /home/Scheduler/models/output_81_original.txt
+22:24:19,41 root INFO Diff time: 0.008303403854370117
+22:24:19,41 root INFO Container is live!
+22:24:58,238 root INFO Recieve signal finalize
+22:24:58,243 root INFO Send finalize message
+22:24:58,287 root INFO Intra and inter recieved:-1 - -1
+22:24:58,287 root INFO ACK from scheduler
+22:24:58,287 root INFO Finish attention socket thread
+22:24:58,288 root INFO Not update because is original version of Tensorflow
+22:24:58,288 root INFO Finish update thread
+22:24:58,288 root INFO Live control wake up:True
+22:24:58,288 root INFO Finish live control thread
+22:24:58,288 root INFO Save log in CSV format...
+22:24:58,290 root INFO Close client socket
+22:24:58,290 root INFO Finish program :)

@@ -5,6 +5,7 @@ import numpy as np
 import plotly.express as px
 import datetime
 import sys
+import argparse
 #from operator import itemgetter
 
 log_file=False
@@ -30,7 +31,7 @@ class TraceEvent:
 
 class TraceLog:
 
-    def __init__(self, policy="", tf_version="", tf_model="", threads_count=0):
+    def __init__(self, policy="", tf_version="", tf_model="", threads_count=0, dict_requests=dict(), cant_priorities=0):
         super().__init__()
         self.__events_list= []
         self.__df_events= []
@@ -39,6 +40,8 @@ class TraceLog:
         self.__policy= policy
         self.__tf_version=tf_version
         self.__tf_model= tf_model
+        self.__requests_dict= dict_requests
+        self.__cant_priorities = cant_priorities
 
     def add_thread(self):
         self.__threads_count= self.__threads_count+1
@@ -317,7 +320,21 @@ class TraceLog:
         # print('Init Scheduler: ', start_scheduler)
         # print('Finish Scheduler: ', finish_scheduler)
         # print('Total time of Scheduler: ', (finish_scheduler-start_scheduler).total_seconds() )
-        throughput= number_containers/((finish_scheduler-start_scheduler).total_seconds()/3600)
+        if (self.__policy == 'fcfs'):
+            throughput= number_containers/((finish_scheduler-start_scheduler).total_seconds()/3600)
+        else:
+            throughput= [0] * self.__cant_priorities 
+            # Initialize the number of containers per priority
+            num_containers_per_priority= {i: 0 for i in range(self.__cant_priorities )}
+            # Count the number of containers per priority
+            for value in self.__requests_dict.values():
+                if (num_containers_per_priority[value]):
+                    num_containers_per_priority[value] += 1  
+                else:
+                    num_containers_per_priority[value] = 1  
+            # Calculate througput per priority    
+            for i in range(self.__cant_priorities):
+                throughput[i] = (num_containers_per_priority[i]/((finish_scheduler-start_scheduler).total_seconds()/3600))
         # print('Throughput: ', throughput)
         with open(directory+save_filename, mode='w') as f:
             f.write(str(throughput)) 
@@ -351,19 +368,29 @@ class TraceLog:
             if ((not found) and ( not '.5' in str(line['Task'])) and (line['Task'] != '-2')) : # container with change of parallelism
                  events.append(dict(Container=line['Task'], TimeRecieve= time_start, TimeStart=time_start, TimeFinish=time_finish))
         data.close()
-        response_time=0
-        return_time=0
-        execution_time=0
+        # each pos in one priority (for FCFS in only one pos)
+        response_time = [0] * self.__cant_priorities if self.__policy != "fcfs" else 0
+        return_time = [0] * self.__cant_priorities if self.__policy != "fcfs" else 0
+        execution_time = [0] * self.__cant_priorities if self.__policy != "fcfs" else 0
+        cant_containers = [0] * self.__cant_priorities if self.__policy != "fcfs" else 0
         for container in events:
             # print("Container = ", container["Container"], " Recieve= ", container["TimeRecieve"], " Start= ", container["TimeStart"], " Finish= ", container["TimeFinish"])
-            response_time+= (container["TimeStart"] -  container["TimeRecieve"]).total_seconds()
-            return_time+=  (container["TimeFinish"] - container["TimeRecieve"]).total_seconds()
-            execution_time+= (container["TimeFinish"] - container["TimeStart"]).total_seconds()
-    
+            # print("Container = ", container["Container"], " - Priority= " + str(self.__requests_dict[int(container["Container"])]) +  " - Time execution= " +  str((container["TimeFinish"] - container["TimeStart"]).total_seconds()) + "Time Receive: " + str(container["TimeRecieve"]))
+            if self.__policy == "fcfs":
+                response_time+= (container["TimeStart"] -  container["TimeRecieve"]).total_seconds()
+                return_time+=  (container["TimeFinish"] - container["TimeRecieve"]).total_seconds()
+                execution_time+= (container["TimeFinish"] - container["TimeStart"]).total_seconds()
+                cant_containers+=1
+            else:
+                priority_pos= self.__requests_dict[int(container["Container"])]
+                response_time[priority_pos]+= (container["TimeStart"] -  container["TimeRecieve"]).total_seconds()
+                return_time[priority_pos]+=  (container["TimeFinish"] - container["TimeRecieve"]).total_seconds()
+                execution_time[priority_pos]+= (container["TimeFinish"] - container["TimeStart"]).total_seconds()
+                cant_containers[priority_pos]+=1
         # print('Meantime execution: ', execution_time/cant_containers) 
         # print('Meantime response: ', response_time/cant_containers)
         # print('Meantime real execution: ', return_time/cant_containers)
-        return [execution_time/cant_containers, response_time/cant_containers, return_time/cant_containers]
+        return [execution_time, response_time, return_time, cant_containers]
 
     def calculate_percentage_cores_used(self, directory, filename="output.txt"):
         count_lines=0
@@ -376,23 +403,45 @@ class TraceLog:
                 percent_used_accum+= float(line.split(',')[3])
                 count_lines+=1
         return percent_used_accum/count_lines
+    
+    def generate_requests_dict(self, file_path):
+        result = {}
+        with open(file_path) as csvfile:
+            data = csv.reader(csvfile)
+            for row in data:
+                key = int(row[1])
+                value = int(row[-1])
+                result[key] = value
+            self.__requests_dict = result
 
 # Programa Principal #
 if __name__ == "__main__":
-    
-    if len(sys.argv) != 4:
-            print("Invalid amount of arguments - Recieved: ", str(len(sys.argv)-1), " - Required: 3") 
-            raise NameError('Invalid amount of arguments')
-
-    directory= sys.argv[1]
-    filename= sys.argv[2]
-    cant_containers= int(sys.argv[3])
-    
-    trace= TraceLog()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--directory', type=str, required=True, help='name of test (required)')
+    parser.add_argument('-f', '--filename', type=str, required=True, help='filename of gantt event (required)')
+    parser.add_argument('-c', '--containers', type=int, required=True, help= 'containers count (required)')
+    parser.add_argument('-n', '--name_test', type=str, required=True, help= 'name of test (required)')
+    parser.add_argument('-p', '--policy', type=str, required=True, help='name of test (required)')
+    parser.add_argument('-cp', '--cant_priorities', type=int, default=1, help='priorities count')
+    args = parser.parse_args()
+    directory= args.directory
+    filename= args.filename
+    cant_containers= args.containers
+    name_test= args.name_test   
+    policy= args.policy
+    cant_priorities= args.cant_priorities    
+    trace= TraceLog(policy= policy, cant_priorities=cant_priorities)
     day= trace.load_gantt(directory, cant_containers, filename)
+    split_directory= directory.split('/')
+    dict_requests= trace.generate_requests_dict(split_directory[0] + '/'  + split_directory[1] + '/'  + split_directory[2] + '/'  + 'request_file_'+name_test+ '_' +str(cant_containers) +'.txt') # directory is test name folder
     # max_min_times= trace.calculate_meantime_container(cant_containers, directory, filename)
     times= trace.calculate_responseMeantime_metric(directory, cant_containers, filename)
     data_t= trace.calculate_throughput(cant_containers, directory, filename)
     percent_cores= trace.calculate_percentage_cores_used(directory, 'occupation_timeline.csv')
     trace.plot_gantt(day)
-    print (times[0], ',', times[1], ',', times[2], ',', percent_cores, ',' , data_t[0], ',', data_t[1])
+    if policy == "fcfs":
+         print (times[0]/cant_containers, ',', times[1]/cant_containers, ',', times[2]/cant_containers, ',', percent_cores, ',' , data_t[0], ',', data_t[1])    
+    else:
+        for i in range(cant_priorities):
+            print ( times[0][i]/times[3][i] if (times[3][i] > 0) else 0, ',', times[1][i]/times[3][i] if (times[3][i] > 0) else 0, ',', times[2][i]/times[3][i] if (times[3][i] > 0) else 0, ',', percent_cores, ',' , data_t[0][i], ',', times[2][i])
+   

@@ -121,7 +121,7 @@ tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram
 
 history = model.fit(train_ds,
                     epochs=1, 
-                    steps_per_epoch=100)
+                    steps_per_epoch=40)
                     #callbacks=[tensorboard_callback])
 
 print("Finish TF program")

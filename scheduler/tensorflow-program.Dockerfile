@@ -66,9 +66,10 @@ RUN apt-get update && apt-get install -y \
     ${PYTHON} \
     ${PYTHON}-pip
 
-RUN ${PIP} --no-cache-dir install --upgrade \
-    pip \
-    setuptools
+# RUN ${PIP} --no-cache-dir install --upgrade \
+#     pip \
+#     setuptools
+
 # Some TF tools expect a "python" binary
 RUN ln -s $(which ${PYTHON}) /usr/local/bin/python 
 RUN apt-get update && apt-get install -y \
@@ -135,8 +136,11 @@ RUN apt-get update
 RUN apt install docker.io -y
 RUN docker --version
 #TF Warmup
-RUN python3 /scheduler_src/models/keras_example_resnet_warmup.py 1 1 1
+RUN echo '1 1' > /root/tf_parallelism.txt
+# RUN python3 /scheduler_src/models/keras_example_resnet_warmup.py 1 1 1
+RUN python3 /scheduler_src/models/keras_example_VGG_warmup.py 1 1 1
 # Insert Tensorflow program and parameters
-ENTRYPOINT python3 /home/Scheduler/Client/client.py keras_example_resnet
+# ENTRYPOINT python3 /home/Scheduler/Client/client.py keras_example_resnet
+ENTRYPOINT python3 /home/Scheduler/Client/client.py keras_example_VGG
 
 
