@@ -100,3 +100,4 @@ Al finalizar la ejecución del planificador, se genera una carpeta en /Data/log 
 
 * Para cada ejecución completa:
     - Productividad (containers finalizados por segundo).
+    - Porcentaje de cores utilizados.

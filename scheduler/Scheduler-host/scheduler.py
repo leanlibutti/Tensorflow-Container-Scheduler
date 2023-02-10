@@ -24,54 +24,55 @@ import csv
 import json
 import psutil
 
-#Mutex para acceder al proximo numero de hilo
+# mutex to access next thread number
 mutex_numberThread= threading.Lock()
-# Numero de hilo que identifica unicamente a cada uno
+# thread number that uniquely identifies each thread
 number_thread=1
 
 max_resources_per_cont=-1
 
-# Mutex para acceder con exclusión mutua a la información del sistema
+# mutex for mutually exclusive access to system information
 mutex_systemInfo = threading.Lock()
-# Encargada de manejar los recursos disponibles y utilizados en el sistema
+# managing the resources available and used in the system.
 system_info = systemInfo()
 
-# Política de asignación de recursos a los contenedores (puede modificarse)
+# container resource allocation policy (can be modified)
 scheduler_container= ''
 
-#Mutex para acceder al trace log
+# trace log mutex
 mutex_eventlogs= threading.Lock()
-# Almacena la informacion de los eventos en el planificador
+# stores event information in the scheduler
 event_logs= ""
 
-# Cola para almacenar peticiones de finalización de contenedor (almacena el paralelismo total liberado)
+# queue for storing container completion requests (stores total parallelism released)
 q_finish_container= queue.Queue()
-# Cola de hilos de clientes (usado para luego hacer el join de cada uno)
-#q_client_threads= queue.Queue()
+
 dict_client_threads={}
 mutex_dict_client_threads= threading.Lock()
-# Almacena una variable condicion perteneciente a un cliente en particular
+
+# stores paused containers
 q_pause_containers= queue.Queue()
 
-# Variable que indica si el hilo Atencion debe replanificar los hilos de los contenedores
+# variable indicating whether the Attention thread should replan the container threads.
 rescheduling_containers= False
 
-# Mutex para la lista de instancias TF en ejecución
+# mutex for the list of running TF instances
 mutex_execInfo= threading.Lock()
-# Lista que almacena la información de cada instancia de TF que se encuentra en ejecución (puede tener instancias que ya terminaron)
+# list that stores the information of each TF instance that is currently running (may have instances that have already terminated).
 execInfo_list=[]
 
-# Mutex para lista de nombres de contenedores en ejecución
+# mutex for the list of running containers
 mutex_containerList= threading.Lock()
-# Lista de nombres de contenedores en ejecución (para que el hilo update sepa a cuáles contenedores puede actualizar)
+# list of running container names (so the update thread knows which containers it can update)
 containerName_list=[]
 
-# Utilizado en la reasignacion max_prop
+# used in max_prop reassignment
 scheduling_requests= threading.Lock()
 
-# Variable condición utilizada para avisar al hilo Atencion de que hay pedidos pendientes en alguna cola.
+# condition variable used to alert the Attention thread that there are pending orders in a queue.
 cv_attention = threading.Condition()
 
+# shared variable to indicate to all threads if the scheduler is finished
 mutex_finishExecution= threading.Lock()
 finish_execution=False
 
@@ -79,44 +80,39 @@ tf_version=""
 
 creation_requests_terminate= False
 
-# Contabiliza la cantidad de contenedores que fallan y deben reiniciarse
+# count of containers failed and need reinitialize
 containers_failed=0
 mutex_containersFailed= threading.Lock()
 
-# Control of assigmented resources
+# control of assigmented resources
 not_control=False
 
-# Enable or Disable reassigment resources option
+# enable or disable reassigment resources option
 reassigment=True
 
-# Enable when resources are released if first reallocate or Disable if use them for new containers
+# enable when resources are released if first reallocate or disable if use them for new containers
 priority_reassigment=True
 
 global_resources_ok= True
 
-# Metodos para manejo de señales #
+# handle signals methods #
 
+# change the value of the variable that indicates that the scheduler has finished
 def handler_finish(signum, frame):
     global finish_execution
-    # Cambiar el valor de variable de finalizacion de planificador
-    # print("Signal finalize scheduler")
     mutex_finishExecution.acquire()
     finish_execution=True
     mutex_finishExecution.release()
     with cv_attention:
         cv_attention.notify()
 
-# Fin de metodos para manejo de señales
+# end hangle signals methods #
 
-# Consultar si las colas están vacias y el hilo generador de peticiones terminó 
+# query if the queues are empty and the request generator thread is finished
 def is_finish_attention():
     global creation_requests_terminate
     global finish_execution
     mutex_containerList.acquire()
-    # print("Container list: " , containerName_list)
-    # print("Creatrion request:", creation_requests_terminate)
-    # print("Pending queue: ", scheduler_container.pending_queue_empty())
-    # print("Queue: ",scheduler_container.queue_empty())
     if (scheduler_container.pending_queue_empty() == -1) and (scheduler_container.queue_empty() == -1) and (creation_requests_terminate==True) and (not containerName_list) :
         mutex_finishExecution.acquire()
         finish_execution=True 
@@ -127,9 +123,13 @@ def is_finish_attention():
         mutex_containerList.release()
         return False
 
-# Métodos Generales #
+# general methods #
 
-# Bloquear execInfo_list y system_info antes de usarlo
+# execInfo_list and system_info is not thread-safe in this method
+# returns the number of reserve resources for request
+# if the available resources are not sufficient to allocate those request, the available resources are reserved 
+# if request corresponds to a container that decrement your resources used, returns the number of resources to be released
+# there is no guarantee that the resources returned will be sufficient to launch the request
 def schedule_resources(request_, resources_availables):
     log_file= False
     global not_control
@@ -141,8 +141,6 @@ def schedule_resources(request_, resources_availables):
                 if instance_number == request_.get_request_id():
                     if x.get_state() != "pause":
                         x.pause_container()
-                        #filename_epochs= "models/output_" + str(instance_number) + "_" + tf_version + ".txt"
-                        #time_epochs= TimeEpochs().process_TF_file(filename_epochs)
                         mutex_eventlogs.acquire()
                         event_logs.save_event(events.PAUSE_CONTAINER, 0, instance_number)
                         event_logs.finish_container_event(instance_number, [])
@@ -153,6 +151,7 @@ def schedule_resources(request_, resources_availables):
     else:
         if isinstance(request_, Update):
             print("Update container request: ", request_.get_request_id()) if log_file else None 
+            # get the requested resources for the container to be updated
             for x in execInfo_list:
                 name_request= 'instance'+str(request_.get_request_id())
                 if x.get_container_name() == name_request:
@@ -162,6 +161,7 @@ def schedule_resources(request_, resources_availables):
         else:
             if isinstance(request_, Resume):
                 print("Resume container request: ", request_.get_request_id()) if log_file else None 
+                # get the requested resources for the container to be awakened
                 for x in execInfo_list:
                     if x.get_container_number() == request_.get_request_id():
                         if x.get_state() != "start":
@@ -169,16 +169,17 @@ def schedule_resources(request_, resources_availables):
                             print("Requested resources in resume: ", requested_resources) if log_file else None 
             else:
                 if isinstance(request_, Start):
-                    # Obtener los recursos solicitados por la peticion de ejecucion 
+                    # get the resources requested by the request for execution.
                     print("Execution container request: ", request_.get_request_id()) if log_file else None 
                     requested_resources=request_.get_inter_parallelism()+request_.get_intra_parallelism()
                 else: 
-                    # Obtener los recursos del contenedor a partir de la lista de contenedores
+                    # get container resources from container list
                     container_name= request_.get_container_name()
                     for elem in execInfo_list:
                         if (elem.get_container_name() == container_name):         
-                            # Encolar paralelismo liberado por el contenedor
+                            # get request resources from container
                             requested_resources= elem.get_inter_exec_parallelism() + elem.get_intra_exec_parallelism()    
+    # not control is for testing without scheduler policies
     if (not_control):
         system_info.apply_resources(requested_resources, not_control)
     else:
@@ -187,15 +188,17 @@ def schedule_resources(request_, resources_availables):
                 system_info.apply_resources(resources_availables, not_control)
                 requested_resources= resources_availables
             else:
-                # Reservar la cantidad de recursos disponibles 
+                # reserve the amount of available resources
                 system_info.apply_resources(requested_resources, not_control)
         else:
             if(requested_resources>0): 
-                # Quiere decir que es una peticion de incremento de recursos y no alcanza la cantidad recursos disponibles. Probar si la politica de planificacion acepta una peticion con esta cantidad de recursos.
-                # Reservar la cantidad de recursos disponibles 
+                # means that it is a request for increased resources and the amount of resources available is not enough. 
+                # test if the scheduler policy accepts a request with this amount of resources.
+                # reserve the amount of available resources.
                 system_info.apply_resources(resources_availables, not_control)
                 requested_resources= resources_availables
             else:
+                # free resources if request is a container that is going to be updated with minor resources
                 system_info.free_resources(-requested_resources)
                 print("Free resources in parallelism reserve") if log_file else None 
     return requested_resources
