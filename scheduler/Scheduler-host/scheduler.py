@@ -53,9 +53,6 @@ mutex_dict_client_threads= threading.Lock()
 # stores paused containers
 q_pause_containers= queue.Queue()
 
-# variable indicating whether the Attention thread should replan the container threads.
-rescheduling_containers= False
-
 # mutex for the list of running TF instances
 mutex_execInfo= threading.Lock()
 # list that stores the information of each TF instance that is currently running (may have instances that have already terminated).
@@ -78,8 +75,6 @@ finish_execution=False
 
 tf_version=""
 
-creation_requests_terminate= False
-
 # count of containers failed and need reinitialize
 containers_failed=0
 mutex_containersFailed= threading.Lock()
@@ -93,7 +88,14 @@ reassigment=True
 # enable when resources are released if first reallocate or disable if use them for new containers
 priority_reassigment=True
 
+# variable indicating whether the Attention thread should replan the container threads.
+rescheduling_containers= False
+
+# variable indicating whether the attention thread should expropiate resources from containers
+expropiation= False
+
 global_resources_ok= True
+creation_requests_terminate= False
 
 # handle signals methods #
 
@@ -203,7 +205,7 @@ def schedule_resources(request_, resources_availables):
                 print("Free resources in parallelism reserve") if log_file else None 
     return requested_resources
 
-def schedule_request(request_, socket_schedule, port_host=0, resources_availables=0, thread_id=0):
+def schedule_request(request_, socket_schedule, port_host=0, resources_availables=0):
     log_file=True
     global number_thread   
     global max_resources_per_cont
@@ -259,7 +261,6 @@ def schedule_request(request_, socket_schedule, port_host=0, resources_available
                             tmp_thread = threading.Thread(target=container_client, args=(c,addr,container_name, instance_number, parallelism_container[0], parallelism_container[1],number_thread,request_,True,))
                         tmp_thread.start()
                         event_logs.add_thread()
-                        number_thread=number_thread+1
                         # save thread in dictionary
                         mutex_dict_client_threads.acquire()
                         dict_client_threads [container_name] = tmp_thread
@@ -563,7 +564,25 @@ def maxprop_reassigment(resources_availables):
         print(exc_type, fname, exc_tb.tb_lineno)
         print("Base error")
         sys.exit(1)
-
+        
+def expropiation_manager(request_):
+    port_host= 8787
+    # scroll through list of active containers looking for container with lower priority
+    for container in execInfo_list:
+        # if priority of request is higher than container priority then resume container and launch new request
+        if container.get_state() == "Start" and container.get_priority() < request_.get_priority():  
+            parallelism= container.get_intra_exec_parallelism() + container.get_inter_exec_parallelism()
+            container.pause_container()
+            mutex_systemInfo.acquire()
+            system_info.free_resources(parallelism)
+            state= schedule_request(request_, socket_schedule, port_host, parallelism)
+            if state == 0:
+                print('start container with expropiation not found')
+                system_info.apply_resources(parallelism)
+                container.resume_container()
+            else:
+                print('start container with expropiation found')
+            mutex_systemInfo.release()
 # Fin Métodos Generales #
 
 # Métodos asignados a hilos #
@@ -1002,6 +1021,7 @@ def attentionRequest(socket_schedule, thread_id):
         global not_control
         global global_resources_ok
         global max_resources_per_cont
+        global expropiation
         while not is_finish_attention(): # esto tenerlo en cuenta para vaciar colas de peticiones pero no como condicion de corte
             with cv_attention:
                 # Esperar a que alguno de los demas hilos avise que hay peticiones pendientes (ejecución, actualización o eliminación de contenedores)
@@ -1064,7 +1084,7 @@ def attentionRequest(socket_schedule, thread_id):
                     if (requested_resources!=0):
                         # Intentar planificar peticion pendiente    
                         mutex_systemInfo.release()   
-                        state= schedule_request(request_, socket_schedule, port_host, requested_resources, thread_id)
+                        state= schedule_request(request_, socket_schedule, port_host, requested_resources)
                         mutex_systemInfo.acquire()  
                     # Verificar estado de la planificacion de peticion        
                     if state==0:
@@ -1098,7 +1118,7 @@ def attentionRequest(socket_schedule, thread_id):
                     if ((not isinstance(request_, Pause)) or (not_control)):
                         state=0
                         if(requested_resources !=0):
-                            state= schedule_request(request_, socket_schedule, port_host, requested_resources, thread_id)  
+                            state= schedule_request(request_, socket_schedule, port_host, requested_resources)  
                         # Verificar si no se pudo atender la peticion
                         if (state==0):
                             if isinstance(request_, Resume):
@@ -1121,7 +1141,14 @@ def attentionRequest(socket_schedule, thread_id):
                     mutex_systemInfo.acquire()
                     resources_availables= system_info.check_resources()
                     print("Resources availables after schedule: " + str(resources_availables)) if log_file else None
-                    request_= scheduler_container.get_new_request()  
+                    request_= scheduler_container.get_new_request() 
+                else:
+                    if expropiation:
+                        request_= scheduler_container.get_new_request()
+                        while request_:
+                            if isinstance(request_, Start):
+                                expropiation_manager(request_)
+                            request_= scheduler_container.get_new_request()
             # Reassigment resources if its enable and have free resources and enable for reassigment
             if resources_availables>0 and reassigment: 
                 # print("Wait for reassigment...") if log_file else None
@@ -1173,7 +1200,7 @@ def attentionRequest(socket_schedule, thread_id):
                     requested_resources = schedule_resources(request_, resources_availables) 
                     mutex_systemInfo.release() 
                     if requested_resources >0:
-                        state= schedule_request(request_, socket_schedule, port_host, requested_resources, thread_id)     
+                        state= schedule_request(request_, socket_schedule, port_host, requested_resources)     
                         if state != 0:
                             complete=True
                         else: 
