@@ -213,27 +213,25 @@ def schedule_request(request_, socket_schedule, port_host=0, resources_available
     try:
         instance_number= request_.get_request_id()
         if isinstance(request_, Start) or isinstance(request_, Restart):
-            # Atender peticion de actualizacion      
+            # Attend update request
             if not_control:
                 parallelism_container[0]= request_.get_inter_parallelism()
                 parallelism_container[1]= request_.get_intra_parallelism()
             else:    
                 print('Request inter parallelism: ', request_.get_inter_parallelism(), ' - Request intra parallelism: ', request_.get_intra_parallelism()) if log_file else None 
+                # Access to query if parallelism is available (system_info is thread-safe at this time)
                 parallelism_container= scheduler_container.schedule_parallelism(resources_availables, request_.get_inter_parallelism(), request_.get_intra_parallelism(), max_resources_per_cont)
-            # Accede a consultar si hay paralelismo disponible (system_info es thread-safe en este momento)
             if ((parallelism_container) and (system_info.memory_usage() < 80.0)):
                 parallelism_apply= parallelism_container[0]+parallelism_container[1]
                 if isinstance(request_, Start):
                     container_name= 'instance' + str(instance_number)
                 else:
                     container_name= request_.get_container_name()
-                # Comando para iniciar contenedor con una imagen dada en la petición (opciones dit permiten dejar ejecutando el contenedor en background)
                 print("Creating Docker Container for " , container_name) if log_file else None 
                 ok_start= False
                 while(not ok_start):
+                    # Command to start container with an image given in the request ("-dit" options allow to leave the container running in the background)
                     docker_command= 'docker run -dit --cpus=' + str(parallelism_apply) + ' --name '+ container_name + ' -p ' + str(port_host) + ':8787 --volume $HOME/scheduler:/home/Scheduler ' + request_.get_image()
-                    # Ejecutar comando (con os.p)
-                    # Los primeros 12 caracteres de stdout son el Execution container request:container ID
                     process_command = Popen([docker_command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
                     stdout, stderr = process_command.communicate()
                     if(len(stderr)):
@@ -262,11 +260,11 @@ def schedule_request(request_, socket_schedule, port_host=0, resources_available
                         tmp_thread.start()
                         event_logs.add_thread()
                         number_thread=number_thread+1
-                        # Almacenar hilo en diccionario 
+                        # save thread in dictionary
                         mutex_dict_client_threads.acquire()
                         dict_client_threads [container_name] = tmp_thread
                         mutex_dict_client_threads.release()
-                        #q_client_threads.put(tmp_thread)
+                        # increment number of threads (for next container)
                         mutex_numberThread.acquire()
                         number_thread=number_thread+1
                         mutex_numberThread.release()
@@ -279,41 +277,41 @@ def schedule_request(request_, socket_schedule, port_host=0, resources_available
                     except BaseException:
                         print("Unexpected error in socket connection")     
                 if attemps != 5:
-                    #Transformar stdout en container ID
+                    #get container ID from stdout
                     container_id =  stdout[:12]            
-                    # almacenar ID del proceso
+                    # get proccess ID with docker container top command
                     process_id_command= 'docker container top ' + container_id + ' -o pid'
                     process_command = Popen([process_id_command], stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
                     stdout, stderr = process_command.communicate()
-                    #Transformar la salida de stdout en process ID 
-                    # Salida de ejemplo:
+                    #get process ID from stdout
+                    # stdout example:
                     # PID
                     # 4483   
-                    # Me quedo con la parte de abajo de la salida (si tiene hasta 4 dígitos el PID, sino ver cómo solucionar)
+                    # only get the number
                     process_id = stdout[4:8] 
                     if(len(stderr)):
                         print(stderr) if log_file else None 
                     else:
                         print('Name of request: ', container_name, ' - Container ID: ', container_id, 'Container Process ID: ', process_id) if log_file else None 
                     if isinstance(request_, Restart):
-                        # Actualizar informacion del contenedor reiniciado
+                        # update information of the restarted container
                         for elem in execInfo_list:
                             if (elem.get_container_name() == container_name):         
                                 elem.update_info(process_id, parallelism_container[0], parallelism_container[1], port_host, c, 'start')
                     else:
-                        # Crear un ExecutionInfo para almacenar la informacion de la instancia ejecutada
+                        # create an ExecutionInfo instance to store the information of the executed instance
                         exec_info = ExecutionInfo(container_name, instance_number, port_host, process_id, request_.get_inter_parallelism(), request_.get_intra_parallelism(), parallelism_container[0], parallelism_container[1], c, request_.get_image(), request_.get_priority())
-                        # Almacenar instancia de execución en la lista de ejecuciones activas (es thread safe)
+                        # store execution instance in the list of containers info(is thread safe)
                         mutex_execInfo.acquire()
                         execInfo_list.append(exec_info)
                         mutex_execInfo.release()
-                        # Almacenar nombre del contenedor para que en el update pueda actualizarlos 
+                        # store container name so that in the update you can update them
                         mutex_containerList.acquire()
                         containerName_list.append(container_name)
                         mutex_containerList.release()
                     state=1
         else:
-            # Buscar numero de contenedor
+            # search container name and number in the list of containers info
             container_name=''
             for container_info in execInfo_list:
                 instance_name= 'instance'+request_.get_request_id()
@@ -325,9 +323,9 @@ def schedule_request(request_, socket_schedule, port_host=0, resources_available
                     break
             if(container_name != ''):
                 if isinstance(request_, Update):
-                    # Atender petición de actualización
+                    # attend update request
                     print('Schedule Update Request: ',threading.current_thread().getName(), ' - Container: ', container_number, ' - Resources availables: ' , resources_availables) if log_file else None 
-                    # Obtener objeto ExecutionInfo correspondiente a la instancia que se desea actualizar 
+                    # get ExecutionInfo instance corresponding to the instance to be updated
                     ok, parallelism_apply = updateExecutionInstance(container_name, request_.get_inter_parallelism(), request_.get_intra_parallelism(), resources_availables)
                     if(ok):
                         print("Container: ",container_number," updated successfully") if log_file else None 
@@ -342,6 +340,7 @@ def schedule_request(request_, socket_schedule, port_host=0, resources_available
                     else:
                         print("Container is not running (abort update)") if log_file else None 
                 else:      
+                    # resume container execution
                     print("Schedule Resume Request: ", threading.current_thread().getName(), ' - Container: instance', container_number) if log_file else None 
                     mutex_execInfo.acquire()
                     for container_info in execInfo_list:
@@ -349,15 +348,15 @@ def schedule_request(request_, socket_schedule, port_host=0, resources_available
                             parallelism_container= scheduler_container.schedule_parallelism(resources_availables, container_info.get_inter_exec_parallelism(), container_info.get_intra_exec_parallelism(), max_resources_per_cont)   
                             if parallelism_container:
                                 parallelism_apply= parallelism_container[0]+parallelism_container[1]
-                                # Asignar paralelismo al contenedor
+                                # assign parallelism to the container
                                 container_info.set_inter_exec_parallelism(parallelism_container[0])
                                 container_info.set_intra_exec_parallelism(parallelism_container[1])
-                                # Reanudar ejecucion del contenedor
+                                # resume container
                                 print("Execute resume container...") if log_file else None 
                                 container_info.resume_container() 
-                                # Despertar al hilo cliente para que escuche mensajes
+                                # wake up the client thread to listen to messages
                                 container_info.signal_execution()
-                                # Almacenar evento
+                                # save event in the event log
                                 mutex_eventlogs.acquire()
                                 event_logs.save_event(events.RESUME_CONTAINER, container_id=container_number)
                                 event_logs.finish_container_event(container_number, [])
@@ -382,8 +381,8 @@ def updateExecutionInstance(container_name, new_inter_parallelism, new_intra_par
     global max_resources_per_cont
     log_file=False
     parallelism_apply= 0 
-    # Buscar en la lista execInfo_list la instancia de ejecucion perteneciente al contenedor con nombre container_name y actualizar el paralelismo
-    # En este momento system_info es thread-safe (desde attentionRequest)  
+    # search the execInfo_list for the running instance belonging to the container with name container_name and update the parallelism.
+    # at this moment system_info is thread-safe (called from attentionRequest)
     ok=False
     mutex_execInfo.acquire()
     for x in execInfo_list:
@@ -391,11 +390,11 @@ def updateExecutionInstance(container_name, new_inter_parallelism, new_intra_par
             if (x.get_state() != "start"):
                 ok= False    
             else:
-                # Obtener los paralelismos de ejecucion del contenedor
+                # get the current parallelism of the container
                 old_interParallelism= x.get_inter_exec_parallelism()
                 old_intraParallelism= x.get_intra_exec_parallelism()
                 print('Old Parallelism: Inter=', old_interParallelism, ' - Intra=', old_intraParallelism, ' New Parallelism: Inter=', new_inter_parallelism, ' - Intra=', new_intra_parallelism) if log_file else None 
-                # Si es menor a cero quiere decir que vamos a decrementar el paralelismo total del contenedor
+                # if resources is less than zero, it means that we will decrease the total parallelism of the container.
                 if resources_availables<0:
                     ok = x.update_parallelism(new_inter_parallelism, new_intra_parallelism)
                     parallelism_apply= (new_inter_parallelism+new_intra_parallelism) - (old_interParallelism+old_intraParallelism)
@@ -436,7 +435,7 @@ def strict_reassigment(resources_availables, increase_or_reduce, increment_activ
         if increase_or_reduce:
             for container in execInfo_list:
                 if(isinstance(scheduler_container,Priority)):
-                    # Jump this container because have minor priority
+                    # jump this container because have minor priority
                     if (c.get_priority() != priority):
                         continue
                 if container.get_state() == 'start':
@@ -453,14 +452,14 @@ def strict_reassigment(resources_availables, increase_or_reduce, increment_activ
                         interparallelism_required= max_resources_per_cont if (interUser_parallelism - interExec_parallelism) >= max_resources_per_cont else interUser_parallelism - interExec_parallelism
                         intraparallelism_required= max_resources_per_cont if (intraUser_parallelism - intraExec_parallelism) >= max_resources_per_cont else intraUser_parallelism - intraExec_parallelism
                     if resources_availables >0:
-                        # Aumentar todo el paralelismo al contenedor
+                        # increase all parallelism of the container
                         if (interparallelism_required>0 and intraparallelism_required>0):
                             if resources_availables >= (interparallelism_required + intraparallelism_required):             
                                 container.update_parallelism(interUser_parallelism, intraUser_parallelism)
                                 print("Update total parallelism in container: ", container.get_container_name()) if log_file else None 
                                 resources_availables-=interparallelism_required+intraparallelism_required                       
                             else:
-                                # Aumentar solo el intra paralelismo
+                                # increase only the intra parallelism
                                 if (resources_availables >= intraparallelism_required):
                                     container.update_parallelism(intra_parallelism=intraExec_parallelism+intraparallelism_required)
                                     resources_availables-= intraparallelism_required
@@ -471,6 +470,7 @@ def strict_reassigment(resources_availables, increase_or_reduce, increment_activ
                                     resources_availables=0
                             ok=True
                         else:
+                            # update only the intra parallelism
                             if(intraparallelism_required>0):
                                 if (resources_availables >= intraparallelism_required):
                                     container.update_parallelism(intra_parallelism=intraUser_parallelism)
@@ -482,6 +482,7 @@ def strict_reassigment(resources_availables, increase_or_reduce, increment_activ
                                     resources_availables=0
                                 ok=True
                             else:
+                                # update only the inter parallelism
                                 if(interparallelism_required>0):
                                     if (resources_availables >= interparallelism_required):
                                         container.update_parallelism(inter_parallelism=interUser_parallelism)
@@ -532,12 +533,12 @@ def maxprop_reassigment(resources_availables):
             for container in execInfo_list:
                 ok=False
                 if(isinstance(scheduler_container,Priority)):
-                    # Jump this container because have minor priority
+                    # jump this container because have minor priority
                     if (c.get_priority() != priority):
                         continue
                 if container.get_state() == 'start':
                     if resources_availables >0:
-                        # Aumentar el intra paralelismo del contenedor
+                        # increase intra parallelism of container
                         intraExec_parallelism= container.get_intra_exec_parallelism()
                         print("container: ", container.get_container_number(), ' - state: ', container.get_state(), ' - intra before: ', intraExec_parallelism, ' - intra after:', intraExec_parallelism+maxprop_factor) if log_file else None 
                         if (intraExec_parallelism < max_resources_per_cont):
@@ -1001,13 +1002,10 @@ def attentionRequest(socket_schedule, thread_id):
         global not_control
         global global_resources_ok
         global max_resources_per_cont
-        #mutex_finishExecution.acquire()
         while not is_finish_attention(): # esto tenerlo en cuenta para vaciar colas de peticiones pero no como condicion de corte
-            #mutex_finishExecution.release()
             with cv_attention:
                 # Esperar a que alguno de los demas hilos avise que hay peticiones pendientes (ejecución, actualización o eliminación de contenedores)
                 cv_attention.wait()
-                #print('Wake up:', threading.current_thread().getName())
             if not q_finish_container.empty():
                 
                 print('Attention finish request: ',threading.current_thread().getName()) if log_file else None
@@ -1046,7 +1044,6 @@ def attentionRequest(socket_schedule, thread_id):
                 scheduling_requests.acquire()
                 mutex_systemInfo.acquire()
                 resources_availables= system_info.check_resources()
-                #print("Requested resources in factor prop: ", resources_availables)
                 if (resources_availables>0):
                     mutex_execInfo.acquire()
                     scheduler_container.calculate_factor_prop(resources_availables, execInfo_list)
